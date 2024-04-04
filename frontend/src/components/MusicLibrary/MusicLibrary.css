@@ -1,0 +1,367 @@
+body {
+    margin: 0;
+  }
+  #leftPanel {
+    width: 15%;
+    float: left;
+    height: 100vh;
+    overflow: auto;
+    background-color: rgb(27, 25, 26);
+    color: #f0f0f0;
+    margin: 0;
+  }
+  
+  #leftPanel ul {
+    list-style: none;
+    padding-left: 10px;
+  }
+  
+  #leftPanel li {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1.2rem;
+  }
+  
+  #leftPanel li:hover {
+    background-color: #217b90;
+  }
+  
+  #lp-title {
+    text-align: center;
+    font-family: "Rubik Scribble", system-ui;
+    font-weight: 400;
+    font-size: x-large;
+  }
+  #rightPanel {
+    width: 85%;
+    float: right;
+    height: 100vh; /* Adjust this if needed */
+    overflow: auto;
+    background-color: #0b0b0b;
+    display: flex; /* Use flexbox to control layout */
+    flex-direction: column; /* Stack children vertically */
+   }
+   
+   
+   #rightPanel ul {
+    list-style: none; /* Remove bullet points */
+   }
+   
+   #fileList {
+    list-style: none; /* Remove bullet points */
+    margin-top: 10px; /* Add some space between the navbar and the file list */
+   }
+   
+   #rightPanel li {
+    cursor: pointer; /* Add cursor pointer */
+    padding: 10px;
+    transition: background-color 0.3s; /* Add transition for smooth effect */
+    color: white;
+    font-family: "Chakra Petch", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+   }
+  .selected {
+    background-color: red; /* Define the background color for selected items */
+  }
+  
+  #rp-lib-name {
+    padding-left: 40px;
+  }
+  #modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  
+  #modal-content {
+    background-color: #0e0d0d;
+    margin: 15% auto;
+    padding: 40px;
+    border-radius: 20px;
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  #modal-content p {
+    font-size: 18px;
+    color: #fff; /* White text color */
+    margin-bottom: 20px; /* Add some space below the text */
+  }
+  
+  #addLibraryForm {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  input[type="text"] {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #fff; /* White background */
+  }
+  
+  #submitLibBtn {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #0b0b0b;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  #addLibErrorMessage {
+    color: red;
+    font-style: italic;
+    padding: 16px 0px;
+    text-align: start;
+  }
+  
+  @media (max-width: 768px) {
+    #modal-content {
+      width: 80%;
+    }
+  }
+  
+  /* #addLibBtn {
+      margin-left: 20px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      height: 30px;
+      color: black;
+      bottom: 100px;
+      position: fixed;
+    } */
+  
+  #addLibBtn {
+    position: absolute;
+    width: 15%;
+    background-color: #ffffff; /* Green background */
+    color: black;
+    text-align: center;
+    line-height: 80px; /* Align text vertically */
+    cursor: pointer;
+    font-size: x-large;
+    bottom: 80px;
+    position: fixed;
+    left: 0;
+  }
+  
+  #addLibBtn:hover {
+    background-color: black;
+    color: white;
+  }
+  
+  /* #addLibBtnText {
+    padding: 10px 10px;
+    font-weight: 400;
+    font-size: x-larges;
+  } */
+  
+  #addLibBtnText {
+    font-size: xx-large;
+  }
+  
+  #submitLibBtn {
+    padding: 0;
+    background-color: #27cd61;
+    border-radius: 12px;
+    height: 50px;
+    color: white;
+  }
+  
+  #submitLibBtnText {
+    font-weight: 800;
+    font-size: large;
+  }
+  
+  #submitLibBtn:hover {
+    color: black;
+  }
+  
+  
+  #rp-topnav {
+    background-color: #353739; /* Blue background for navbar */
+    color: white; /* Text color */
+    padding: 10px; /* Add some padding */
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+   }
+  
+  #breadcrumb {
+    list-style-type: none;
+    padding: 0;
+    margin: 0; /* Remove default margin */
+    display: flex; /* Align items horizontally */
+    align-items: center; /* Center items vertically */
+   }
+   
+   #breadcrumb li, #rp-lib-name {
+    display: inline;
+    margin-right: 5px; /* Add spacing between items */
+    color: #f0f0f0;
+   }
+  
+  #player {
+    display: flex;
+    align-items: center; /* Centers items vertically */
+    justify-content: space-around; /* Spreads out the items */
+    padding: 0 20px; /* Add padding on the sides */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background-color: #141313;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    margin-right: 20px;
+  }
+  
+  #songName {
+    width: 20%; /* Adjust width as needed */
+    overflow: hidden;
+    white-space: nowrap;
+    color: white;
+    font-family: "Chakra Petch", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+  }
+  
+  #songName p:hover {
+    animation-play-state: paused;
+  }
+  
+  .scroll-text {
+    animation: scrollLeft 16s linear infinite;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  
+  @keyframes scrollLeft {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  
+  #audioPlayer {
+    /* Remove flex-grow and explicitly control the width if necessary */
+    width: 50%; /* Example width, adjust as needed */
+    order: 2; /* Ensures the audio player is positioned as the second item */
+    margin-right: 30%;
+  }
+  
+  #queueButton {
+    position: absolute;
+    right: 0;
+    width: 20%;
+    height: 100%;
+    background-color: #e3f030; /* Green background */
+    color: black;
+    text-align: center;
+    line-height: 80px; /* Align text vertically */
+    cursor: pointer;
+    font-size: x-large;
+    font-family: "Rubik Scribble", system-ui;
+    font-weight: 900;
+  }
+  
+  #recentsButton {
+    position: absolute;
+    right: 20%;
+    width: 10%;
+    height: 100%;
+    background-color: #eabd4c; /* Green background */
+    color: black;
+    text-align: center;
+    line-height: 80px; /* Align text vertically */
+    cursor: pointer;
+    font-size: x-large;
+    font-family: "Rubik Scribble", system-ui;
+    font-weight: 900;
+  }
+  
+  #queuePanel {
+    position: fixed;
+    bottom: 80px; /* Height of the player component */
+    right: 0;
+    /* width: 30%; */
+    background-color: #f1f1f1;
+    color: black;
+    padding: 20px;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 1001; /* Make sure it's above the player */
+  }
+  
+  #historyPanel {
+    position: fixed;
+    bottom: 80px; /* Height of the player component */
+    right: 0;
+    /* width: 40%; */
+    /* background-color: #f1f1f1; */
+    background-color: rgb(234, 189, 76);
+    color: black;
+    padding: 20px;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.3);
+    max-height: 80vh;
+    overflow-y: scroll;
+    z-index: 1001; /* Make sure it's above the player */
+  }
+  /* 
+  #historyPanel ul {
+    list-style-type: none;
+    padding-left: 0;
+  } */
+  
+  #historyPanel ul {
+    list-style-type: none; /* Remove bullet list style */
+    padding-left: 0;
+    transition: all 1s ease; /* Smooth transition for reordering */
+   }
+   
+   @keyframes moveToTop {
+     0% {
+       transform: translateY(0);
+    }
+     100% {
+       transform: translateY(-100%);
+    }
+   }
+  
+   .moveToTop {
+    animation: moveToTop 1s forwards;
+   }
+  
+  #historyPanel li {
+    padding: 8px 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #191515;
+    cursor: pointer;
+    list-style: none;
+  }
+  
+  #historyPanel li:hover {
+    background-color: #c1bfb9;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  

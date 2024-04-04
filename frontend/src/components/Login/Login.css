@@ -1,0 +1,67 @@
+/* src/Login.css */
+.login-container {
+    display: flex;
+    justify-content: space-between;
+    /* align-items: center; This centers the children vertically */
+    height: 100vh; /* Ensures the container takes up the full viewport height */
+    padding: 0;
+}
+
+
+
+.login-form {
+    width: 50%;
+    background-color: rgb(0, 0, 0);
+    /* padding: 20px; */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    min-height: 0; /* Add this line */
+}
+
+.login-form input,
+.login-form button {
+    padding: 18px;
+    margin-bottom: 10px;
+}
+
+.login-form button {
+    color: white;
+    border: 2px solid rgb(155, 28, 49);
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #0b0b0b; /* Add a background color for the button */
+}
+
+.social-login {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px; /* Add some space above the social login buttons */
+}
+
+.social-btn {
+    background-color: transparent;
+    /* border: none; */
+    cursor: pointer;
+    margin-left: 42%;
+}
+
+.social-btn img {
+    width: 30px;
+    height: 30px;
+}
+.login-image {
+    max-width: 50%;
+    display: flex;
+    overflow: hidden; /* Prevents overflow */
+    justify-content: center;
+    align-items: center;
+}
+
+.login-image img {
+    max-height: 100%; /* Ensures the image does not exceed the container's height */
+    object-fit: cover; /* Maintains the aspect ratio of the image */
+}
