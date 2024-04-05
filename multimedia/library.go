@@ -3,20 +3,22 @@ package multimedia
 import (
 	"bytes"
 	"context"
+	"embed"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	rt "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// App struct
 type Library struct {
 	ctx    context.Context
-	client *http.Client // Add an http.Client field to the Library struct
+	client *http.Client
 }
 
 type SongLibrary struct {
@@ -25,36 +27,34 @@ type SongLibrary struct {
 	IsFolder bool   `json:"isFolder"`
 }
 
-// NewApp creates a new App application struct
 func NewLibrary() *Library {
 	return &Library{
-		client: &http.Client{}, // Initialize the http.Client when creating a new Library instance
+		client: &http.Client{},
 	}
 }
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
+// startup is called when the Library starts.
+// the context is saved so we can call the runtime methods
 func (a *Library) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// Greet returns a greeting for the given name
-func (a *Library) GetLibrary(name string) string {
-	return fmt.Sprintf("so you want to create a lib named %s, ha?", name)
-}
-
 func (a *Library) OpenFileDialog() (string, error) {
-
 	var opts = rt.OpenDialogOptions{
 		Title: "Select File",
 		Filters: []rt.FileFilter{
 			{
-				DisplayName: "Images (*.mp3;*.jpg)",
-				Pattern:     "*.png;*.jpg",
-			}, {
-				DisplayName: "Videos (*.mov;*.mp4)",
-				Pattern:     "*.mov;*.mp4",
+				DisplayName: "Audio Files (*.mp3;*.mp4;*.wav;*.flac)",
+				Pattern:     "*.mp3;*.mp4;*.wav;*.flac",
 			},
+			// {
+			// 	DisplayName: "Images (*.png;*.jpg)",
+			// 	Pattern:     "*.png;*.jpg",
+			// },
+			// {
+			// 	DisplayName: "Videos (*.mov;*.mp4)",
+			// 	Pattern:     "*.mov;*.mp4",
+			// },
 		},
 	}
 	selection, err := rt.OpenFileDialog(a.ctx, opts)
@@ -62,49 +62,32 @@ func (a *Library) OpenFileDialog() (string, error) {
 		return "", err
 	}
 	log.Print(selection)
-	return "", nil
+	return selection, nil // Return the selected file path
 }
 
-// OpenFolderDialog opens a file dialog and returns the selected folder's path
-// func (a *Library) OpenFolderDialog() (string, error) {
-// 	// Use Wails runtime to open a file dialog
-// 	// runtime := wails.Runtime(a.ctx)
-// 	var opts = rt.OpenDialogOptions{Title: "Select a folder"}
-
-//		dialog, err := rt.OpenDirectoryDialog(a.ctx, opts)
-//		if err != nil {
-//			return "", err
-//		}
-//		log.Print(dialog)
-//		return "", nil
-//	}
 func (a *Library) OpenFolderDialog() (string, error) {
 	// Use Wails runtime to open a file dialog
 	var opts = rt.OpenDialogOptions{Title: "Select a folder"}
 
-	dialog, err := rt.OpenDirectoryDialog(a.ctx, opts)
+	folderPath, err := rt.OpenDirectoryDialog(a.ctx, opts)
 	if err != nil {
 		return "", err
 	}
-	log.Print(dialog)  // This will log the selected folder's path
-	return dialog, nil // Return the selected folder's path
+	return folderPath, nil // Return the selected folder's path
 }
 
 func (a *Library) CreateLibrary(library *SongLibrary) error {
-	// Serialize the SongLibrary struct into JSON format
 	jsonData, err := json.Marshal(library)
 	if err != nil {
 		return err
 	}
 
-	// Create a new HTTP request
 	requestURL := fmt.Sprintf("http://localhost:%d/addLibrary", 8090)
 	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
 
-	// Set the content type to application/json
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := a.client.Do(req)
@@ -113,40 +96,15 @@ func (a *Library) CreateLibrary(library *SongLibrary) error {
 	}
 	defer resp.Body.Close()
 
-	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	// Log the response
 	log.Printf("Response: %s", body)
 
 	return nil
 }
-
-// ListLibraries lists all libraries
-// func (a *Library) ListLibraries() ([]SongLibrary, error) {
-// 	requestURL := fmt.Sprintf("http://localhost:%d/listLibraries", 8090)
-// 	req, err := http.NewRequest("GET", requestURL, nil)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	resp, err := a.client.Do(req)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer resp.Body.Close()
-
-// 	var libraries []SongLibrary
-// 	err = json.NewDecoder(resp.Body).Decode(&libraries)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return libraries, nil
-// }
 
 func (a *Library) ListLibraries() ([]SongLibrary, error) {
 	requestURL := fmt.Sprintf("http://localhost:%d/listLibraries", 8090)
@@ -172,12 +130,7 @@ func (a *Library) ListLibraries() ([]SongLibrary, error) {
 }
 
 func (a *Library) ListLibrary(name string, path string) ([]SongLibrary, error) {
-	// Construct the request URL with query parameters
 	requestURL := fmt.Sprintf("http://localhost:%d/listLibrary?name=%s&path=%s", 8090, url.QueryEscape(name), url.QueryEscape(path))
-
-	log.Printf("name >> %s, path >> %s \n", url.QueryEscape(name), url.QueryEscape(path))
-
-	log.Printf("making te requestURL @ ListLibraries >> %s ", requestURL)
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
 		return nil, err
@@ -195,17 +148,12 @@ func (a *Library) ListLibrary(name string, path string) ([]SongLibrary, error) {
 		return nil, err
 	}
 
-	log.Println("returning libarries from desktop backend")
 	log.Print(libraries)
 	return libraries, nil
 }
 
-// ListLibraryContents lists the contents of a library
 func (a *Library) ListLibraryContents(name string, path string) ([]SongLibrary, error) {
-	log.Println("@ListLibraryContents")
-	log.Printf("name: %s, path:%s", name, path)
 	requestURL := fmt.Sprintf("http://localhost:%d/listLibrary?name=%s&path=%s", 8090, url.QueryEscape(name), url.QueryEscape(path))
-	log.Printf("requestURL >> %s \n", requestURL)
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
 		return nil, err
@@ -216,7 +164,6 @@ func (a *Library) ListLibraryContents(name string, path string) ([]SongLibrary, 
 		return nil, err
 	}
 
-	log.Println("got response for ListLibraryContents")
 	defer resp.Body.Close()
 
 	var contents []SongLibrary
@@ -225,7 +172,53 @@ func (a *Library) ListLibraryContents(name string, path string) ([]SongLibrary, 
 		return nil, err
 	}
 
-	log.Println("decoded contents")
 	log.Print(contents)
 	return contents, nil
+}
+
+var assets embed.FS
+
+type LibraryLoader struct {
+	http.Handler
+}
+
+func NewLibraryLoader() *LibraryLoader {
+	return &LibraryLoader{}
+}
+
+// func (a *Library) GetSong(res http.ResponseWriter, req *http.Request) {
+// 	var err error
+// 	requestedFilename := strings.TrimPrefix(req.URL.Path, "/")
+// 	log.Printf("req.URL.Path @ GetSong >>  %s \n", req.URL.Path)
+// 	log.Printf("requestedFilename @ GetSong >> %s \n", requestedFilename)
+
+// 	println("Requesting file:", requestedFilename)
+// 	fileData, err := os.ReadFile(requestedFilename)
+// 	if err != nil {
+// 		res.WriteHeader(http.StatusBadRequest)
+// 		res.Write([]byte(fmt.Sprintf("Could not load file %s", requestedFilename)))
+// 	}
+
+// 	res.Write(fileData)
+// }
+
+// func (a *Library) GetSong(path string) ([]byte, error) {
+// 	var err error
+// 	// println("Requesting file:", requestedFilename)
+// 	fileData, err := os.ReadFile(path)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return fileData, nil
+
+// }
+
+func (a *Library) GetSong(path string) (string, error) {
+	fileData, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+
+	encodedString := base64.StdEncoding.EncodeToString(fileData)
+	return encodedString, nil
 }

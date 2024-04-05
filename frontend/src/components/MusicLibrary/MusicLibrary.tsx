@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./MusicLibrary.css"; // Import the CSS module
 import {
+  OpenFileDialog,
   OpenFolderDialog,
   CreateLibrary,
   ListLibraries,
   ListLibrary,
   ListLibraryContents,
 } from "../../../wailsjs/go/multimedia/Library";
+import Player from "../Player/Player";
 
 type SongLibrary = {
   name: string;
@@ -21,6 +23,8 @@ const MusicLibrary: React.FC = () => {
   const [libraryContents, setLibraryContents] = useState<SongLibrary[]>([]);
   const [selectedSong, setSelectedSong] = useState<string>("");
   const [selectedLibrary, setSelectedLibrary] = useState<string>("");
+  const [selectedFilePath, setSelectedFilePath] = useState<string>("");
+  const [isInputVisible, setIsInputVisible] = useState(false);
   // useEffect(() => {
   //   ListLibraries().then((libraries) => setLibraries(libraries));
   // }, [newLibName, folderPath]);
@@ -29,17 +33,18 @@ const MusicLibrary: React.FC = () => {
     ListLibraries().then((libraries) => setLibraries(libraries));
   }, [newLibName, folderPath]);
 
-
   useEffect(() => {
-    ListLibraryContents(selectedLibrary, folderPath).then((contents) => setLibraryContents(contents));
+    ListLibraryContents(selectedLibrary, folderPath).then((contents) =>
+      setLibraryContents(contents)
+    );
   }, [folderPath]);
 
-
-
   useEffect(() => {
-    console.log(`libraryContents updated :: ${JSON.stringify(libraryContents, null, 2)}`);
-   }, [libraryContents]);
-   
+    console.log(
+      `libraryContents updated :: ${JSON.stringify(libraryContents, null, 2)}`
+    );
+  }, [libraryContents]);
+
   const stringArray = [
     "String 1",
     "String 2",
@@ -84,26 +89,58 @@ const MusicLibrary: React.FC = () => {
 
   // Function that returns a new function
   function pickLibName(): string {
-    let randomIndex = Math.floor(Math.random() * 16);
+    let randomIndex = Math.floor(Math.random() * stringArray.length - 1);
     return stringArray[randomIndex]; // Return the string at the new index
   }
+
+  // const handleFolderSelect = async () => {
+  //   try {
+  //     const folderPath = await OpenFolderDialog();
+  //     setFolderPath(folderPath);
+  //     const someLibName = pickLibName();
+  //     setNewLibName(someLibName);
+  //     CreateLibrary({
+  //       name: someLibName,
+  //       path: folderPath,
+  //       isFolder: true,
+  //     }).then(() => {
+  //       ListLibraries().then((libraries) => setLibraries(libraries));
+  //     });
+  //   } catch (error) {
+  //     console.error("Error opening folder dialog:", error);
+  //   }
+  // };
 
   const handleFolderSelect = async () => {
     try {
       const folderPath = await OpenFolderDialog();
       setFolderPath(folderPath);
-      const someLibName = pickLibName();
-      setNewLibName(someLibName);
       CreateLibrary({
-        name: someLibName,
+        name: newLibName,
         path: folderPath,
         isFolder: true,
       }).then(() => {
+        setIsInputVisible(false);
         ListLibraries().then((libraries) => setLibraries(libraries));
       });
     } catch (error) {
       console.error("Error opening folder dialog:", error);
     }
+  };
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewLibName(event.target.value);
+  };
+
+  const handleInputKeyPress = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === "Enter") {
+      handleFolderSelect();
+    }
+  };
+
+  const toggleInputVisibility = () => {
+    setIsInputVisible(!isInputVisible);
   };
 
   const handleLibraryClick = (name: string, path: string) => {
@@ -127,14 +164,19 @@ const MusicLibrary: React.FC = () => {
     console.log(`listing content for lib ${selectedLibrary} path ${path}`);
     ListLibraryContents(selectedLibrary, path).then((contents) => {
       //  console.log(`contents >>>>> ${JSON.stringify(contents, null, 2)}\n\n\n`);
-       setLibraryContents(contents);
+      setLibraryContents(contents);
       //  console.log(`new libraryContents :: ${JSON.stringify(libraryContents)}`);
     });
-   };
-   
+  };
 
-  const handleSongClick = (songName: string) => {
-    setSelectedSong(songName);
+  const handleSongClick = (item: SongLibrary) => {
+    console.log("@handleSongClick")
+    console.log("name: ", item.name)
+    console.log("path: ", item.path)
+
+    setSelectedSong(item.name);
+    setSelectedFilePath(item.path);
+    
   };
 
   return (
@@ -142,9 +184,23 @@ const MusicLibrary: React.FC = () => {
       <div id="leftPanel">
         <h2 id="lp-title">New Square</h2>
         <hr />
-        <button type="submit" id="addLibBtn" onClick={handleFolderSelect}>
+        {/* <button type="submit" id="addLibBtn" onClick={handleFolderSelect}>
           +
-        </button>
+        </button> */}
+        {isInputVisible ? (
+          <input
+            id="libraryInput"
+            type="text"
+            value={newLibName}
+            onChange={handleInputChange}
+            onKeyPress={handleInputKeyPress}
+            placeholder="new library name"
+          />
+        ) : (
+          <button type="submit" id="addLibBtn" onClick={toggleInputVisibility}>
+            +
+          </button>
+        )}
         <ul id="libraryList">
           {libraries.map((library) => (
             <li
@@ -177,8 +233,8 @@ const MusicLibrary: React.FC = () => {
               onClick={() =>
                 item.isFolder
                   ? handleFolderClick(item.path)
-                  // ? handleLibraryClick(selectedLibrary, item.path)
-                  : handleSongClick(item.name)
+                  : // ? handleLibraryClick(selectedLibrary, item.path)
+                    handleSongClick(item)
               }
             >
               {item.name}
@@ -186,13 +242,18 @@ const MusicLibrary: React.FC = () => {
           ))}
         </ul>
       </div>
-      <div id="player">
+      {/* <div id="player">
         <div id="songName"></div>
         <audio id="audioPlayer" controls></audio>
         <div id="recentsButton">history</div>
         <div id="queueButton">queue</div>
-      </div>
+      </div> */}
 
+      <Player
+        songName={selectedSong}
+        filePath={selectedFilePath}
+        libName={selectedLibrary}
+      />
       <div id="queuePanel" className="hidden"></div>
       <div id="historyPanel" className="hidden"></div>
     </>

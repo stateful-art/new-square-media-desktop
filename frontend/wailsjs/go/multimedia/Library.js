@@ -6,8 +6,8 @@ export function CreateLibrary(arg1) {
   return window['go']['multimedia']['Library']['CreateLibrary'](arg1);
 }
 
-export function GetLibrary(arg1) {
-  return window['go']['multimedia']['Library']['GetLibrary'](arg1);
+export function GetSong(arg1) {
+  return window['go']['multimedia']['Library']['GetSong'](arg1);
 }
 
 export function ListLibraries() {

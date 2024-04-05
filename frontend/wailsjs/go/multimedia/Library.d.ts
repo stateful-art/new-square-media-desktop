@@ -5,7 +5,7 @@ import {context} from '../models';
 
 export function CreateLibrary(arg1:multimedia.SongLibrary):Promise<void>;
 
-export function GetLibrary(arg1:string):Promise<string>;
+export function GetSong(arg1:string):Promise<string>;
 
 export function ListLibraries():Promise<Array<multimedia.SongLibrary>>;
 
