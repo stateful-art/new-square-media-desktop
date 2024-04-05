@@ -10,6 +10,14 @@ export function GetLibrary(arg1) {
   return window['go']['multimedia']['Library']['GetLibrary'](arg1);
 }
 
+export function ListLibraries(arg1, arg2) {
+  return window['go']['multimedia']['Library']['ListLibraries'](arg1, arg2);
+}
+
+export function ListLibraryContents(arg1, arg2) {
+  return window['go']['multimedia']['Library']['ListLibraryContents'](arg1, arg2);
+}
+
 export function OpenFileDialog() {
   return window['go']['multimedia']['Library']['OpenFileDialog']();
 }

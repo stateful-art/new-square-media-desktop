@@ -6,6 +6,9 @@ import (
 	Library "lolipie/multimedia"
 
 	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/menu"
+	"github.com/wailsapp/wails/v2/pkg/menu/keys"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -19,6 +22,18 @@ func main() {
 	app := NewApp()
 	lib := Library.NewLibrary()
 
+	AppMenu := menu.NewMenu()
+	FileMenu := AppMenu.AddSubmenu("File")
+	// FileMenu.AddText("&Open", keys.CmdOrCtrl("o"), openFile)
+	FileMenu.AddSeparator()
+	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
+		runtime.Quit(app.ctx)
+	})
+
+	// if runtime.GOOS == "darwin" {
+	// 	AppMenu.Append(menu.EditMenu()) // on macos platform, we should append EditMenu to enable Cmd+C,Cmd+V,Cmd+Z... shortcut
+	// }
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "New Square",
@@ -27,11 +42,10 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
+		Menu:             AppMenu,
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
-			// Call the startup method of the Library instance with the correct context
 			lib.Startup(ctx)
-			// Optionally, call the startup method of the App instance if it requires context
 			app.startup(ctx)
 		}, Bind: []interface{}{
 			app, lib,

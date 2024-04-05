@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 
 	rt "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -19,8 +20,9 @@ type Library struct {
 }
 
 type SongLibrary struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
+	Name     string `json:"name"`
+	Path     string `json:"path"`
+	IsFolder bool   `json:"isFolder"`
 }
 
 // NewApp creates a new App application struct
@@ -121,4 +123,81 @@ func (a *Library) CreateLibrary(library *SongLibrary) error {
 	log.Printf("Response: %s", body)
 
 	return nil
+}
+
+// ListLibraries lists all libraries
+// func (a *Library) ListLibraries() ([]SongLibrary, error) {
+// 	requestURL := fmt.Sprintf("http://localhost:%d/listLibraries", 8090)
+// 	req, err := http.NewRequest("GET", requestURL, nil)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	resp, err := a.client.Do(req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer resp.Body.Close()
+
+// 	var libraries []SongLibrary
+// 	err = json.NewDecoder(resp.Body).Decode(&libraries)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return libraries, nil
+// }
+
+func (a *Library) ListLibraries(name string, path string) ([]SongLibrary, error) {
+	// Construct the request URL with query parameters
+	requestURL := fmt.Sprintf("http://localhost:%d/listLibrary?name=%s&path=%s", 8090, url.QueryEscape(name), url.QueryEscape(path))
+
+	// log.Printf("name >> %s, path >> %s \n", url.QueryEscape(name), url.QueryEscape(path))
+
+	// log.Printf("making te requestURL @ ListLibraries >> %s ", requestURL)
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := a.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var libraries []SongLibrary
+	err = json.NewDecoder(resp.Body).Decode(&libraries)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("returning libarries from desktop backend")
+	log.Print(libraries)
+	return libraries, nil
+}
+
+// ListLibraryContents lists the contents of a library
+func (a *Library) ListLibraryContents(name string, path string) ([]SongLibrary, error) {
+	log.Println("@ListLibraryContents")
+	requestURL := fmt.Sprintf("http://localhost:%d/listLibrary?name=%s&path=%s", 8090, url.QueryEscape(name), url.QueryEscape(path))
+	log.Printf("requestURL >> %s \n", requestURL)
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := a.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var contents []SongLibrary
+	err = json.NewDecoder(resp.Body).Decode(&contents)
+	if err != nil {
+		return nil, err
+	}
+
+	return contents, nil
 }
