@@ -21,10 +21,25 @@ const MusicLibrary: React.FC = () => {
   const [libraryContents, setLibraryContents] = useState<SongLibrary[]>([]);
   const [selectedSong, setSelectedSong] = useState<string>("");
   const [selectedLibrary, setSelectedLibrary] = useState<string>("");
+  // useEffect(() => {
+  //   ListLibraries().then((libraries) => setLibraries(libraries));
+  // }, [newLibName, folderPath]);
+
   useEffect(() => {
     ListLibraries().then((libraries) => setLibraries(libraries));
   }, [newLibName, folderPath]);
 
+
+  useEffect(() => {
+    ListLibraryContents(selectedLibrary, folderPath).then((contents) => setLibraryContents(contents));
+  }, [folderPath]);
+
+
+
+  useEffect(() => {
+    console.log(`libraryContents updated :: ${JSON.stringify(libraryContents, null, 2)}`);
+   }, [libraryContents]);
+   
   const stringArray = [
     "String 1",
     "String 2",
@@ -99,13 +114,24 @@ const MusicLibrary: React.FC = () => {
     );
   };
 
+  // const handleFolderClick = (path: string) => {
+  //   console.log(`listing content for lib ${selectedLibrary} path ${path}`);
+  //   ListLibraryContents(selectedLibrary, path).then((contents) => {
+  //     console.log(`contents >>>>> ${JSON.stringify(contents)}\n\n\n`);
+  //     setLibraryContents(contents);
+  //     console.log(`new libraryContents :: ${libraryContents}`)
+  //   });
+  // };
+
   const handleFolderClick = (path: string) => {
     console.log(`listing content for lib ${selectedLibrary} path ${path}`);
     ListLibraryContents(selectedLibrary, path).then((contents) => {
-      console.log(`contents >>>>> ${JSON.stringify(contents)}`);
-      setLibraryContents(contents);
+      //  console.log(`contents >>>>> ${JSON.stringify(contents, null, 2)}\n\n\n`);
+       setLibraryContents(contents);
+      //  console.log(`new libraryContents :: ${JSON.stringify(libraryContents)}`);
     });
-  };
+   };
+   
 
   const handleSongClick = (songName: string) => {
     setSelectedSong(songName);
@@ -151,6 +177,7 @@ const MusicLibrary: React.FC = () => {
               onClick={() =>
                 item.isFolder
                   ? handleFolderClick(item.path)
+                  // ? handleLibraryClick(selectedLibrary, item.path)
                   : handleSongClick(item.name)
               }
             >

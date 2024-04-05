@@ -217,7 +217,6 @@ func (a *Library) ListLibraryContents(name string, path string) ([]SongLibrary, 
 	}
 
 	log.Println("got response for ListLibraryContents")
-	log.Print(resp.Body)
 	defer resp.Body.Close()
 
 	var contents []SongLibrary
