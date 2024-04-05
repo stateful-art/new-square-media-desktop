@@ -10,8 +10,12 @@ export function GetLibrary(arg1) {
   return window['go']['multimedia']['Library']['GetLibrary'](arg1);
 }
 
-export function ListLibraries(arg1, arg2) {
-  return window['go']['multimedia']['Library']['ListLibraries'](arg1, arg2);
+export function ListLibraries() {
+  return window['go']['multimedia']['Library']['ListLibraries']();
+}
+
+export function ListLibrary(arg1, arg2) {
+  return window['go']['multimedia']['Library']['ListLibrary'](arg1, arg2);
 }
 
 export function ListLibraryContents(arg1, arg2) {

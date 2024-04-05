@@ -4,6 +4,7 @@ import {
   OpenFolderDialog,
   CreateLibrary,
   ListLibraries,
+  ListLibrary,
   ListLibraryContents,
 } from "../../../wailsjs/go/multimedia/Library";
 
@@ -19,11 +20,9 @@ const MusicLibrary: React.FC = () => {
   const [libraries, setLibraries] = useState<SongLibrary[]>([]);
   const [libraryContents, setLibraryContents] = useState<SongLibrary[]>([]);
   const [selectedSong, setSelectedSong] = useState<string>("");
-
+  const [selectedLibrary, setSelectedLibrary] = useState<string>("");
   useEffect(() => {
-    ListLibraries(newLibName, folderPath).then((libraries) =>
-      setLibraries(libraries)
-    );
+    ListLibraries().then((libraries) => setLibraries(libraries));
   }, [newLibName, folderPath]);
 
   const stringArray = [
@@ -43,12 +42,34 @@ const MusicLibrary: React.FC = () => {
     "String 14",
     "String 15",
     "String 16",
+    "String 17",
+    "String 18",
+    "asdasd 19",
+    "String 110",
+    "String 111",
+    "String 112",
+    "Strinsdg 113",
+    "String 114",
+    "String 115",
+    "Striadasdasdasng 116",
+    "rinadasdg 113",
+    "String 314",
+    "Striasdng 125",
+    "String 163",
+    "Striasdasng 127",
+    "Strinasd 18",
+    "Strinasdg 19",
+    "Stridaadssdang 110",
+    "Strisasddng 112",
+    "Striasdang 113a",
+    "Strinasdg 1d14",
+    "Strasadssading 115",
+    "String 1asd16",
   ];
 
   // Function that returns a new function
   function pickLibName(): string {
     let randomIndex = Math.floor(Math.random() * 16);
-    console.log("hellooo")
     return stringArray[randomIndex]; // Return the string at the new index
   }
 
@@ -63,9 +84,7 @@ const MusicLibrary: React.FC = () => {
         path: folderPath,
         isFolder: true,
       }).then(() => {
-        ListLibraries(someLibName, folderPath).then((libraries) =>
-          setLibraries(libraries)
-        );
+        ListLibraries().then((libraries) => setLibraries(libraries));
       });
     } catch (error) {
       console.error("Error opening folder dialog:", error);
@@ -73,9 +92,19 @@ const MusicLibrary: React.FC = () => {
   };
 
   const handleLibraryClick = (name: string, path: string) => {
+    setSelectedLibrary(name);
+    console.log(`listing content for folder ${name} ${path}`);
     ListLibraryContents(name, path).then((contents) =>
       setLibraryContents(contents)
     );
+  };
+
+  const handleFolderClick = (path: string) => {
+    console.log(`listing content for lib ${selectedLibrary} path ${path}`);
+    ListLibraryContents(selectedLibrary, path).then((contents) => {
+      console.log(`contents >>>>> ${JSON.stringify(contents)}`);
+      setLibraryContents(contents);
+    });
   };
 
   const handleSongClick = (songName: string) => {
@@ -121,7 +150,7 @@ const MusicLibrary: React.FC = () => {
               }}
               onClick={() =>
                 item.isFolder
-                  ? handleLibraryClick(item.name, item.path)
+                  ? handleFolderClick(item.path)
                   : handleSongClick(item.name)
               }
             >
