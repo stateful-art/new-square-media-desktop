@@ -18,7 +18,17 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath, libName }) => {
     audioPlayer.src = "data:audio/mpeg;base64," + base64String;
   }
 
-  // Assuming GetSong(filePath) returns a Promise<string>
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === " " && isPlaying) {
+        togglePlayPause();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []); // Empty dependency array ensures that this effect runs only once, similar to componentDidMount
 
   useEffect(() => {
     const audioPlayer = document.getElementById(
@@ -36,7 +46,7 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath, libName }) => {
       audioPlayer.pause();
       setIsPlaying(false);
     };
-  }, [filePath, libName]);
+  }, [filePath]);
 
   const togglePlayPause = () => {
     const audioPlayer = document.getElementById(
@@ -55,7 +65,6 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath, libName }) => {
     <div id="player">
       <div id="songName">{songName}</div>
       <audio id="audioPlayer" controls autoPlay></audio>
-      {/* <button onClick={togglePlayPause}>{isPlaying ? 'Pause' : 'Play'}</button> */}
       <div id="recentsButton">history</div>
       <div id="queueButton">queue</div>
     </div>
