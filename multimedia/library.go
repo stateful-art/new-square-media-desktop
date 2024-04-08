@@ -1,24 +1,28 @@
 package multimedia
 
 import (
-	"bytes"
 	"context"
-	"embed"
 	"encoding/base64"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"log"
+	"mime"
 	"net/http"
-	"net/url"
 	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
 
 	rt "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+var Libraries = make(map[string]Lib)
+
 type Library struct {
 	ctx    context.Context
 	client *http.Client
+	index  *TrieNode // create root node for the index
 }
 
 type SongLibrary struct {
@@ -27,14 +31,31 @@ type SongLibrary struct {
 	IsFolder bool   `json:"isFolder"`
 }
 
+type Lib struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+}
+
+type LibItem struct {
+	Name     string `json:"name"`
+	Path     string `json:"path"`
+	IsFolder bool   `json:"isFolder"`
+}
+
+type Song struct {
+	Name    string `json:"name"`
+	Path    string `json:"path"`
+	LibName string `json:"lib"`
+}
+
 func NewLibrary() *Library {
+	index := NewTrieNode() // Initialize the trie root
 	return &Library{
 		client: &http.Client{},
+		index:  index, // Set the trie field
 	}
 }
 
-// startup is called when the Library starts.
-// the context is saved so we can call the runtime methods
 func (a *Library) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
@@ -76,107 +97,167 @@ func (a *Library) OpenFolderDialog() (string, error) {
 	return folderPath, nil // Return the selected folder's path
 }
 
-func (a *Library) CreateLibrary(library *SongLibrary) error {
-	jsonData, err := json.Marshal(library)
+func (a *Library) UpdateSearchIndex(library *LibItem) {
+	// Fetch the contents of the current library
+	contents, err := a.ListLibraryContents(library.Name, library.Path)
+
 	if err != nil {
-		return err
+		log.Printf("Error fetching contents for library %s: %v", library.Name, err)
+		return // Return early if there's an error fetching contents
 	}
 
-	requestURL := fmt.Sprintf("http://localhost:%d/addLibrary", 8090)
-	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return err
+	log.Printf("indexing folder: %s \n", library.Path)
+	for _, item := range contents {
+		// Skip if the item is a folder and is empty or hidden
+		if item.IsFolder {
+			if isFolderEmptyOrHidden(item.Path) {
+				continue // Skip empty or hidden folders
+			}
+			// Recursively insert folder contents
+			a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: item.Path, IsFolder: true})
+		} else {
+			// Update the trie with the item's name
+			name := item.Name
+			a.index.Insert(name, item) // Use the trie for indexing
+		}
 	}
 
-	req.Header.Set("Content-Type", "application/json")
+	// erro := a.index.TestSearch("Muharrem")
+	// if erro != nil {
+	// 	log.Println(erro.Error())
+	// }
 
-	resp, err := a.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Response: %s", body)
-
-	return nil
 }
 
-func (a *Library) ListLibraries() ([]SongLibrary, error) {
-	requestURL := fmt.Sprintf("http://localhost:%d/listLibraries", 8090)
-	req, err := http.NewRequest("GET", requestURL, nil)
-	if err != nil {
-		return nil, err
-	}
+func (a *Library) CreateLibrary(library *Lib) error {
+	if _, exists := Libraries[library.Name]; !exists {
+		// If the library does not exist, add it to the map
+		Libraries[library.Name] = *library
 
-	resp, err := a.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	var libraries []SongLibrary
-	err = json.NewDecoder(resp.Body).Decode(&libraries)
-	if err != nil {
-		return nil, err
-	}
+		log.Printf("indexing new lib: [ %s ] ...", library.Name)
+		go a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: library.Path, IsFolder: true})
+		return nil
 
-	log.Println("returning libarries from desktop backend")
-	log.Print(libraries)
+	} else {
+		return errors.New("lib with name already exist")
+	}
+}
+
+func (a *Library) ListLibraries() ([]Lib, error) {
+	var libraries []Lib
+
+	if len(Libraries) == 0 {
+		return make([]Lib, 0), errors.New("no item in lib")
+	}
+	// Iterate over the Libraries map and convert each entry to a SongLibrary
+	for _, lib := range Libraries {
+		// Convert each Library to a SongLibrary and append to the slice
+		libraries = append(libraries, Lib{
+			Name: lib.Name,
+			Path: lib.Path,
+		})
+	}
 	return libraries, nil
 }
 
-func (a *Library) ListLibrary(name string, path string) ([]SongLibrary, error) {
-	requestURL := fmt.Sprintf("http://localhost:%d/listLibrary?name=%s&path=%s", 8090, url.QueryEscape(name), url.QueryEscape(path))
-	req, err := http.NewRequest("GET", requestURL, nil)
-	if err != nil {
-		return nil, err
+func (a *Library) ListLibraryContents(name string, path string) ([]LibItem, error) {
+	// Check if the library exists
+	_, ok := Libraries[name]
+	if !ok {
+		return nil, errors.New("library not found")
 	}
 
-	resp, err := a.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	// Use a channel to collect the items
+	itemsChan := make(chan LibItem)
+	// Use a WaitGroup to wait for all goroutines to finish
+	var wg sync.WaitGroup
 
-	var libraries []SongLibrary
-	err = json.NewDecoder(resp.Body).Decode(&libraries)
-	if err != nil {
-		return nil, err
+	// Start a goroutine to read the directory
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		readDirectory(path, itemsChan)
+	}()
+
+	// Collect the items from the channel
+	var items []LibItem
+	for item := range itemsChan {
+		items = append(items, item)
 	}
 
-	log.Print(libraries)
-	return libraries, nil
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	return items, nil
 }
 
-func (a *Library) ListLibraryContents(name string, path string) ([]SongLibrary, error) {
-	requestURL := fmt.Sprintf("http://localhost:%d/listLibrary?name=%s&path=%s", 8090, url.QueryEscape(name), url.QueryEscape(path))
-	req, err := http.NewRequest("GET", requestURL, nil)
+func readDirectory(path string, itemsChan chan<- LibItem) {
+	files, err := os.ReadDir(path)
 	if err != nil {
-		return nil, err
+		log.Printf("Error reading directory: %v", err)
+		return
 	}
 
-	resp, err := a.client.Do(req)
-	if err != nil {
-		return nil, err
+	for _, file := range files {
+		// Check if the file is a directory or a music file
+		if isMusicFileOrDir(path, file) {
+			item := LibItem{
+				Name:     file.Name(),
+				Path:     path + "/" + file.Name(),
+				IsFolder: file.IsDir(),
+			}
+			itemsChan <- item
+		}
 	}
-
-	defer resp.Body.Close()
-
-	var contents []SongLibrary
-	err = json.NewDecoder(resp.Body).Decode(&contents)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Print(contents)
-	return contents, nil
+	close(itemsChan)
 }
 
-var assets embed.FS
+func isMusicFileOrDir(path string, file os.DirEntry) bool {
+	// Check if the file is a music file
+	if isMusicFile(file.Name()) {
+		return true
+	}
+
+	// Check if the file is a directory
+	if file.IsDir() {
+		// Check if the file is not a hidden folder (starts with a dot)
+		if !strings.HasPrefix(file.Name(), ".") {
+			return true // Return true if the directory is not empty
+		}
+
+		// Check if the directory is empty
+		entries, err := os.ReadDir(path + "/" + file.Name())
+		if err != nil {
+			fmt.Printf("Error reading directory: %v\n", err)
+			return false // Return false if there's an error reading the directory
+		}
+
+		if len(entries) > 0 {
+			return true // Return false if the directory is empty
+		}
+
+		return true
+	}
+
+	return false
+}
+
+// isMusicFile checks if a file has a music file extension
+func isMusicFile(filename string) bool {
+	musicExtensions := []string{".mp3", ".wav", ".flac", ".m4a", ".aac", ".m4a", ".wma"}
+
+	fileExtension := filepath.Ext(filename)
+
+	for _, ext := range musicExtensions {
+		if fileExtension == ext {
+			return true
+		}
+	}
+
+	return false
+}
+
+// var assets embed.FS
 
 type LibraryLoader struct {
 	http.Handler
@@ -186,39 +267,92 @@ func NewLibraryLoader() *LibraryLoader {
 	return &LibraryLoader{}
 }
 
-// func (a *Library) GetSong(res http.ResponseWriter, req *http.Request) {
-// 	var err error
-// 	requestedFilename := strings.TrimPrefix(req.URL.Path, "/")
-// 	log.Printf("req.URL.Path @ GetSong >>  %s \n", req.URL.Path)
-// 	log.Printf("requestedFilename @ GetSong >> %s \n", requestedFilename)
-
-// 	println("Requesting file:", requestedFilename)
-// 	fileData, err := os.ReadFile(requestedFilename)
-// 	if err != nil {
-// 		res.WriteHeader(http.StatusBadRequest)
-// 		res.Write([]byte(fmt.Sprintf("Could not load file %s", requestedFilename)))
-// 	}
-
-// 	res.Write(fileData)
-// }
-
-// func (a *Library) GetSong(path string) ([]byte, error) {
-// 	var err error
-// 	// println("Requesting file:", requestedFilename)
-// 	fileData, err := os.ReadFile(path)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return fileData, nil
-
-// }
-
 func (a *Library) GetSong(path string) (string, error) {
-	fileData, err := os.ReadFile(path)
-	if err != nil {
-		return "", err
+	startTime := time.Now()
+	resultChan := make(chan string)
+
+	a.GetSongAsync(path, resultChan)
+	// Wait for the result
+	encodedString := <-resultChan
+	if encodedString == "" {
+		return "", errors.New("failed to get song")
+	} else {
+		fmt.Printf("GetSong took %v\n", time.Since(startTime))
+		return encodedString, nil
 	}
 
-	encodedString := base64.StdEncoding.EncodeToString(fileData)
-	return encodedString, nil
+}
+
+func (a *Library) GetSongAsync(path string, resultChan chan<- string) {
+	go func() {
+		fileData, err := os.ReadFile(path)
+		if err != nil {
+			resultChan <- "" // Send an empty string to indicate an error
+			return
+		}
+
+		// Determine the MIME type of the file
+		ext := filepath.Ext(path)
+		mimeType := mime.TypeByExtension(ext)
+		log.Printf("path: %s \n mimeType: %s", path, mimeType)
+
+		// Check if the MIME type is a video or audio/mpeg; if so, don't return a Song
+		if mimeType != "" && mimeType[:5] == "video/" {
+			resultChan <- "" // Send an empty string to indicate an error
+			return
+		}
+
+		encodedString := base64.StdEncoding.EncodeToString(fileData)
+		resultChan <- encodedString // Send the encoded string to the channel
+	}()
+}
+
+// List of common image file extensions
+var imageExtensions = []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
+
+// List of common video file extensions
+var videoExtensions = []string{".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".mpg", ".mpeg"}
+
+// isFolderEmptyOrHidden checks if a folder is empty, hidden, or contains only images or videos.
+func isFolderEmptyOrHidden(path string) bool {
+	// Check if the folder is hidden (name starts with a dot)
+	if strings.HasPrefix(filepath.Base(path), ".") {
+		return true
+	}
+
+	// Check if the folder is empty
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return true // Return true if there's an error reading the directory
+	}
+	if len(entries) == 0 {
+		return true // Return true if the folder is empty
+	}
+
+	// Check if the folder contains only images or videos
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			ext := filepath.Ext(entry.Name())
+			if !isImageOrVideoFile(ext) {
+				return false // Return false if the folder contains a non-image/video file
+			}
+		}
+	}
+
+	return true // Return true if the folder contains only images or videos
+}
+
+// isImageOrVideoFile checks if a file is an image or video based on its extension.
+func isImageOrVideoFile(ext string) bool {
+	for _, imageExt := range imageExtensions {
+		if ext == imageExt {
+			return true
+		}
+	}
+	for _, videoExt := range videoExtensions {
+		if ext == videoExt {
+			return true
+		}
+	}
+	return false
 }

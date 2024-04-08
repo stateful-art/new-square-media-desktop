@@ -3,18 +3,20 @@
 import {multimedia} from '../models';
 import {context} from '../models';
 
-export function CreateLibrary(arg1:multimedia.SongLibrary):Promise<void>;
+export function CreateLibrary(arg1:multimedia.Lib):Promise<void>;
 
 export function GetSong(arg1:string):Promise<string>;
 
-export function ListLibraries():Promise<Array<multimedia.SongLibrary>>;
+export function GetSongAsync(arg1:string,arg2:any):Promise<void>;
 
-export function ListLibrary(arg1:string,arg2:string):Promise<Array<multimedia.SongLibrary>>;
+export function ListLibraries():Promise<Array<multimedia.Lib>>;
 
-export function ListLibraryContents(arg1:string,arg2:string):Promise<Array<multimedia.SongLibrary>>;
+export function ListLibraryContents(arg1:string,arg2:string):Promise<Array<multimedia.LibItem>>;
 
 export function OpenFileDialog():Promise<string>;
 
 export function OpenFolderDialog():Promise<string>;
 
 export function Startup(arg1:context.Context):Promise<void>;
+
+export function UpdateSearchIndex(arg1:multimedia.LibItem):Promise<void>;

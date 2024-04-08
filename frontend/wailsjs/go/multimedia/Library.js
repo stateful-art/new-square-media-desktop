@@ -10,12 +10,12 @@ export function GetSong(arg1) {
   return window['go']['multimedia']['Library']['GetSong'](arg1);
 }
 
-export function ListLibraries() {
-  return window['go']['multimedia']['Library']['ListLibraries']();
+export function GetSongAsync(arg1, arg2) {
+  return window['go']['multimedia']['Library']['GetSongAsync'](arg1, arg2);
 }
 
-export function ListLibrary(arg1, arg2) {
-  return window['go']['multimedia']['Library']['ListLibrary'](arg1, arg2);
+export function ListLibraries() {
+  return window['go']['multimedia']['Library']['ListLibraries']();
 }
 
 export function ListLibraryContents(arg1, arg2) {
@@ -32,4 +32,8 @@ export function OpenFolderDialog() {
 
 export function Startup(arg1) {
   return window['go']['multimedia']['Library']['Startup'](arg1);
+}
+
+export function UpdateSearchIndex(arg1) {
+  return window['go']['multimedia']['Library']['UpdateSearchIndex'](arg1);
 }

@@ -62,6 +62,11 @@ body {
   font-style: normal;
   font-weight: 400;
 }
+
+#fileList li:hover {
+  background-color: rgb(243, 140, 44) !important;
+}
+
 .selected {
   background-color: red; /* Define the background color for selected items */
 }

@@ -61,12 +61,15 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath, libName }) => {
     }
   };
 
+  const getSongNameStyle = (): string => {
+    return songName.length > 20 ? "scroll-text" : "";
+  };
   return (
     <div id="player">
-      <div id="songName">{songName}</div>
+      <div id="songName" className={getSongNameStyle()}>{songName}</div>
       <audio id="audioPlayer" controls autoPlay></audio>
-      <div id="recentsButton">history</div>
-      <div id="queueButton">queue</div>
+      {/* <div id="recentsButton">history</div>
+      <div id="queueButton">queue</div> */}
     </div>
   );
 };
