@@ -31,7 +31,7 @@ body {
   text-align: center;
   font-family: "Rubik Scribble", system-ui;
   font-weight: 400;
-  font-size: x-large;
+  font-size: large;
 }
 #rightPanel {
   width: 85%;
@@ -148,7 +148,7 @@ input[type="text"] {
   text-align: center;
   line-height: 80px; /* Align text vertically */
   cursor: pointer;
-  font-size: x-large;
+  font-size: large;
   bottom: 80px;
   left: 0;
 }
@@ -292,7 +292,7 @@ input[type="text"] {
   text-align: center;
   line-height: 80px; /* Align text vertically */
   cursor: pointer;
-  font-size: x-large;
+  font-size: large;
   font-family: "Rubik Scribble", system-ui;
   font-weight: 900;
 }
@@ -307,7 +307,7 @@ input[type="text"] {
   text-align: center;
   line-height: 80px; /* Align text vertically */
   cursor: pointer;
-  font-size: x-large;
+  font-size: large;
   font-family: "Rubik Scribble", system-ui;
   font-weight: 900;
 }

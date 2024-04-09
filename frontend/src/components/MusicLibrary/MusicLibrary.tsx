@@ -7,7 +7,6 @@ import {
   ListLibraryContents,
 } from "../../../wailsjs/go/multimedia/Library";
 
-// import {Search, ListAllContents} from "../../../wailsjs/go/multimedia/TrieNode";
 import Player from "../Player/Player";
 // import SearchBar from "../SearchBar/SearchBar";
 
@@ -37,7 +36,6 @@ const MusicLibrary: React.FC = () => {
     );
   }, [folderPath]);
 
-
   const handleFolderSelect = async () => {
     try {
       const folderPath = await OpenFolderDialog();
@@ -47,7 +45,7 @@ const MusicLibrary: React.FC = () => {
         path: folderPath
       }).then(() => {
         setIsInputVisible(false);
-        setNewLibName("")
+        setNewLibName("");
         ListLibraries().then((libraries) => setLibraries(libraries));
       });
     } catch (error) {
@@ -63,7 +61,7 @@ const MusicLibrary: React.FC = () => {
   ) => {
     if (event.key === "Enter") {
       handleFolderSelect();
-      setNewLibName("")
+      setNewLibName("");
     }
   };
 
@@ -88,7 +86,6 @@ const MusicLibrary: React.FC = () => {
   const handleSongClick = (item: SongLibrary) => {
     setSelectedSong(item.name);
     setSelectedFilePath(item.path);
-    
   };
 
   return (
@@ -96,9 +93,9 @@ const MusicLibrary: React.FC = () => {
       <div id="leftPanel">
         <h2 id="lp-title">New Square</h2>
         <hr />
-     
-       {/* <SearchBar onSearch={handleSearch} /> */}
-       
+
+        {/* <SearchBar onSearch={handleSearch} /> */}
+
         {isInputVisible ? (
           <input
             id="libraryInput"
@@ -127,10 +124,7 @@ const MusicLibrary: React.FC = () => {
 
       <div id="rightPanel">
         <div id="rp-topnav">
-          {/* <ul id="breadcrumb">
-            <li id="rp-lib-name"></li>
-          </ul> */}
-          <span>@ {selectedLibrary}</span>
+          <span>{selectedLibrary}</span>
         </div>
         <ul id="fileList">
           {libraryContents.map((item) => (
@@ -159,8 +153,8 @@ const MusicLibrary: React.FC = () => {
         filePath={selectedFilePath}
         libName={selectedLibrary}
       />
-      {/* <div id="queuePanel" className="hidden"></div>
-      <div id="historyPanel" className="hidden"></div> */}
+      <div id="queuePanel" className="hidden"></div>
+      <div id="historyPanel" className="hidden"></div>
     </>
   );
 };

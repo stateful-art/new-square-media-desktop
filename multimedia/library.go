@@ -25,12 +25,6 @@ type Library struct {
 	index  *TrieNode // create root node for the index
 }
 
-type SongLibrary struct {
-	Name     string `json:"name"`
-	Path     string `json:"path"`
-	IsFolder bool   `json:"isFolder"`
-}
-
 type Lib struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
@@ -103,7 +97,7 @@ func (a *Library) UpdateSearchIndex(library *LibItem) {
 
 	if err != nil {
 		log.Printf("Error fetching contents for library %s: %v", library.Name, err)
-		return // Return early if there's an error fetching contents
+		return
 	}
 
 	log.Printf("indexing folder: %s \n", library.Path)
