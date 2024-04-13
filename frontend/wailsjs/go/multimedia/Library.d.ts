@@ -13,9 +13,13 @@ export function ListLibraries():Promise<Array<multimedia.Lib>>;
 
 export function ListLibraryContents(arg1:string,arg2:string):Promise<Array<multimedia.LibItem>>;
 
+export function LoadLibraries():Promise<void>;
+
 export function OpenFileDialog():Promise<string>;
 
 export function OpenFolderDialog():Promise<string>;
+
+export function SaveLibraries():Promise<void>;
 
 export function Startup(arg1:context.Context):Promise<void>;
 

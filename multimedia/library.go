@@ -2,7 +2,9 @@ package multimedia
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -12,17 +14,21 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 
 	rt "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 var Libraries = make(map[string]Lib)
 
+// var Libraries map[string]Lib
+
 type Library struct {
 	ctx    context.Context
 	client *http.Client
 	index  *TrieNode // create root node for the index
+	db     *sql.DB
 }
 
 type Lib struct {
@@ -42,15 +48,18 @@ type Song struct {
 	LibName string `json:"lib"`
 }
 
-func NewLibrary() *Library {
+func NewLibrary(db *sql.DB) *Library {
 	index := NewTrieNode() // Initialize the trie root
 	return &Library{
 		client: &http.Client{},
 		index:  index, // Set the trie field
+		db:     db,
 	}
 }
 
 func (a *Library) Startup(ctx context.Context) {
+	// a.LoadLibraries()
+
 	a.ctx = ctx
 }
 
@@ -127,9 +136,8 @@ func (a *Library) CreateLibrary(library *Lib) error {
 	if _, exists := Libraries[library.Name]; !exists {
 		// If the library does not exist, add it to the map
 		Libraries[library.Name] = *library
-
-		log.Printf("indexing new lib: [ %s ] ...", library.Name)
 		go a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: library.Path, IsFolder: true})
+		a.SaveLibraries()
 		return nil
 
 	} else {
@@ -262,7 +270,6 @@ func NewLibraryLoader() *LibraryLoader {
 }
 
 func (a *Library) GetSong(path string) (string, error) {
-	startTime := time.Now()
 	resultChan := make(chan string)
 
 	a.GetSongAsync(path, resultChan)
@@ -271,7 +278,6 @@ func (a *Library) GetSong(path string) (string, error) {
 	if encodedString == "" {
 		return "", errors.New("failed to get song")
 	} else {
-		fmt.Printf("GetSong took %v\n", time.Since(startTime))
 		return encodedString, nil
 	}
 
@@ -288,7 +294,6 @@ func (a *Library) GetSongAsync(path string, resultChan chan<- string) {
 		// Determine the MIME type of the file
 		ext := filepath.Ext(path)
 		mimeType := mime.TypeByExtension(ext)
-		log.Printf("path: %s \n mimeType: %s", path, mimeType)
 
 		// Check if the MIME type is a video or audio/mpeg; if so, don't return a Song
 		if mimeType != "" && mimeType[:5] == "video/" {
@@ -349,4 +354,63 @@ func isImageOrVideoFile(ext string) bool {
 		}
 	}
 	return false
+}
+
+// SaveLibraries saves the Libraries map to the SQLite database
+func (a *Library) SaveLibraries() error {
+
+	// Check if libraries entry exists
+	var count int
+	err := a.db.QueryRow("SELECT COUNT(*) FROM libraries").Scan(&count)
+	if err != nil {
+		log.Println("Error checking count:", err)
+		return err
+	}
+
+	// Serialize Libraries map to JSON
+	data, err := json.Marshal(Libraries)
+	if err != nil {
+		log.Println("Error marshalling JSON:", err)
+		return err
+	}
+
+	if count == 0 {
+		// If libraries entry doesn't exist, insert it
+		_, err = a.db.Exec("INSERT INTO libraries(name, data) VALUES(?, ?)", "libraries", string(data))
+	} else {
+		// If libraries entry exists, replace its data
+		_, err = a.db.Exec("UPDATE libraries SET data=? WHERE name=?", string(data), "libraries")
+	}
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return err
+	}
+
+	return nil
+}
+
+// LoadLibraries loads the Libraries map from the SQLite database
+func (a *Library) LoadLibraries() error {
+
+	// Query data from the database
+	var data string
+	err := a.db.QueryRow("SELECT data FROM libraries WHERE name = ?", "libraries").Scan(&data)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Print("No data found for libraries in the database. Initializing Libraries with an empty map.")
+			Libraries = make(map[string]Lib)
+			return nil
+		}
+		log.Print("Error querying data from the database:", err)
+		return err
+	}
+
+	// Deserialize data from JSON
+	err = json.Unmarshal([]byte(data), &Libraries)
+	if err != nil {
+		log.Print("Error deserializing data:", err)
+		return err
+	}
+
+	return nil
 }

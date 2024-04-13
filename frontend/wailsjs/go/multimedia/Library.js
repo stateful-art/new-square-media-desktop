@@ -22,12 +22,20 @@ export function ListLibraryContents(arg1, arg2) {
   return window['go']['multimedia']['Library']['ListLibraryContents'](arg1, arg2);
 }
 
+export function LoadLibraries() {
+  return window['go']['multimedia']['Library']['LoadLibraries']();
+}
+
 export function OpenFileDialog() {
   return window['go']['multimedia']['Library']['OpenFileDialog']();
 }
 
 export function OpenFolderDialog() {
   return window['go']['multimedia']['Library']['OpenFolderDialog']();
+}
+
+export function SaveLibraries() {
+  return window['go']['multimedia']['Library']['SaveLibraries']();
 }
 
 export function Startup(arg1) {

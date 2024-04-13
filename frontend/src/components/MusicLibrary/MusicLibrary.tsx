@@ -5,6 +5,7 @@ import {
   CreateLibrary,
   ListLibraries,
   ListLibraryContents,
+  LoadLibraries,
 } from "../../../wailsjs/go/multimedia/Library";
 
 import Player from "../Player/Player";
@@ -29,6 +30,14 @@ const MusicLibrary: React.FC = () => {
   const [isInputVisible, setIsInputVisible] = useState(false);
 
   // const [searchTerm, setSearchTerm] = useState<string>("");
+
+  useEffect(() => {
+   LoadLibraries().then(() => {
+    setIsInputVisible(false);
+    setNewLibName("");
+    ListLibraries().then((libraries) => setLibraries(libraries));
+  });
+  }, []);
 
   useEffect(() => {
     ListLibraryContents(selectedLibrary, folderPath).then((contents) =>
