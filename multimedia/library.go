@@ -134,17 +134,8 @@ func (a *Library) UpdateSearchIndex(library *LibItem) {
 
 func (a *Library) CreateLibrary(library Lib) error {
 	if _, exists := Libraries[library.Name]; !exists {
-		// If the library does not exist, add it to the map
 		Libraries[library.Name] = library
-
-		log.Printf("number of Libs before SaveLibraries.: %d", len(Libraries))
-		// for _, lib := range Libraries {
-		// 	// Convert each Library to a SongLibrary and append to the slice
-		// 	log.Printf("currently @ Libraries: %s ", lib.Name)
-		// }
 		a.SaveLibraries()
-		// log.Printf("number of Libs after SaveLibraries.: %d", len(Libraries))
-
 		// go a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: library.Path, IsFolder: true})
 		return nil
 
@@ -156,19 +147,89 @@ func (a *Library) CreateLibrary(library Lib) error {
 func (a *Library) RemoveLibrary(libraryName string) error {
 	log.Print("removing the lib named", libraryName)
 	if _, exists := Libraries[libraryName]; exists {
-		// If the library exists, remove it from the map
 		delete(Libraries, libraryName)
-
-		// Save the updated Libraries map to the database
 		if err := a.SaveLibraries(); err != nil {
 			return err
 		}
-
 		return nil
 	} else {
-		// Library does not exist
 		return errors.New("library with name does not exist")
 	}
+}
+
+func (a *Library) SaveLibraries() error {
+	tx, err := a.db.Begin()
+	if err != nil {
+		log.Println("Error starting transaction:", err)
+		return err
+	}
+	defer tx.Rollback() // Rollback transaction if commit is not called
+
+	// Check if libraries entry exists
+	var count int
+	err = tx.QueryRow("SELECT COUNT(*) FROM libraries").Scan(&count)
+	if err != nil {
+		log.Println("Error checking count:", err)
+		return err
+	}
+
+	// Serialize Libraries map to JSON
+	data, err := json.Marshal(Libraries)
+	if err != nil {
+		log.Println("Error marshalling JSON:", err)
+		return err
+	}
+
+	log.Print(string(data))
+	if count == 0 {
+		// If libraries entry doesn't exist, insert it
+		_, err = tx.Exec("INSERT INTO libraries(name, data) VALUES(?, ?)", "libraries", string(data))
+		if err != nil {
+			log.Println("Error executing query:", err)
+			return err
+		}
+	} else {
+		// If libraries entry exists, replace its data
+		_, err = tx.Exec("UPDATE libraries SET data = ? WHERE name = ?", string(data), "libraries")
+		if err != nil {
+			log.Println("Error executing query:", err)
+			return err
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		log.Println("Error committing transaction:", err)
+		return err
+	}
+
+	log.Printf("done with SaveLibraries..")
+	return nil
+}
+
+// LoadLibraries loads the Libraries map from the SQLite database
+func (a *Library) LoadLibraries() error {
+	// Query data from the database
+	var data string
+	err := a.db.QueryRow("SELECT data FROM libraries WHERE name = ?", "libraries").Scan(&data)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Print("No data found for libraries in the database. Initializing Libraries with an empty map.")
+			Libraries = make(map[string]Lib)
+			return nil
+		}
+		log.Print("Error querying data from the database:", err)
+		return err
+	}
+
+	// Deserialize data from JSON
+	err = json.Unmarshal([]byte(data), &Libraries)
+	if err != nil {
+		log.Print("Error deserializing data:", err)
+		return err
+	}
+
+	return nil
 }
 
 func (a *Library) ListLibraries() ([]Lib, error) {
@@ -177,9 +238,7 @@ func (a *Library) ListLibraries() ([]Lib, error) {
 	if len(Libraries) == 0 {
 		return make([]Lib, 0), errors.New("no item in lib")
 	}
-	// Iterate over the Libraries map and convert each entry to a SongLibrary
 	for _, lib := range Libraries {
-		// Convert each Library to a SongLibrary and append to the slice
 		libraries = append(libraries, Lib{
 			Name: lib.Name,
 			Path: lib.Path,
@@ -189,7 +248,6 @@ func (a *Library) ListLibraries() ([]Lib, error) {
 }
 
 func (a *Library) ListLibraryContents(name string, path string) ([]LibItem, error) {
-	// Check if the library exists
 	_, ok := Libraries[name]
 	if !ok {
 		return nil, errors.New("library not found")
@@ -225,7 +283,6 @@ func readDirectory(path string, itemsChan chan<- LibItem) {
 		log.Printf("Error reading directory: %v", err)
 		return
 	}
-
 	for _, file := range files {
 		// Check if the file is a directory or a music file
 		if isMusicFileOrDir(path, file) {
@@ -380,79 +437,4 @@ func isImageOrVideoFile(ext string) bool {
 		}
 	}
 	return false
-}
-
-func (a *Library) SaveLibraries() error {
-	tx, err := a.db.Begin()
-	if err != nil {
-		log.Println("Error starting transaction:", err)
-		return err
-	}
-	defer tx.Rollback() // Rollback transaction if commit is not called
-
-	// Check if libraries entry exists
-	var count int
-	err = tx.QueryRow("SELECT COUNT(*) FROM libraries").Scan(&count)
-	if err != nil {
-		log.Println("Error checking count:", err)
-		return err
-	}
-
-	// Serialize Libraries map to JSON
-	data, err := json.Marshal(Libraries)
-	if err != nil {
-		log.Println("Error marshalling JSON:", err)
-		return err
-	}
-
-	log.Print(string(data))
-	if count == 0 {
-		// If libraries entry doesn't exist, insert it
-		_, err = tx.Exec("INSERT INTO libraries(name, data) VALUES(?, ?)", "libraries", string(data))
-		if err != nil {
-			log.Println("Error executing query:", err)
-			return err
-		}
-	} else {
-		// If libraries entry exists, replace its data
-		_, err = tx.Exec("UPDATE libraries SET data = ? WHERE name = ?", string(data), "libraries")
-		if err != nil {
-			log.Println("Error executing query:", err)
-			return err
-		}
-	}
-
-	// Commit transaction
-	if err := tx.Commit(); err != nil {
-		log.Println("Error committing transaction:", err)
-		return err
-	}
-
-	log.Printf("done with SaveLibraries..")
-	return nil
-}
-
-// LoadLibraries loads the Libraries map from the SQLite database
-func (a *Library) LoadLibraries() error {
-	// Query data from the database
-	var data string
-	err := a.db.QueryRow("SELECT data FROM libraries WHERE name = ?", "libraries").Scan(&data)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Print("No data found for libraries in the database. Initializing Libraries with an empty map.")
-			Libraries = make(map[string]Lib)
-			return nil
-		}
-		log.Print("Error querying data from the database:", err)
-		return err
-	}
-
-	// Deserialize data from JSON
-	err = json.Unmarshal([]byte(data), &Libraries)
-	if err != nil {
-		log.Print("Error deserializing data:", err)
-		return err
-	}
-
-	return nil
 }
