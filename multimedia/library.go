@@ -153,6 +153,24 @@ func (a *Library) CreateLibrary(library Lib) error {
 	}
 }
 
+func (a *Library) RemoveLibrary(libraryName string) error {
+	log.Print("removing the lib named", libraryName)
+	if _, exists := Libraries[libraryName]; exists {
+		// If the library exists, remove it from the map
+		delete(Libraries, libraryName)
+
+		// Save the updated Libraries map to the database
+		if err := a.SaveLibraries(); err != nil {
+			return err
+		}
+
+		return nil
+	} else {
+		// Library does not exist
+		return errors.New("library with name does not exist")
+	}
+}
+
 func (a *Library) ListLibraries() ([]Lib, error) {
 	var libraries []Lib
 

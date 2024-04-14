@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
+
 import "./MusicLibrary.css"; // Import the CSS module
 import {
   OpenFolderDialog,
@@ -6,6 +10,7 @@ import {
   ListLibraries,
   ListLibraryContents,
   LoadLibraries,
+  RemoveLibrary,
 } from "../../../wailsjs/go/multimedia/Library";
 
 import Player from "../Player/Player";
@@ -32,11 +37,11 @@ const MusicLibrary: React.FC = () => {
   // const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
-   LoadLibraries().then(() => {
-    setIsInputVisible(false);
-    setNewLibName("");
-    ListLibraries().then((libraries) => setLibraries(libraries));
-  });
+    LoadLibraries().then(() => {
+      setIsInputVisible(false);
+      setNewLibName("");
+      ListLibraries().then((libraries) => setLibraries(libraries));
+    });
   }, []);
 
   useEffect(() => {
@@ -51,10 +56,11 @@ const MusicLibrary: React.FC = () => {
       setFolderPath(folderPath);
       CreateLibrary({
         name: newLibName,
-        path: folderPath
+        path: folderPath,
       }).then(() => {
         setIsInputVisible(false);
         setNewLibName("");
+        setSelectedLibrary(newLibName)
         ListLibraries().then((libraries) => setLibraries(libraries));
       });
     } catch (error) {
@@ -97,6 +103,13 @@ const MusicLibrary: React.FC = () => {
     setSelectedFilePath(item.path);
   };
 
+  const handleRemoveLibrary = (libName: string) => {
+    console.log("@handleRemoveLibrary for >>", libName)
+    RemoveLibrary(libName).then(() => {
+      ListLibraries().then((libraries) => setLibraries(libraries));
+    });
+  };
+
   return (
     <>
       <div id="leftPanel">
@@ -121,12 +134,13 @@ const MusicLibrary: React.FC = () => {
         )}
         <ul id="libraryList">
           {libraries.map((library) => (
-            <li
-              key={library.name}
-              onClick={() => handleLibraryClick(library.name, library.path)}
-            >
-              {library.name}
-            </li>
+             <li
+             key={library.name}
+             onClick={() => handleLibraryClick(library.name, library.path)}
+             className={selectedLibrary === library.name ? "selected-lib" : ""}
+           >
+             {library.name}
+           </li>
           ))}
         </ul>
       </div>
@@ -134,6 +148,11 @@ const MusicLibrary: React.FC = () => {
       <div id="rightPanel">
         <div id="rp-topnav">
           <span>{selectedLibrary}</span>
+          <FontAwesomeIcon
+            icon={faTrash}
+            style={{ right: "10px", cursor: "pointer" }}
+            onClick={() => handleRemoveLibrary(selectedLibrary)}
+          />
         </div>
         <ul id="fileList">
           {libraryContents.map((item) => (

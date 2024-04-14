@@ -34,6 +34,10 @@ export function OpenFolderDialog() {
   return window['go']['multimedia']['Library']['OpenFolderDialog']();
 }
 
+export function RemoveLibrary(arg1) {
+  return window['go']['multimedia']['Library']['RemoveLibrary'](arg1);
+}
+
 export function SaveLibraries() {
   return window['go']['multimedia']['Library']['SaveLibraries']();
 }

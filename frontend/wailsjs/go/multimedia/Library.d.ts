@@ -19,6 +19,8 @@ export function OpenFileDialog():Promise<string>;
 
 export function OpenFolderDialog():Promise<string>;
 
+export function RemoveLibrary(arg1:string):Promise<void>;
+
 export function SaveLibraries():Promise<void>;
 
 export function Startup(arg1:context.Context):Promise<void>;
