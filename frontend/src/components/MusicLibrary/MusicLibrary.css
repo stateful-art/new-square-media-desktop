@@ -5,10 +5,11 @@ body {
   width: 15%;
   float: left;
   height: 100vh;
-  overflow: auto;
   background-color: rgb(27, 25, 26);
   color: #f0f0f0;
   margin: 0;
+  overflow-y: scroll;
+
 }
 
 #leftPanel ul {
@@ -20,7 +21,7 @@ body {
 #leftPanel li {
   padding: 10px 15px;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 #leftPanel li:hover {
@@ -31,7 +32,7 @@ body {
   text-align: center;
   font-family: "Rubik Scribble", system-ui;
   font-weight: 400;
-  font-size: large;
+  font-size: 1.2rem;
 }
 #rightPanel {
   width: 85%;
@@ -56,11 +57,12 @@ body {
 #rightPanel li {
   cursor: pointer; /* Add cursor pointer */
   padding: 10px;
-  transition: background-color 0.3s; /* Add transition for smooth effect */
+  transition: background-color 0.1s;
   color: white;
   font-family: "Chakra Petch", sans-serif;
   font-style: normal;
   font-weight: 400;
+  overflow-y: scroll;
   display: flex; /* Use flexbox to control layout */
   justify-content: space-between; /* Align items at the start and end of the row */
   align-items: center; /* Vertically center items */
@@ -109,7 +111,6 @@ body {
   font-size: 1.6rem;
 }
 
-
 #modal {
   display: none;
   position: fixed;
@@ -153,15 +154,6 @@ input[type="text"] {
   background-color: #fff; /* White background */
 }
 
-#submitLibBtn {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #0b0b0b;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
 
 #addLibErrorMessage {
   color: red;
@@ -182,22 +174,22 @@ input[type="text"] {
   background-color: #000000; /* Green background */
   color: white;
   text-align: center;
-  line-height: 64px; /* Align text vertically */
+  line-height: 3.6rem; /* Align text vertically */
   cursor: pointer;
   font-size: 2.6rem;
-  bottom: 80px;
+  bottom: 78px;
   left: 0;
 }
 
 #libraryInput {
   position: fixed;
-  width: 13%;
+  width: 14%;
   background-color: white; /* Green background */
   color: black;
   text-align: start;
-  line-height: 30px; /* Align text vertically */
+  line-height: 2rem; /* Align text vertically */
   font-size: 1rem;
-  bottom: 80px;
+  bottom: 78px;
   left: 0;
   font-family: "Chakra Petch", sans-serif;
   font-style: normal;
@@ -223,27 +215,10 @@ input[type="text"] {
   font-size: xx-large;
 }
 
-#submitLibBtn {
-  padding: 0;
-  background-color: #27cd61;
-  border-radius: 12px;
-  height: 50px;
-  color: white;
-}
-
-#submitLibBtnText {
-  font-weight: 800;
-  font-size: large;
-}
-
-#submitLibBtn:hover {
-  color: black;
-}
-
 #rp-topnav {
   background-color: #353739; /* Blue background for navbar */
   color: white; /* Text color */
-  padding: 10px; /* Add some padding */
+  padding: 10px; /*Add some padding */
   display: flex; /* Use flexbox for alignment */
   justify-content: space-between; /* Distribute items evenly along the row */
   align-items: center; /* Center items vertically */

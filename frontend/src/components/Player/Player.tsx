@@ -25,7 +25,7 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // currently, when this on;
   // when user presses space key when they enter a new lib name
-  // if a song is being played, it stops playing. 
+  // if a song is being played, it stops playing.
   // TODO: receive isInputVisible bool as a prop to this component
 
   // useEffect(() => {
@@ -109,50 +109,46 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
 
   return (
     <div id="player">
-        <div id="songName" className={getSongNameStyle()}>
-          {songName}
-      </div>
-      <div id="customAudioPlayer">
-        <div className={"playPauseButton"} onClick={togglePlayPause}>
-          <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} size="2x" />
-        </div>
-        <audio
-          id="audioPlayer"
-          ref={audioRef}
-          autoPlay
-          onTimeUpdate={updateCurrentTime}
-        ></audio>
-        <input
-          type="range"
-          id="volumeControl"
-          className="volume-control"
-          min="0"
-          max="1"
-          step="0.01"
-          value={volume}
-          onChange={handleVolumeChange}
-        />
-      </div>
       {!Number.isNaN(getDuration()) && (
-        <div id="prog">
-          { Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
-          {/* <progress
-            id="customProgressBar"
-            value={currentTime}
-            max={getDuration()}
-          ></progress> */}
-           <input
-          type="range"
-          id="progress-control"
-          className="progress-control"
-          min="0"
-          max={getDuration()}
-          step="1"
-          value={currentTime}
-          onChange={handleProgressChange}
+        <>
+          <div id="songName">{songName}</div>
+          <FontAwesomeIcon
+            className="playPauseButton"
+            icon={isPlaying ? faPause : faPlay}
+            onClick={togglePlayPause}
+            size="2x"
           />
-          {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
-        </div>
+          <audio
+            id="audioPlayer"
+            ref={audioRef}
+            autoPlay
+            onTimeUpdate={updateCurrentTime}
+          ></audio>
+          {/* <div id="prog">
+            {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
+            <input
+              type="range"
+              id="progress-control"
+              className="progress-control"
+              min="0"
+              max={getDuration()}
+              step="1"
+              value={currentTime}
+              onChange={handleProgressChange}
+            />
+            {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
+          </div> */}
+          <input
+            type="range"
+            id="volumeControl"
+            className="volume-control"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={handleVolumeChange}
+          />
+        </>
       )}
     </div>
   );
