@@ -46,9 +46,43 @@
     }
   }
   
-  #audioPlayer {
-    /* Remove flex-grow and explicitly control the width if necessary */
-    width: 64%; /* Example width, adjust as needed */
-    order: 2; /* Ensures the audio player is positioned as the second item */
-    margin-right: 36%;
+  
+
+  #customAudioPlayer {
+    position: fixed;
+    display: flex;
+    left: 0;
+    align-items: center;
   }
+  
+  audio {
+    width: 40%;
+  }
+  
+  .playPauseButton {
+    width: 60px;
+    height: 60px;
+    background-color: rgb(242, 237, 237); /* Change to white for white player */
+    color: #141313;
+    cursor: pointer;
+  }
+  
+
+  #progressBar {
+    width: 100%; /* Ensure the progress bar fills the width of its container */
+    height: 10px; /* Set the height of the progress bar */
+    background-color: #d4cfcf; /* Set the background color of the progress bar */
+  }
+  
+  #progressBar::-webkit-progress-bar {
+    background-color: #e8e4e4; /* Set the background color of the progress bar */
+  }
+  
+  #progressBar::-webkit-progress-value {
+    background-color: #4caf50; /* Set the color of the progress indicator */
+  }
+  
+  #progressBar::-moz-progress-bar {
+    background-color: #4caf50; /* Set the color of the progress indicator */
+  }
+  

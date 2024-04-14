@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
 import { GetSong } from "../../../wailsjs/go/multimedia/Library";
 
 interface PlayerProps {
@@ -8,14 +9,16 @@ interface PlayerProps {
   libName: string;
 }
 
-const Player: React.FC<PlayerProps> = ({ songName, filePath, libName }) => {
+const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   function loadAudio(base64String: string) {
-    const audioPlayer = document.getElementById(
-      "audioPlayer"
-    ) as HTMLAudioElement;
-    audioPlayer.src = "data:audio/mpeg;base64," + base64String;
+    const audioPlayer = audioRef.current;
+    if (audioPlayer) {
+      audioPlayer.src = "data:audio/mpeg;base64," + base64String;
+    }
   }
 
   useEffect(() => {
@@ -28,48 +31,70 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath, libName }) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []); // Empty dependency array ensures that this effect runs only once, similar to componentDidMount
+  }, [isPlaying]); // Include isPlaying in the dependency array
 
   useEffect(() => {
-    const audioPlayer = document.getElementById(
-      "audioPlayer"
-    ) as HTMLAudioElement;
-
-    GetSong(filePath)
-      .then((base64String) => loadAudio(base64String))
-      .catch((error) => console.error("Error fetching audio:", error));
-
-    audioPlayer.play();
-    setIsPlaying(true);
+    const audioPlayer = audioRef.current;
+    if (audioPlayer) {
+      GetSong(filePath)
+        .then((base64String) => loadAudio(base64String))
+        .catch((error) => console.error("Error fetching audio:", error));
+      audioPlayer.play();
+      setIsPlaying(true);
+    }
 
     return () => {
-      audioPlayer.pause();
-      setIsPlaying(false);
+      if (audioPlayer) {
+        audioPlayer.pause();
+        setIsPlaying(false);
+      }
     };
   }, [filePath]);
 
   const togglePlayPause = () => {
-    const audioPlayer = document.getElementById(
-      "audioPlayer"
-    ) as HTMLAudioElement;
-    if (audioPlayer.paused) {
-      audioPlayer.play();
-      setIsPlaying(true);
-    } else {
-      audioPlayer.pause();
-      setIsPlaying(false);
+    const audioPlayer = audioRef.current;
+    if (audioPlayer) {
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        setIsPlaying(true);
+      } else {
+        audioPlayer.pause();
+        setIsPlaying(false);
+      }
     }
+  };
+
+  const updateCurrentTime = () => {
+    const audioPlayer = audioRef.current;
+    if (audioPlayer) {
+      setCurrentTime(audioPlayer.currentTime);
+    }
+  };
+
+  const getDuration = () => {
+    const audioPlayer = audioRef.current;
+    if (audioPlayer) {
+      return audioPlayer.duration;
+    }
+    return 0;
   };
 
   const getSongNameStyle = (): string => {
     return songName.length > 20 ? "scroll-text" : "";
   };
+  
   return (
     <div id="player">
-      <div id="songName" className={getSongNameStyle()}>{songName}</div>
-      <audio id="audioPlayer" controls autoPlay></audio>
-      {/* <div id="recentsButton">history</div>
-      <div id="queueButton">queue</div> */}
+      <div id="songName" className={getSongNameStyle()}>
+        {songName}
+      </div>
+      <div id="customAudioPlayer">
+        <audio id="audioPlayer" ref={audioRef} autoPlay onTimeUpdate={updateCurrentTime}></audio>
+        <div className={`playPauseButton ${isPlaying ? "pause" : "play"}`} onClick={togglePlayPause}>
+          <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />
+        </div>
+        <progress id="progressBar" value={currentTime} max={getDuration()}></progress>
+      </div>
     </div>
   );
 };
