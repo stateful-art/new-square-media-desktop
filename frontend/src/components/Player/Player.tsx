@@ -10,9 +10,10 @@ interface PlayerProps {
 }
 
 const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [volume, setVolume] = useState<number>(1);
 
   function loadAudio(base64String: string) {
     const audioPlayer = audioRef.current;
@@ -21,17 +22,17 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
     }
   }
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === " " && isPlaying) {
-        togglePlayPause();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isPlaying]); // Include isPlaying in the dependency array
+  // useEffect(() => {
+  //   const handleKeyDown = (event: KeyboardEvent) => {
+  //     if (event.key === " " && isPlaying) {
+  //       togglePlayPause();
+  //     }
+  //   };
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, [isPlaying]); // Include isPlaying in the dependency array
 
   useEffect(() => {
     const audioPlayer = audioRef.current;
@@ -79,14 +80,30 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
     return 0;
   };
 
+  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(event.target.value);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+      setVolume(newVolume);
+    }
+  };
+
+  const handleProgressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(event.target.value);
+    setCurrentTime(newTime);
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime;
+    }
+  };
+
   const getSongNameStyle = (): string => {
     return songName.length > 20 ? "scroll-text" : "";
   };
 
   return (
     <div id="player">
-      <div id="songName" className={getSongNameStyle()}>
-        {songName}
+        <div id="songName" className={getSongNameStyle()}>
+          {songName}
       </div>
       <div id="customAudioPlayer">
         <div className={"playPauseButton"} onClick={togglePlayPause}>
@@ -98,23 +115,40 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
           autoPlay
           onTimeUpdate={updateCurrentTime}
         ></audio>
+        <input
+          type="range"
+          id="volumeControl"
+          className="volume-control"
+          min="0"
+          max="1"
+          step="0.01"
+          value={volume}
+          onChange={handleVolumeChange}
+        />
       </div>
-      {!Number.isNaN(getDuration())&&
-      <div id="prog">
-        { Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
-        <progress
-          id="customProgressBar"
-          value={currentTime}
+      {!Number.isNaN(getDuration()) && (
+        <div id="prog">
+          { Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
+          {/* <progress
+            id="customProgressBar"
+            value={currentTime}
+            max={getDuration()}
+          ></progress> */}
+           <input
+          type="range"
+          id="progress-control"
+          className="progress-control"
+          min="0"
           max={getDuration()}
-        ></progress>
-        {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
-      </div>
-}
-
-
+          step="1"
+          value={currentTime}
+          onChange={handleProgressChange}
+          />
+          {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
+        </div>
+      )}
     </div>
   );
-  
 };
 
 export default Player;

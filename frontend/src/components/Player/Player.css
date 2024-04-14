@@ -49,6 +49,46 @@
   margin-right: 20px; /* Adjust margin for spacing */
 }
 
+.volume-control {
+  width: 100px; /* Adjust width as needed */
+  height: 10px; /* Adjust height as needed */
+  margin-top: 5px; /* Adjust margin as needed */
+  background-color: #ddd; /* Background color of the volume control */
+  border-radius: 5px; /* Border radius for rounded corners */
+}
+
+.volume-control::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default appearance */
+  appearance: none; /* Remove default appearance */
+  width: 20px; /* Width of the slider thumb */
+  height: 20px; /* Height of the slider thumb */
+  background-color: #007bff; /* Color of the slider thumb */
+  border-radius: 50%; /* Make the slider thumb circular */
+  cursor: pointer; /* Show pointer cursor */
+}
+
+.progress-control {
+  width: 100%; /* Adjust width as needed */
+  height: 10px; /* Adjust height as needed */
+  margin-top: 5px; /* Adjust margin as needed */
+  background-color: #ddd; /* Default background color of the progress control */
+  border-radius: 5px; /* Border radius for rounded corners */
+}
+
+.progress-control::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default appearance */
+  appearance: none; /* Remove default appearance */
+  width: 0; /* Width of the slider thumb */
+  height: 0; /* Height of the slider thumb */
+  background-color: transparent; /* Make the slider thumb transparent */
+  cursor: default; /* Set default cursor */
+}
+
+/* Define the gradient background for the progress control */
+.progress-control {
+  background: linear-gradient(to right, #007bff 0%, #007bff calc((100% - 2px) * var(--progress)), #ddd calc((100% - 2px) * var(--progress)), #ddd 100%);
+}
+
 .playPauseButton {
   width: 60px;
   height: 60px;
