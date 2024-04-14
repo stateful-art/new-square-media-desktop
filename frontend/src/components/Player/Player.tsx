@@ -82,21 +82,37 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
   const getSongNameStyle = (): string => {
     return songName.length > 20 ? "scroll-text" : "";
   };
-  
+
   return (
     <div id="player">
       <div id="songName" className={getSongNameStyle()}>
         {songName}
       </div>
       <div id="customAudioPlayer">
-        <audio id="audioPlayer" ref={audioRef} autoPlay onTimeUpdate={updateCurrentTime}></audio>
-        <div className={`playPauseButton ${isPlaying ? "pause" : "play"}`} onClick={togglePlayPause}>
-          <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />
+        <div className={"playPauseButton"} onClick={togglePlayPause}>
+          <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} size="2x" />
         </div>
-        <progress id="progressBar" value={currentTime} max={getDuration()}></progress>
+        <audio
+          id="audioPlayer"
+          ref={audioRef}
+          autoPlay
+          onTimeUpdate={updateCurrentTime}
+        ></audio>
       </div>
+      {!Number.isNaN(getDuration())&&
+      <div id="prog">
+        { Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
+        <progress
+          id="customProgressBar"
+          value={currentTime}
+          max={getDuration()}
+        ></progress>
+        {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
+      </div>
+}
     </div>
   );
+  
 };
 
 export default Player;
