@@ -83,9 +83,9 @@ const MusicLibrary: React.FC = () => {
     }
   };
 
-  const toggleInputVisibility = () => {
-    setIsInputVisible(!isInputVisible);
-  };
+  // const toggleInputVisibility = () => {
+  //   setIsInputVisible(!isInputVisible);
+  // };
 
   const handleLibraryClick = (name: string, path: string) => {
     setSelectedLibrary(name);
@@ -127,6 +127,24 @@ const MusicLibrary: React.FC = () => {
     console.log("number of songs in the queue now: ", queue.size);
   }, [queue]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isInputVisible )  {
+        setIsInputVisible(false);
+      }
+    };
+  
+    document.addEventListener('keydown', handleKeyDown);
+  
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isInputVisible]); 
+ 
+  const toggleInputVisibility = () => {
+    setIsInputVisible((prevIsInputVisible) => !prevIsInputVisible);
+  };
+
   return (
     <>
       <div id="leftPanel">
@@ -141,7 +159,9 @@ const MusicLibrary: React.FC = () => {
             type="text"
             value={newLibName}
             onChange={handleInputChange}
-            onKeyPress={handleInputKeyPress}
+            onKeyDown={handleInputKeyPress}
+            onFocus={(e) => e.target.select()} // Select all text when the input field is focused
+
             placeholder="new library name"
           />
         ) : (

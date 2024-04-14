@@ -104,11 +104,11 @@ body {
 }
 
 .add-queue-btn:hover {
-  background-color: black;
   cursor: pointer;
-  width: 1.6rem;
-  height: 1.6rem;
+  color: #000000;
+  font-size: 1.6rem;
 }
+
 
 #modal {
   display: none;
@@ -182,16 +182,16 @@ input[type="text"] {
   background-color: #000000; /* Green background */
   color: white;
   text-align: center;
-  line-height: 80px; /* Align text vertically */
+  line-height: 64px; /* Align text vertically */
   cursor: pointer;
-  font-size: large;
+  font-size: 2.6rem;
   bottom: 80px;
   left: 0;
 }
 
 #libraryInput {
   position: fixed;
-  width: 15%;
+  width: 13%;
   background-color: white; /* Green background */
   color: black;
   text-align: start;
