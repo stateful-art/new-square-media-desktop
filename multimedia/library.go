@@ -180,7 +180,6 @@ func (a *Library) SaveLibraries() error {
 		return err
 	}
 
-	log.Print(string(data))
 	if count == 0 {
 		// If libraries entry doesn't exist, insert it
 		_, err = tx.Exec("INSERT INTO libraries(name, data) VALUES(?, ?)", "libraries", string(data))
@@ -203,7 +202,6 @@ func (a *Library) SaveLibraries() error {
 		return err
 	}
 
-	log.Printf("done with SaveLibraries..")
 	return nil
 }
 
