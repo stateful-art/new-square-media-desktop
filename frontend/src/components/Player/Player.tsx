@@ -22,6 +22,12 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
     }
   }
 
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // currently, when this on;
+  // when user presses space key when they enter a new lib name
+  // if a song is being played, it stops playing. 
+  // TODO: receive isInputVisible bool as a prop to this component
+
   // useEffect(() => {
   //   const handleKeyDown = (event: KeyboardEvent) => {
   //     if (event.key === " " && isPlaying) {
@@ -33,6 +39,7 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
   //     window.removeEventListener("keydown", handleKeyDown);
   //   };
   // }, [isPlaying]); // Include isPlaying in the dependency array
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   useEffect(() => {
     const audioPlayer = audioRef.current;
