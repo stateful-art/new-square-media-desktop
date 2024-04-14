@@ -49,17 +49,15 @@ type Song struct {
 }
 
 func NewLibrary(db *sql.DB) *Library {
-	index := NewTrieNode() // Initialize the trie root
+	index := NewTrieNode()
 	return &Library{
 		client: &http.Client{},
-		index:  index, // Set the trie field
+		index:  index,
 		db:     db,
 	}
 }
 
 func (a *Library) Startup(ctx context.Context) {
-	// a.LoadLibraries()
-
 	a.ctx = ctx
 }
 

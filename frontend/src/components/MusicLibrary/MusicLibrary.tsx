@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
 import "./MusicLibrary.css"; // Import the CSS module
@@ -34,6 +34,9 @@ const MusicLibrary: React.FC = () => {
   const [selectedFilePath, setSelectedFilePath] = useState<string>("");
   const [isInputVisible, setIsInputVisible] = useState(false);
 
+  // const [queue, setQueue] = useState<SongLibrary[]>([]); // Step 1: Define queue state
+  const [queue, setQueue] = useState<Set<SongLibrary>>(new Set()); // Step 1: Define queue state as a Set
+
   // const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
@@ -60,7 +63,7 @@ const MusicLibrary: React.FC = () => {
       }).then(() => {
         setIsInputVisible(false);
         setNewLibName("");
-        setSelectedLibrary(newLibName)
+        setSelectedLibrary(newLibName);
         ListLibraries().then((libraries) => setLibraries(libraries));
       });
     } catch (error) {
@@ -104,11 +107,25 @@ const MusicLibrary: React.FC = () => {
   };
 
   const handleRemoveLibrary = (libName: string) => {
-    console.log("@handleRemoveLibrary for >>", libName)
+    console.log("@handleRemoveLibrary for >>", libName);
     RemoveLibrary(libName).then(() => {
       ListLibraries().then((libraries) => setLibraries(libraries));
     });
   };
+
+  const handleAddToQueue = (item: SongLibrary) => {
+    setQueue((prevQueue) => {
+      const newQueue = new Set(prevQueue);
+      newQueue.add(item);
+      return newQueue;
+    });
+  };
+
+  // TESTING: Log the queue & size whenever the queue state changes
+  useEffect(() => {
+    console.log(queue);
+    console.log("number of songs in the queue now: ", queue.size);
+  }, [queue]);
 
   return (
     <>
@@ -134,31 +151,39 @@ const MusicLibrary: React.FC = () => {
         )}
         <ul id="libraryList">
           {libraries.map((library) => (
-             <li
-             key={library.name}
-             onClick={() => handleLibraryClick(library.name, library.path)}
-             className={selectedLibrary === library.name ? "selected-lib" : ""}
-           >
-             {library.name}
-           </li>
+            <li
+              key={library.name}
+              onClick={() => handleLibraryClick(library.name, library.path)}
+              className={selectedLibrary === library.name ? "selected-lib" : ""}
+            >
+              {library.name}
+            </li>
           ))}
         </ul>
       </div>
 
       <div id="rightPanel">
-        <div id="rp-topnav">
-          <span>{selectedLibrary}</span>
-          <FontAwesomeIcon
-            icon={faTrash}
-            style={{ right: "10px", cursor: "pointer" }}
-            onClick={() => handleRemoveLibrary(selectedLibrary)}
-          />
-        </div>
+        {selectedLibrary !== "" && (
+          <div id="rp-topnav">
+            <>
+              <span>{selectedLibrary}</span>
+              <FontAwesomeIcon
+                icon={faTrash}
+                className={"remove-library-btn"}
+                size="lg"
+                onClick={() => handleRemoveLibrary(selectedLibrary)}
+              />
+            </>
+          </div>
+        )}
         <ul id="fileList">
           {libraryContents.map((item) => (
             <li
               key={item.name}
               style={{
+                display: "flex", // Use flexbox to control layout
+                justifyContent: "space-between", // Align items at the start and end of the row
+                alignItems: "center", // Vertically center items
                 backgroundColor: item.isFolder
                   ? "#535258"
                   : selectedSong === item.name
@@ -171,7 +196,19 @@ const MusicLibrary: React.FC = () => {
                   : handleSongClick(item)
               }
             >
-              {item.name}
+              <span>{item.name}</span>
+              {!item.isFolder && (
+                <FontAwesomeIcon
+                className={"add-queue-btn"}
+                  icon={faPlus}
+                  // style={{ cursor: "pointer" }}
+                  size="lg"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stop event propagation
+                    handleAddToQueue(item);
+                  }}
+                />
+              )}
             </li>
           ))}
         </ul>

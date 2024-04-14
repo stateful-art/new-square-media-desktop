@@ -33,16 +33,6 @@ body {
   font-weight: 400;
   font-size: large;
 }
-/* #rightPanel {
-  width: 85%;
-  float: right;
-  height: 100vh; 
-  overflow: auto;
-  background-color: #0b0b0b;
-  display: flex; 
-  flex-direction: column; 
-} */
-
 #rightPanel {
   width: 85%;
   float: right;
@@ -71,23 +61,55 @@ body {
   font-family: "Chakra Petch", sans-serif;
   font-style: normal;
   font-weight: 400;
+  display: flex; /* Use flexbox to control layout */
+  justify-content: space-between; /* Align items at the start and end of the row */
+  align-items: center; /* Vertically center items */
+}
+
+#rightPanel li > span {
+  flex-grow: 1; /* Allow the span to grow and take up remaining space */
 }
 
 #fileList li:hover {
   background-color: rgb(243, 140, 44) !important;
 }
 
-.selected {
+.song-selected {
   background-color: red; /* Define the background color for selected items */
 }
 
 .selected-lib {
-  background-color: rgb(202, 116, 146); /* Define the background color for selected items */
+  background-color: rgb(
+    202,
+    116,
+    146
+  ); /* Define the background color for selected items */
 }
 
 #rp-lib-name {
   padding-left: 40px;
 }
+
+.remove-library-btn {
+  padding-right: 2rem;
+}
+
+.remove-library-btn:hover {
+  cursor: pointer;
+  color: red;
+}
+
+.add-queue-btn {
+  margin-right: 2rem;
+}
+
+.add-queue-btn:hover {
+  background-color: black;
+  cursor: pointer;
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
 #modal {
   display: none;
   position: fixed;
@@ -180,10 +202,9 @@ input[type="text"] {
   font-family: "Chakra Petch", sans-serif;
   font-style: normal;
   font-weight: 400;
-
 }
 
-#addLibBtn:hover{
+#addLibBtn:hover {
   background-color: white;
   color: black;
 }
@@ -226,6 +247,12 @@ input[type="text"] {
   display: flex; /* Use flexbox for alignment */
   justify-content: space-between; /* Distribute items evenly along the row */
   align-items: center; /* Center items vertically */
+}
+
+#rp-topnav span {
+  font-size: 1.4rem;
+  padding-left: 2.4rem;
+  font-style: italic;
 }
 
 #breadcrumb {

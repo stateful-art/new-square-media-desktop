@@ -110,6 +110,8 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
         {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
       </div>
 }
+
+
     </div>
   );
   
