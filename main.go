@@ -4,7 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	Multimedia "lolipie/multimedia"
 
@@ -20,44 +23,75 @@ import (
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
+//go:embed all:data
+var embeddedData embed.FS
 var db *sql.DB
 
 func init() {
-	// Open SQLite database
-	var err error
-	db, err = sql.Open("sqlite3", "./data.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// defer db.Close()
 
-	// Initialize tables if not exists
+	tempDir, err := os.MkdirTemp("", "data")
+	if err != nil {
+		log.Fatal("Error creating temporary directory:", err)
+	}
+
+	// Extract the embedded data directory to the temporary directory
+	if err := extractEmbeddedData(tempDir); err != nil {
+		log.Fatal("Error extracting embedded data:", err)
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal("Error getting user's home directory:", err)
+	}
+
+	// Define the directory path
+	dirPath := filepath.Join(homeDir, ".n2media")
+
+	// Check if the directory exists
+	_, err = os.Stat(dirPath)
+	if os.IsNotExist(err) {
+		// Directory does not exist, create it
+		err := os.MkdirAll(dirPath, 0777)
+		if err != nil {
+			log.Fatal("Error creating directory:", err)
+		}
+		log.Println("Directory created:", dirPath)
+	} else if err != nil {
+		// Error occurred while checking directory existence
+		log.Fatal("Error checking directory:", err)
+	} else {
+		// Directory already exists
+		log.Println("Directory already exists:", dirPath)
+	}
+
+	dbPath := filepath.Join(homeDir, ".n2media", "data.db")
+	db, err = sql.Open("sqlite3", dbPath)
+	if err != nil {
+		log.Fatal("Error opening SQLite database:", err)
+	}
+
+	// Initialize tables if they don't exist
 	if err := createTables(); err != nil {
-		log.Fatal(err)
+		log.Fatal("Error creating tables:", err)
 	}
 }
-
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+
 	lib := Multimedia.NewLibrary(db)
 	search := Multimedia.NewTrieNode()
 
 	AppMenu := menu.NewMenu()
 	FileMenu := AppMenu.AddSubmenu("File")
-	// FileMenu.AddText("&Open", keys.CmdOrCtrl("o"), openFile)
 	FileMenu.AddSeparator()
 	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
 		runtime.Quit(app.ctx)
 	})
 
-	// if runtime.GOOS == "darwin" {
-	// 	AppMenu.Append(menu.EditMenu()) // on macos platform, we should append EditMenu to enable Cmd+C,Cmd+V,Cmd+Z... shortcut
-	// }
-
 	// Create application with options
-
-	err := wails.Run(&options.App{
+	erro := wails.Run(&options.App{
 		Title:  "New Square",
 		Width:  1024,
 		Height: 768,
@@ -72,20 +106,19 @@ func main() {
 			lib.Startup(ctx)
 			search.Startup(ctx)
 		},
-
 		Bind: []interface{}{
 			app, search, lib,
 		},
 	})
 
-	if err != nil {
-		println("Error:", err.Error())
+	if erro != nil {
+		println("Error:", erro.Error())
 	}
-
 }
 
 // createTables initializes the necessary tables in the SQLite database
 func createTables() error {
+	log.Print("@createTables")
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS libraries (
 			name TEXT PRIMARY KEY,
@@ -93,10 +126,31 @@ func createTables() error {
 		)
 	`)
 	if err != nil {
+		log.Print("already got table")
+
 		return err
 	}
 
 	// Add more CREATE TABLE statements for other tables if needed
 
+	return nil
+}
+
+func extractEmbeddedData(targetDir string) error {
+	files, err := embeddedData.ReadDir("data")
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		log.Println("reading file", file.Name())
+		data, err := embeddedData.ReadFile(fmt.Sprintf("data/%s", file.Name()))
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(filepath.Join(targetDir, file.Name()), data, 0777); err != nil {
+			return err
+		}
+	}
 	return nil
 }

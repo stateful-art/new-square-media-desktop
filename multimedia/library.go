@@ -132,12 +132,20 @@ func (a *Library) UpdateSearchIndex(library *LibItem) {
 
 }
 
-func (a *Library) CreateLibrary(library *Lib) error {
+func (a *Library) CreateLibrary(library Lib) error {
 	if _, exists := Libraries[library.Name]; !exists {
 		// If the library does not exist, add it to the map
-		Libraries[library.Name] = *library
-		go a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: library.Path, IsFolder: true})
+		Libraries[library.Name] = library
+
+		log.Printf("number of Libs before SaveLibraries.: %d", len(Libraries))
+		// for _, lib := range Libraries {
+		// 	// Convert each Library to a SongLibrary and append to the slice
+		// 	log.Printf("currently @ Libraries: %s ", lib.Name)
+		// }
 		a.SaveLibraries()
+		// log.Printf("number of Libs after SaveLibraries.: %d", len(Libraries))
+
+		// go a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: library.Path, IsFolder: true})
 		return nil
 
 	} else {
@@ -356,12 +364,17 @@ func isImageOrVideoFile(ext string) bool {
 	return false
 }
 
-// SaveLibraries saves the Libraries map to the SQLite database
 func (a *Library) SaveLibraries() error {
+	tx, err := a.db.Begin()
+	if err != nil {
+		log.Println("Error starting transaction:", err)
+		return err
+	}
+	defer tx.Rollback() // Rollback transaction if commit is not called
 
 	// Check if libraries entry exists
 	var count int
-	err := a.db.QueryRow("SELECT COUNT(*) FROM libraries").Scan(&count)
+	err = tx.QueryRow("SELECT COUNT(*) FROM libraries").Scan(&count)
 	if err != nil {
 		log.Println("Error checking count:", err)
 		return err
@@ -374,24 +387,35 @@ func (a *Library) SaveLibraries() error {
 		return err
 	}
 
+	log.Print(string(data))
 	if count == 0 {
 		// If libraries entry doesn't exist, insert it
-		_, err = a.db.Exec("INSERT INTO libraries(name, data) VALUES(?, ?)", "libraries", string(data))
+		_, err = tx.Exec("INSERT INTO libraries(name, data) VALUES(?, ?)", "libraries", string(data))
+		if err != nil {
+			log.Println("Error executing query:", err)
+			return err
+		}
 	} else {
 		// If libraries entry exists, replace its data
-		_, err = a.db.Exec("UPDATE libraries SET data=? WHERE name=?", string(data), "libraries")
+		_, err = tx.Exec("UPDATE libraries SET data = ? WHERE name = ?", string(data), "libraries")
+		if err != nil {
+			log.Println("Error executing query:", err)
+			return err
+		}
 	}
-	if err != nil {
-		log.Println("Error executing query:", err)
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		log.Println("Error committing transaction:", err)
 		return err
 	}
 
+	log.Printf("done with SaveLibraries..")
 	return nil
 }
 
 // LoadLibraries loads the Libraries map from the SQLite database
 func (a *Library) LoadLibraries() error {
-
 	// Query data from the database
 	var data string
 	err := a.db.QueryRow("SELECT data FROM libraries WHERE name = ?", "libraries").Scan(&data)
