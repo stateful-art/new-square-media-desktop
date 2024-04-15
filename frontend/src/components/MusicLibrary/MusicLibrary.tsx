@@ -148,7 +148,6 @@ const MusicLibrary: React.FC = () => {
     );
   }, [folderPath]);
 
-
   const handleFolderSelect = async () => {
     try {
       const folderPath = await OpenFolderDialog();
@@ -179,19 +178,17 @@ const MusicLibrary: React.FC = () => {
     }
   };
 
-
-  const getPlaceItems = (name:string) => {
+  const getPlaceItems = (name: string) => {
     const place = places.find((place) => place.name === name);
     return place ? place.items : [];
   };
 
-  
   const handlePlaceClick = (name: string) => {
     console.log("selected place >> ", name);
     setSelectedPlace(name);
 
     let contents = getPlaceItems(name);
-    setPlaceContents(contents)
+    setPlaceContents(contents);
   };
 
   const handleLibraryClick = (name: string, path: string) => {
@@ -334,18 +331,28 @@ const MusicLibrary: React.FC = () => {
       </div>
 
       <div id="rightPanel">
-        {selectedLibrary !== "" && (
-          <div id="rp-topnav">
-            <>
-              <span>{selectedLibrary}</span>
-              <FontAwesomeIcon
-                icon={faTrash}
-                className={"remove-library-btn"}
-                size="lg"
-                onClick={() => handleRemoveLibrary(selectedLibrary)}
-              />
-            </>
-          </div>
+        {isLibraryView ? (
+          <>
+            {selectedLibrary !== "" && (
+              <div id="rp-topnav">
+                <>
+                  <span>{selectedLibrary}</span>
+                  <FontAwesomeIcon
+                    icon={faTrash}
+                    className={"remove-library-btn"}
+                    size="lg"
+                    onClick={() => handleRemoveLibrary(selectedLibrary)}
+                  />
+                </>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div id="rp-topnav">
+              <span>{selectedPlace}</span>
+            </div>
+          </>
         )}
         <ul id="fileList">
           {isLibraryView ? (
