@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTrash,
+  faPlus,
+  faBook,
+  faMap,
+} from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
 import "./MusicLibrary.css"; // Import the CSS module
@@ -22,22 +27,112 @@ type SongLibrary = {
   isFolder?: boolean;
 };
 
+type Item = {
+  name: string;
+  path: string;
+  isPlaylist?: boolean;
+};
+
+type Place = {
+  name: string;
+  description: string;
+  items: Item[];
+};
+
 const MusicLibrary: React.FC = () => {
   const [folderPath, setFolderPath] = useState<string>("");
   const [newLibName, setNewLibName] = useState<string>("");
   const [libraries, setLibraries] = useState<SongLibrary[]>([]);
   // const [matches, setMatches] = useState<SongLibrary[]>([]);
+  // const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [libraryContents, setLibraryContents] = useState<SongLibrary[]>([]);
+  const [placeContents, setPlaceContents] = useState<Item[]>([]);
+
   const [selectedSong, setSelectedSong] = useState<string>("");
   const [selectedLibrary, setSelectedLibrary] = useState<string>("");
   const [selectedFilePath, setSelectedFilePath] = useState<string>("");
   const [isInputVisible, setIsInputVisible] = useState(false);
 
-  // const [queue, setQueue] = useState<SongLibrary[]>([]); // Step 1: Define queue state
   const [queue, setQueue] = useState<Set<SongLibrary>>(new Set()); // Step 1: Define queue state as a Set
 
-  // const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isLibraryView, setIsLibraryView] = useState<boolean>(true); // Track whether to display libraries or places
+
+  // const [places, setPlaces] = useState<Place[]>([
+  //   { name: "Hardrock Cafe", description: "Description 1" },
+  //   { name: "Elefante Bar", description: "Description 2" },
+  //   { name: "Karga Bar", description: "Description 3" },
+  //   { name: "Coco Bistro", description: "Description 3" },
+  // ]);
+  const [selectedPlace, setSelectedPlace] = useState<string>("");
+
+  const [places, setPlaces] = useState<Place[]>([
+    {
+      name: "Hardrock Cafe",
+      description: "Description 1",
+      items: [
+        {
+          name: "Pls",
+          path: "/path/to/playlist1",
+          isPlaylist: true,
+        },
+        {
+          name: "OOOw",
+          path: "/path/to/song1",
+          isPlaylist: false,
+        },
+        // Add more items as needed
+      ],
+    },
+    {
+      name: "Elefante Bar",
+      description: "Description 2",
+      items: [
+        {
+          name: "FaFa",
+          path: "/path/to/playlist1",
+          isPlaylist: true,
+        },
+        {
+          name: "Ele ele",
+          path: "/path/to/song1",
+          isPlaylist: false,
+        },
+      ],
+    },
+    {
+      name: "Karga Bar",
+      description: "Description 3",
+      items: [
+        {
+          name: "Karga mix",
+          path: "/path/to/playlist1",
+          isPlaylist: true,
+        },
+        {
+          name: "Song 1",
+          path: "/path/to/song1",
+          isPlaylist: false,
+        },
+      ],
+    },
+    {
+      name: "Coco Bistro",
+      description: "Coco Special",
+      items: [
+        {
+          name: "Arsiv",
+          path: "/path/to/playlist1",
+          isPlaylist: true,
+        },
+        {
+          name: "Gangham style",
+          path: "/path/to/song1",
+          isPlaylist: false,
+        },
+      ],
+    },
+  ]);
 
   useEffect(() => {
     LoadLibraries().then(() => {
@@ -52,6 +147,7 @@ const MusicLibrary: React.FC = () => {
       setLibraryContents(contents)
     );
   }, [folderPath]);
+
 
   const handleFolderSelect = async () => {
     try {
@@ -83,9 +179,20 @@ const MusicLibrary: React.FC = () => {
     }
   };
 
-  // const toggleInputVisibility = () => {
-  //   setIsInputVisible(!isInputVisible);
-  // };
+
+  const getPlaceItems = (name:string) => {
+    const place = places.find((place) => place.name === name);
+    return place ? place.items : [];
+  };
+
+  
+  const handlePlaceClick = (name: string) => {
+    console.log("selected place >> ", name);
+    setSelectedPlace(name);
+
+    let contents = getPlaceItems(name);
+    setPlaceContents(contents)
+  };
 
   const handleLibraryClick = (name: string, path: string) => {
     setSelectedLibrary(name);
@@ -97,6 +204,12 @@ const MusicLibrary: React.FC = () => {
 
   const handleFolderClick = (path: string) => {
     ListLibraryContents(selectedLibrary, path).then((contents) => {
+      setLibraryContents(contents);
+    });
+  };
+
+  const handlePlaylistClick = (path: string) => {
+    ListLibraryContents(selectedPlace, path).then((contents) => {
       setLibraryContents(contents);
     });
   };
@@ -129,26 +242,50 @@ const MusicLibrary: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isInputVisible )  {
+      if (event.key === "Escape" && isInputVisible) {
         setIsInputVisible(false);
       }
     };
-  
-    document.addEventListener('keydown', handleKeyDown);
-  
+
+    document.addEventListener("keydown", handleKeyDown);
+
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isInputVisible]); 
- 
+  }, [isInputVisible]);
+
   const toggleInputVisibility = () => {
     setIsInputVisible((prevIsInputVisible) => !prevIsInputVisible);
+  };
+
+  const toggleLibraryView = () => {
+    setIsLibraryView(true);
+  };
+
+  const togglePlacesView = () => {
+    setIsLibraryView(false);
   };
 
   return (
     <>
       <div id="leftPanel">
-        <h2 id="lp-title">New Square</h2>
+        {/* <h2 id="lp-title">New Square</h2> */}
+        <div id="tabs">
+          <button
+            className={isLibraryView ? "active-tab" : ""}
+            onClick={toggleLibraryView}
+          >
+            <FontAwesomeIcon icon={faBook} />
+            Libraries
+          </button>
+          <button
+            className={!isLibraryView ? "active-tab" : ""}
+            onClick={togglePlacesView}
+          >
+            <FontAwesomeIcon icon={faMap} />
+            Places
+          </button>
+        </div>
         <hr />
 
         {/* <SearchBar onSearch={handleSearch} /> */}
@@ -161,7 +298,6 @@ const MusicLibrary: React.FC = () => {
             onChange={handleInputChange}
             onKeyDown={handleInputKeyPress}
             onFocus={(e) => e.target.select()} // Select all text when the input field is focused
-
             placeholder="new library name"
           />
         ) : (
@@ -170,15 +306,30 @@ const MusicLibrary: React.FC = () => {
           </button>
         )}
         <ul id="libraryList">
-          {libraries.map((library) => (
-            <li
-              key={library.name}
-              onClick={() => handleLibraryClick(library.name, library.path)}
-              className={selectedLibrary === library.name ? "selected-lib" : ""}
-            >
-              {library.name}
-            </li>
-          ))}
+          {isLibraryView
+            ? libraries.map((library) => (
+                <li
+                  key={library.name}
+                  onClick={() => handleLibraryClick(library.name, library.path)}
+                  className={
+                    selectedLibrary === library.name ? "selected-lib" : ""
+                  }
+                >
+                  {library.name}
+                </li>
+              ))
+            : places.map((place) => (
+                <li
+                  key={place.name}
+                  onClick={() => handlePlaceClick(place.name)}
+                  className={
+                    selectedPlace === place.name ? "selected-place" : ""
+                  }
+                >
+                  {place.name}
+                  {/* <p>{place.description}</p> */}
+                </li>
+              ))}
         </ul>
       </div>
 
@@ -197,40 +348,84 @@ const MusicLibrary: React.FC = () => {
           </div>
         )}
         <ul id="fileList">
-          {libraryContents.map((item) => (
-            <li
-              key={item.name}
-              style={{
-                display: "flex", // Use flexbox to control layout
-                justifyContent: "space-between", // Align items at the start and end of the row
-                alignItems: "center", // Vertically center items
-                backgroundColor: item.isFolder
-                  ? "#535258"
-                  : selectedSong === item.name
-                  ? "red"
-                  : "transparent",
-              }}
-              onClick={() =>
-                item.isFolder
-                  ? handleFolderClick(item.path)
-                  : handleSongClick(item)
-              }
-            >
-              <span>{item.name}</span>
-              {!item.isFolder && (
-                <FontAwesomeIcon
-                className={"add-queue-btn"}
-                  icon={faPlus}
-                  // style={{ cursor: "pointer" }}
-                  size="lg"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Stop event propagation
-                    handleAddToQueue(item);
+          {isLibraryView ? (
+            <>
+              {libraryContents.map((item) => (
+                <li
+                  key={item.name}
+                  style={{
+                    display: "flex", // Use flexbox to control layout
+                    justifyContent: "space-between", // Align items at the start and end of the row
+                    alignItems: "center", // Vertically center items
+                    backgroundColor: item.isFolder
+                      ? "#535258"
+                      : selectedSong === item.name
+                      ? "red"
+                      : "transparent",
                   }}
-                />
-              )}
-            </li>
-          ))}
+                  onClick={() =>
+                    item.isFolder
+                      ? handleFolderClick(item.path)
+                      : handleSongClick(item)
+                  }
+                >
+                  <span>{item.name}</span>
+                  {!item.isFolder && (
+                    <FontAwesomeIcon
+                      className={"add-queue-btn"}
+                      icon={faPlus}
+                      // style={{ cursor: "pointer" }}
+                      size="lg"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Stop event propagation
+                        handleAddToQueue(item);
+                      }}
+                    />
+                  )}
+                </li>
+              ))}
+            </>
+          ) : (
+            <>
+              <ul id="fileList">
+                {selectedPlace &&
+                  placeContents.map((item) => (
+                    <li
+                      key={item.name}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        backgroundColor: item.isPlaylist
+                          ? "#535258"
+                          : selectedSong === item.name
+                          ? "red"
+                          : "transparent",
+                      }}
+                      onClick={() =>
+                        item.isPlaylist
+                          ? handlePlaylistClick(item.path)
+                          : handleSongClick(item)
+                      }
+                    >
+                      <span>{item.name}</span>
+                      {!item.isPlaylist && (
+                        <FontAwesomeIcon
+                          className={"add-queue-btn"}
+                          icon={faPlus}
+                          size="lg"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToQueue(item);
+                          }}
+                        />
+                      )}
+                    </li>
+                  ))}
+              </ul>
+              ``
+            </>
+          )}
         </ul>
       </div>
       <Player
