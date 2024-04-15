@@ -109,7 +109,7 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
 
   return (
     <div id="player">
-      {!Number.isNaN(getDuration()) && (
+      {/* {!Number.isNaN(getDuration()) && ( */}
         <>
           <div id="songName">{songName}</div>
           <FontAwesomeIcon
@@ -122,7 +122,7 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
             id="audioPlayer"
             ref={audioRef}
             autoPlay
-            onTimeUpdate={updateCurrentTime}
+            // onTimeUpdate={updateCurrentTime}
           ></audio>
           {/* <div id="prog">
             {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
@@ -149,7 +149,7 @@ const Player: React.FC<PlayerProps> = ({ songName, filePath }) => {
             onChange={handleVolumeChange}
           />
         </>
-      )}
+      {/* )} */}
     </div>
   );
 };
