@@ -2,6 +2,7 @@ body {
   margin: 0;
 }
 #leftPanel {
+  
   width: 15%;
   float: left;
   height: 100vh;
@@ -9,12 +10,15 @@ body {
   color: #f0f0f0;
   margin: 0;
   overflow-y: scroll;
+
 }
 
 #leftPanel ul {
+  margin-top: 1rem;
   list-style: none;
   padding-left: 10px;
   text-align: start;
+  
 }
 
 #leftPanel li {
@@ -403,6 +407,7 @@ input[type="text"] {
 }
 
 #tabs {
+  /* position: fixed; */
   display: flex;
   justify-content: space-between;
   align-items: center;

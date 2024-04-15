@@ -21,7 +21,7 @@ import {
 import Player from "../Player/Player";
 // import SearchBar from "../SearchBar/SearchBar";
 
-type SongLibrary = {
+export type SongLibrary = {
   name: string;
   path: string;
   isFolder?: boolean;
@@ -283,7 +283,7 @@ const MusicLibrary: React.FC = () => {
             Places
           </button>
         </div>
-        <hr />
+        {/* <hr /> */}
 
         {/* <SearchBar onSearch={handleSearch} /> */}
 
@@ -376,7 +376,9 @@ const MusicLibrary: React.FC = () => {
                       : handleSongClick(item)
                   }
                 >
-                  <span>{item.name}</span>
+                  {/* display song names without extension */}
+                  <span>{item.name.replace(/\.[^.]+$/, "")}</span>
+
                   {!item.isFolder && (
                     <FontAwesomeIcon
                       className={"add-queue-btn"}
@@ -430,7 +432,6 @@ const MusicLibrary: React.FC = () => {
                     </li>
                   ))}
               </ul>
-              ``
             </>
           )}
         </ul>
@@ -439,6 +440,8 @@ const MusicLibrary: React.FC = () => {
         songName={selectedSong}
         filePath={selectedFilePath}
         libName={selectedLibrary}
+        queue={queue}
+        setQueue={setQueue}
       />
       <div id="queuePanel" className="hidden"></div>
       <div id="historyPanel" className="hidden"></div>
