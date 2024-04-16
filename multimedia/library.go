@@ -61,6 +61,21 @@ func (a *Library) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
+func (a *Library) RemoveLibraryDialog() (string, error) {
+	var opts = rt.MessageDialogOptions{
+		Message:       "Are you sure to delete this library?",
+		Buttons:       []string{"yes", "no"},
+		DefaultButton: "yes",
+		CancelButton:  "no",
+	}
+
+	selection, err := rt.MessageDialog(a.ctx, opts)
+	if err != nil {
+		return "", err
+	}
+	return selection, nil // Return the selected file path
+}
+
 func (a *Library) OpenFileDialog() (string, error) {
 	var opts = rt.OpenDialogOptions{
 		Title: "Select File",

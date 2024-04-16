@@ -38,6 +38,10 @@ export function RemoveLibrary(arg1) {
   return window['go']['multimedia']['Library']['RemoveLibrary'](arg1);
 }
 
+export function RemoveLibraryDialog() {
+  return window['go']['multimedia']['Library']['RemoveLibraryDialog']();
+}
+
 export function SaveLibraries() {
   return window['go']['multimedia']['Library']['SaveLibraries']();
 }

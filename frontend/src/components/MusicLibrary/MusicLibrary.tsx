@@ -12,13 +12,14 @@ import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
 import "./MusicLibrary.css"; // Import the CSS module
 import {
-  OpenFolderDialog,
   CreateLibrary,
   ListLibraries,
   ListLibraryContents,
   LoadLibraries,
   UpdateLibraryName,
   RemoveLibrary,
+  RemoveLibraryDialog,
+  OpenFolderDialog,
 } from "../../../wailsjs/go/multimedia/Library";
 
 import Player from "../Player/Player";
@@ -63,12 +64,6 @@ const MusicLibrary: React.FC = () => {
 
   const [isLibraryView, setIsLibraryView] = useState<boolean>(true); // Track whether to display libraries or places
 
-  // const [places, setPlaces] = useState<Place[]>([
-  //   { name: "Hardrock Cafe", description: "Description 1" },
-  //   { name: "Elefante Bar", description: "Description 2" },
-  //   { name: "Karga Bar", description: "Description 3" },
-  //   { name: "Coco Bistro", description: "Description 3" },
-  // ]);
   const [selectedPlace, setSelectedPlace] = useState<string>("");
   const [updateLibName, setUpdateLibName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -157,20 +152,20 @@ const MusicLibrary: React.FC = () => {
   const handleFolderSelect = async () => {
     try {
       const folderPath = await OpenFolderDialog();
-     if(folderPath.length > 0) {
-      setFolderPath(folderPath);
-      CreateLibrary({
-        name: newLibName,
-        path: folderPath,
-      }).then(() => {
-        ListLibraries().then((libraries) => {
-          setLibraries(libraries)
-          setSelectedLibrary(newLibName);
-          setIsInputVisible(false);
-          setNewLibName("");
+      if (folderPath.length > 0) {
+        setFolderPath(folderPath);
+        CreateLibrary({
+          name: newLibName,
+          path: folderPath,
+        }).then(() => {
+          ListLibraries().then((libraries) => {
+            setLibraries(libraries);
+            setSelectedLibrary(newLibName);
+            setIsInputVisible(false);
+            setNewLibName("");
+          });
         });
-      });
-     }
+      }
     } catch (error) {
       console.error("Error opening folder dialog:", error);
     }
@@ -269,19 +264,15 @@ const MusicLibrary: React.FC = () => {
     setSelectedFilePath(item.path);
   };
 
-  // const handleUpdateLibraryName = (libName: string, newLibName: string) => {
-  //   console.log("@handleUpdateLibraryName currentLibName >>", libName);
-  //   console.log("@handleUpdateLibraryName newLibName >>", newLibName);
-
-  //   UpdateLibraryName(libName, newLibName).then(() => {
-  //     ListLibraries().then((libraries) => setLibraries(libraries));
-  //   });
-  // };
-
   const handleRemoveLibrary = (libName: string) => {
     console.log("@handleRemoveLibrary for >>", libName);
-    RemoveLibrary(libName).then(() => {
-      ListLibraries().then((libraries) => setLibraries(libraries));
+
+    RemoveLibraryDialog().then((selection) => {
+      if (selection === "yes") {
+        RemoveLibrary(libName).then(() => {
+          ListLibraries().then((libraries) => setLibraries(libraries));
+        });
+      }
     });
   };
 
@@ -542,6 +533,7 @@ const MusicLibrary: React.FC = () => {
           )}
         </ul>
       </div>
+
       <Player
         songName={selectedSong}
         setSelectedSongName={setSelectedSong}
