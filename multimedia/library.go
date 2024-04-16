@@ -141,6 +141,34 @@ func (a *Library) CreateLibrary(library Lib) error {
 		return errors.New("lib with name already exist")
 	}
 }
+func (a *Library) UpdateLibraryName(oldName, newName string) error {
+	log.Printf("@UpdateLibraryName from %s to %s", oldName, newName)
+	// Check if the oldName exists in the Libraries map
+	if lib, exists := Libraries[oldName]; exists {
+		var newLib Lib
+		log.Println("creating new lib item with new name")
+		newLib.Name = newName
+		newLib.Path = lib.Path
+
+		log.Println("here is new Lib", newLib)
+		log.Println("Adding the updated entry back to the map")
+
+		// Add the updated entry back to the map
+		Libraries[newName] = newLib
+
+		delete(Libraries, oldName)
+		log.Println("deleting lib with old name")
+		log.Println("saving lib back")
+
+		// Save the updated Libraries map
+		if err := a.SaveLibraries(); err != nil {
+			return err
+		}
+		return nil
+	} else {
+		return errors.New("library with the old name does not exist")
+	}
+}
 
 func (a *Library) RemoveLibrary(libraryName string) error {
 	log.Print("removing the lib named", libraryName)

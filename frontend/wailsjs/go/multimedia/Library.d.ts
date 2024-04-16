@@ -25,4 +25,6 @@ export function SaveLibraries():Promise<void>;
 
 export function Startup(arg1:context.Context):Promise<void>;
 
+export function UpdateLibraryName(arg1:string,arg2:string):Promise<void>;
+
 export function UpdateSearchIndex(arg1:multimedia.LibItem):Promise<void>;

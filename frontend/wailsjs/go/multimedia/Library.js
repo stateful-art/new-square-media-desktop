@@ -46,6 +46,10 @@ export function Startup(arg1) {
   return window['go']['multimedia']['Library']['Startup'](arg1);
 }
 
+export function UpdateLibraryName(arg1, arg2) {
+  return window['go']['multimedia']['Library']['UpdateLibraryName'](arg1, arg2);
+}
+
 export function UpdateSearchIndex(arg1) {
   return window['go']['multimedia']['Library']['UpdateSearchIndex'](arg1);
 }

@@ -206,6 +206,21 @@ input[type="text"] {
   font-weight: 400;
 }
 
+#update-library-input {
+  position: fixed;
+  width: 14%;
+  background-color: #353739; /* Green background */
+  color: white;
+  text-align: start;
+  line-height: 2rem; /* Align text vertically */
+  font-size: 1rem;
+  /* bottom: 78px; */
+  /* left: 0; */
+  font-family: "Chakra Petch", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+}
+
 #addLibBtn:hover {
   background-color: white;
   color: black;
