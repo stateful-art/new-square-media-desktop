@@ -206,19 +206,56 @@ input[type="text"] {
   font-weight: 400;
 }
 
+
+.pre-update-library-input-container {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+}
+
+
+.update-library-input-container {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+}
+
 #update-library-input {
-  position: fixed;
-  width: 14%;
   background-color: #353739; /* Green background */
   color: white;
   text-align: start;
-  line-height: 2rem; /* Align text vertically */
+  line-height: 1rem; /* Align text vertically */
   font-size: 1rem;
-  /* bottom: 78px; */
-  /* left: 0; */
   font-family: "Chakra Petch", sans-serif;
-  font-style: normal;
-  font-weight: 400;
+  font-style: italic;
+  font-weight: 600;
+  /* border: none; */
+}
+
+
+.turndown-icon {
+  /* Rotate the icon 90 degrees clockwise */
+  transform: rotate(90deg);
+  margin-left: 16px;
+
+}
+
+.update-library-btn {
+  /* Rotate the icon 90 degrees clockwise */
+  transform: rotate(90deg);
+  margin-left: 16px;
+
+}
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* #update-library-input:focus {
+  animation: blink 1s infinite;
+} */
+
+.turndown-icon {
+  animation: blink 2.2s infinite;
 }
 
 #addLibBtn:hover {
@@ -243,11 +280,14 @@ input[type="text"] {
 #rp-topnav {
   background-color: #353739; /* Blue background for navbar */
   color: white; /* Text color */
-  padding: 10px; /*Add some padding */
+  padding: 10px; /* Add some padding */
   display: flex; /* Use flexbox for alignment */
-  justify-content: space-between; /* Distribute items evenly along the row */
   align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Distribute items evenly along the row */
+
 }
+
+
 
 #rp-topnav span {
   font-size: 1.4rem;
@@ -424,7 +464,7 @@ input[type="text"] {
 #tabs {
   /* position: fixed; */
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
 }
 

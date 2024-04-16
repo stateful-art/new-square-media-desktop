@@ -3,9 +3,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
   faPlus,
-  faBook,
-  faMap,
   faEdit,
+  faTurnDown,
+  faMusic,
+  faEarth,
 } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
@@ -190,16 +191,16 @@ const MusicLibrary: React.FC = () => {
       // handleUpdateLibraryName(selectedLibrary, updateLibName);
       console.log("new Enter event detected. ");
       console.log("newLibName", updateLibName);
-//       setSelectedLibrary(updateLibName); // update name.
-//       console.log("setting newLibName as selectedLibrary.  ");
-// setIsEditing(false)
-//       setIsLibNameUpdateInputVisible(false);
+      //       setSelectedLibrary(updateLibName); // update name.
+      //       console.log("setting newLibName as selectedLibrary.  ");
+      // setIsEditing(false)
+      //       setIsLibNameUpdateInputVisible(false);
       UpdateLibraryName(selectedLibrary, updateLibName).then(() => {
         ListLibraries().then((libraries) => {
           setSelectedLibrary(updateLibName); // update name.
-          setUpdateLibName("")
+          setUpdateLibName("");
           console.log("setting newLibName as selectedLibrary.  ");
-    setIsEditing(false)
+          setIsEditing(false);
           setIsLibNameUpdateInputVisible(false);
           setLibraries(libraries);
         });
@@ -235,10 +236,12 @@ const MusicLibrary: React.FC = () => {
   const handleLibraryClick = (name: string, path: string) => {
     setSelectedLibrary(name);
     // console.log(`listing content for folder ${name} ${path}`);
-    console.log("TEST isLibNameUpdateInputVisible>>", isLibNameUpdateInputVisible)
-    console.log("TEST updateLibName>>", updateLibName)
-    console.log("TEST isEditing>>", isEditing)
-
+    console.log(
+      "TEST isLibNameUpdateInputVisible>>",
+      isLibNameUpdateInputVisible
+    );
+    console.log("TEST updateLibName>>", updateLibName);
+    console.log("TEST isEditing>>", isEditing);
 
     ListLibraryContents(name, path).then((contents) =>
       setLibraryContents(contents)
@@ -246,7 +249,6 @@ const MusicLibrary: React.FC = () => {
   };
 
   const handleFolderClick = (path: string) => {
-  
     ListLibraryContents(selectedLibrary, path).then((contents) => {
       setLibraryContents(contents);
     });
@@ -349,15 +351,15 @@ const MusicLibrary: React.FC = () => {
             className={isLibraryView ? "active-tab" : ""}
             onClick={toggleLibraryView}
           >
-            <FontAwesomeIcon icon={faBook} />
-            Libraries
+            <FontAwesomeIcon icon={faMusic} size="lg"  />
+            
           </button>
           <button
             className={!isLibraryView ? "active-tab" : ""}
             onClick={togglePlacesView}
           >
-            <FontAwesomeIcon icon={faMap} />
-            Places
+            <FontAwesomeIcon icon={faEarth} size="lg" />
+            
           </button>
         </div>
         {/* <hr /> */}
@@ -412,35 +414,40 @@ const MusicLibrary: React.FC = () => {
           <>
             {selectedLibrary !== "" && (
               <div id="rp-topnav">
-                <>
-                  {isLibNameUpdateInputVisible  ? (
+                {isLibNameUpdateInputVisible ? (
+                  <div className="update-library-input-container">
                     <input
                       id="update-library-input"
                       type="text"
                       value={isEditing ? updateLibName : selectedLibrary}
                       onChange={handleLibNameUpdateInputChange}
                       onKeyDown={handleLibNameUpdateInputKeyPress}
-                      // onFocus={(e) => e.target.select()} // Select all text when the input field is focused
                     />
-                  ) : (
-                    <>
-                      <span>{selectedLibrary}</span>
-                      <FontAwesomeIcon
-                        icon={faEdit}
-                        className={"update-library-btn"}
-                        size="lg"
-                        onClick={() => toggleLibNameUpdateInputVisibility()}
-                      />
-                    </>
-                  )}
+                    <FontAwesomeIcon
+                      icon={faTurnDown}
+                      className={"turndown-icon"}
+                      size="lg"
+                    />
+                  </div>
+                ) : (
+                  <div className="pre-update-library-input-container">
 
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    className={"remove-library-btn"}
-                    size="lg"
-                    onClick={() => handleRemoveLibrary(selectedLibrary)}
-                  />
-                </>
+                    <span>{selectedLibrary}</span>
+                    <FontAwesomeIcon
+                      icon={faEdit}
+                      className={"update-library-btn"}
+                      size="lg"
+                      onClick={() => toggleLibNameUpdateInputVisibility()}
+                    />
+                 </div>
+                )}
+
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  className={"remove-library-btn"}
+                  size="lg"
+                  onClick={() => handleRemoveLibrary(selectedLibrary)}
+                />
               </div>
             )}
           </>
