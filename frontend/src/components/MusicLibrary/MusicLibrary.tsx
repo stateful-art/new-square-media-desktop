@@ -157,16 +157,20 @@ const MusicLibrary: React.FC = () => {
   const handleFolderSelect = async () => {
     try {
       const folderPath = await OpenFolderDialog();
+     if(folderPath.length > 0) {
       setFolderPath(folderPath);
       CreateLibrary({
         name: newLibName,
         path: folderPath,
       }).then(() => {
-        setIsInputVisible(false);
-        setNewLibName("");
-        setSelectedLibrary(newLibName);
-        ListLibraries().then((libraries) => setLibraries(libraries));
+        ListLibraries().then((libraries) => {
+          setLibraries(libraries)
+          setSelectedLibrary(newLibName);
+          setIsInputVisible(false);
+          setNewLibName("");
+        });
       });
+     }
     } catch (error) {
       console.error("Error opening folder dialog:", error);
     }
@@ -294,6 +298,7 @@ const MusicLibrary: React.FC = () => {
     console.log(queue);
     console.log("number of songs in the queue now: ", queue.size);
   }, [queue]);
+  ///////////////////////////////////////////////////////////////
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -351,15 +356,13 @@ const MusicLibrary: React.FC = () => {
             className={isLibraryView ? "active-tab" : ""}
             onClick={toggleLibraryView}
           >
-            <FontAwesomeIcon icon={faMusic} size="lg"  />
-            
+            <FontAwesomeIcon icon={faMusic} size="lg" />
           </button>
           <button
             className={!isLibraryView ? "active-tab" : ""}
             onClick={togglePlacesView}
           >
             <FontAwesomeIcon icon={faEarth} size="lg" />
-            
           </button>
         </div>
         {/* <hr /> */}
@@ -431,7 +434,6 @@ const MusicLibrary: React.FC = () => {
                   </div>
                 ) : (
                   <div className="pre-update-library-input-container">
-
                     <span>{selectedLibrary}</span>
                     <FontAwesomeIcon
                       icon={faEdit}
@@ -439,7 +441,7 @@ const MusicLibrary: React.FC = () => {
                       size="lg"
                       onClick={() => toggleLibNameUpdateInputVisibility()}
                     />
-                 </div>
+                  </div>
                 )}
 
                 <FontAwesomeIcon
@@ -542,6 +544,7 @@ const MusicLibrary: React.FC = () => {
       </div>
       <Player
         songName={selectedSong}
+        setSelectedSongName={setSelectedSong}
         filePath={selectedFilePath}
         libName={selectedLibrary}
         queue={queue}

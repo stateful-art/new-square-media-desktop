@@ -132,6 +132,7 @@ func (a *Library) UpdateSearchIndex(library *LibItem) {
 
 func (a *Library) CreateLibrary(library Lib) error {
 	if _, exists := Libraries[library.Name]; !exists {
+
 		Libraries[library.Name] = library
 		a.SaveLibraries()
 		// go a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: library.Path, IsFolder: true})

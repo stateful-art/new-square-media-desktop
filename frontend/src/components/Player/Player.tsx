@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faPause, faStepForward } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlay,
+  faPause,
+  faStepForward,
+} from "@fortawesome/free-solid-svg-icons";
 import { GetSong } from "../../../wailsjs/go/multimedia/Library";
 import { SongLibrary } from "../MusicLibrary/MusicLibrary";
 
 interface PlayerProps {
   songName: string;
+  setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
   filePath: string;
   libName: string;
   queue: Set<SongLibrary>; // Add queue as a prop
@@ -14,6 +19,7 @@ interface PlayerProps {
 
 const Player: React.FC<PlayerProps> = ({
   songName,
+  setSelectedSongName,
   filePath,
   queue,
   setQueue,
@@ -23,7 +29,8 @@ const Player: React.FC<PlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const [volume, setVolume] = useState<number>(1);
   const [isSongEnded, setIsSongEnded] = useState(false);
-  const [currentSongName, setCurrentSongName] = useState('');
+  const [currentSongName, setCurrentSongName] = useState("");
+  const [nextSongIndex, setNextSongIndex] = useState(0);
 
   function loadAudio(base64String: string) {
     const audioPlayer = audioRef.current;
@@ -51,115 +58,54 @@ const Player: React.FC<PlayerProps> = ({
   // }, [isPlaying]); // Include isPlaying in the dependency array
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  // Add an event listener to the audio element to track when the song ends
-  // useEffect(() => {
-  //   const audioPlayer = audioRef.current;
-  //   const handleAudioEnded = () => {
-  //     setIsSongEnded(true);
-  //   };
+  useEffect(() => {
+    // Check if the queue is empty and if the current song has ended
+    if (queue.size > 0 && isSongEnded) {
+      // Get the first song in the queue
+      const nextSong = Array.from(queue)[nextSongIndex];
+      // Check if the next song is different from the currently playing song
+      // if (nextSong.name !== songName) {
+        GetSong(nextSong.path)
+          .then((base64String) => {
+            loadAudio(base64String);
+            audioRef.current?.play();
+            setSelectedSongName(nextSong.name)
+            setIsPlaying(true);
+          
+            console.log("checking if nextSongIndex + 1 < queue.size")
 
-  //   if (audioPlayer) {
-  //     audioPlayer.addEventListener("ended", handleAudioEnded);
-  //     return () => {
-  //       audioPlayer.removeEventListener("ended", handleAudioEnded);
-  //     };
-  //   }
-  // }, [audioRef]);
-  // Update the queue when the song ends
-  // useEffect(() => {
-  //   // Check if the queue is empty and if the current song has ended
-  //   if (queue.size > 0 && isSongEnded) {
-  //     // Get the first song in the queue
-  //     const nextSong = Array.from(queue)[0];
-  //     // Remove the first song from the queue
-  //     const newQueue = new Set(queue);
-  //     newQueue.delete(nextSong);
-  //     // Set the new queue
-  //     setQueue(newQueue);
-  //     // Load and play the next song
-  //     GetSong(nextSong.path)
-  //       .then((base64String) => {
-  //         loadAudio(base64String);
-  //         audioRef.current?.play();
-  //         setIsPlaying(true);
-  //         setIsSongEnded(false); // Reset the song ended state
-  //       })
-  //       .catch((error) => console.error("Error fetching audio:", error));
-  //   }
-  // }, [queue, isSongEnded]); // Dependency on queue and isSongEnded
+            if (nextSongIndex + 1 < queue.size) {
+              console.log("nextSongIndex", nextSongIndex)
+              console.log("queue.size", queue.size)
+              console.log("nextSongIndex + 1 < queue.size")
+              setNextSongIndex(nextSongIndex + 1);
+            }
 
-
-  
-    // useEffect(() => {
-    //   // Check if the queue is empty and if the current song has ended
-    //   if (queue.size > 0 && isSongEnded) {
-    //     // Get the first song in the queue
-    //     const nextSong = Array.from(queue)[0];
-    //     // Remove the first song from the queue
-    //     const newQueue = new Set(queue);
-    //     newQueue.delete(nextSong);
-    //     // Set the new queue
-    //     setQueue(newQueue);
-    
-    //     // Load and play the next song
-    //     GetSong(nextSong.path)
-    //       .then((base64String) => {
-    //         loadAudio(base64String);
-    //         audioRef.current?.play();
-    //         setIsPlaying(true);
-    //         setIsSongEnded(false); // Reset the song ended state
-    //       })
-    //       .catch((error) => console.error("Error fetching audio:", error));
-    //   }
-    // }, [queue, isSongEnded]); // Dependency on queue and isSongEnded
-    
-
-    useEffect(() => {
-      // Check if the queue is empty and if the current song has ended
-      if (queue.size > 0 && isSongEnded) {
-        // Get the first song in the queue
-        const nextSong = Array.from(queue)[0];
-        // Check if the next song is different from the currently playing song
-        if (nextSong.name !== songName) {
-          // // Remove the first song from the queue
-          // const newQueue = new Set(queue);
-          // newQueue.delete(nextSong);
-          // // Set the new queue
-          // setQueue(newQueue);
-    
-          // // Load and play the next song
-          GetSong(nextSong.path)
-            .then((base64String) => {
-              loadAudio(base64String);
-              audioRef.current?.play();
-              setIsPlaying(true);
-              setIsSongEnded(false); // Reset the song ended state
-            })
-            .catch((error) => console.error("Error fetching audio:", error));
-        } else {
-          // If the next song is the same as the currently playing song, do nothing
-          setIsSongEnded(true); // Reset the song ended state
-        }
-      }
-    }, [isSongEnded, songName]); // Dependency on queue, isSongEnded, and songName
+            setCurrentSongName(nextSong.name);
+            setIsSongEnded(false);
+          })
+          .catch((error) => console.error("Error fetching audio:", error));
+      // } else {
+      //   // If the next song is the same as the currently playing song, do nothing
+      //   setIsSongEnded(true); // Reset the song ended state
+      // }
+    }
+  }, [isSongEnded, songName]); // Dependency on queue, isSongEnded, and songName
 
   useEffect(() => {
     const audioPlayer = audioRef.current;
     if (audioPlayer) {
-      audioPlayer.addEventListener('ended', handleSongEnded);
+      audioPlayer.addEventListener("ended", handleSongEnded);
       // Cleanup: Remove event listener when component unmounts
       return () => {
-        audioPlayer.removeEventListener('ended', handleSongEnded);
+        audioPlayer.removeEventListener("ended", handleSongEnded);
       };
     }
   }, [audioRef]);
-  
+
   const handleSongEnded = () => {
     setIsSongEnded(true);
   };
-
-
-
 
   useEffect(() => {
     // Check if the queue is empty and if the player is not playing
@@ -187,7 +133,6 @@ const Player: React.FC<PlayerProps> = ({
   //   };
   // }, [filePath]);
 
-
   useEffect(() => {
     setCurrentSongName(songName);
   }, [songName]);
@@ -200,7 +145,6 @@ const Player: React.FC<PlayerProps> = ({
         .catch((error) => console.error("Error fetching audio:", error));
       audioPlayer.play();
       setIsPlaying(true);
-      
     }
 
     return () => {
@@ -263,7 +207,7 @@ const Player: React.FC<PlayerProps> = ({
     // Check if there are songs in the queue
     if (queue.size > 0) {
       // Get the first song in the queue
-      const nextSong = Array.from(queue)[0];
+      const nextSong = Array.from(queue)[nextSongIndex];
       // Remove the first song from the queue
       // const newQueue = new Set(queue);
       // newQueue.delete(nextSong);
@@ -276,8 +220,19 @@ const Player: React.FC<PlayerProps> = ({
           audioRef.current?.play();
           setIsPlaying(true);
           setCurrentSongName(nextSong.name);
+          setSelectedSongName(nextSong.name)
+          //say we got set of 10 songs.
+          // last one will be 9 nextSongIndex
 
-          queue.delete(nextSong)
+          console.log("checking if nextSongIndex + 1 < queue.size")
+
+          if (nextSongIndex + 1 < queue.size) {
+            console.log("nextSongIndex", nextSongIndex)
+            console.log("queue.size", queue.size)
+            console.log("nextSongIndex + 1 < queue.size")
+            setNextSongIndex(nextSongIndex + 1);
+          }
+          // queue.delete(nextSong);
         })
         .catch((error) => console.error("Error fetching audio:", error));
     }
@@ -295,7 +250,7 @@ const Player: React.FC<PlayerProps> = ({
           size="2x"
         />
 
-<FontAwesomeIcon
+        <FontAwesomeIcon
           className="controlButton"
           icon={faStepForward}
           size="2x"
@@ -308,19 +263,19 @@ const Player: React.FC<PlayerProps> = ({
           onTimeUpdate={updateCurrentTime}
         ></audio>
         <div id="prog">
-            {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
-            <input
-              type="range"
-              id="progress-control"
-              className="progress-control"
-              min="0"
-              max={getDuration()}
-              step="1"
-              value={currentTime}
-              onChange={handleProgressChange}
-            />
-            {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
-          </div>
+          {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
+          <input
+            type="range"
+            id="progress-control"
+            className="progress-control"
+            min="0"
+            max={getDuration()}
+            step="1"
+            value={currentTime}
+            onChange={handleProgressChange}
+          />
+          {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
+        </div>
         <input
           type="range"
           id="volumeControl"

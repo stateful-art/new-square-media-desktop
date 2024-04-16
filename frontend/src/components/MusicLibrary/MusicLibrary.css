@@ -2,15 +2,17 @@ body {
   margin: 0;
 }
 #leftPanel {
-  
   width: 15%;
   float: left;
   height: 100vh;
-  background-color: rgb(27, 25, 26);
-  color: #f0f0f0;
+  /* background-color: rgb(27, 25, 26);
+  color: #f0f0f0; */
+
+  color: rgb(27, 25, 26);
+  background-color: #f0f0f0;
+
   margin: 0;
   overflow-y: scroll;
-
 }
 
 #leftPanel ul {
@@ -18,17 +20,17 @@ body {
   list-style: none;
   padding-left: 10px;
   text-align: start;
-  
 }
 
 #leftPanel li {
-  padding: 10px 15px;
+  padding: 6px 0px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 #leftPanel li:hover {
-  background-color: #217b90;
+  background-color: black;
+  color: white;
 }
 
 #lp-title {
@@ -83,21 +85,11 @@ body {
   background-color: red; /* Define the background color for selected items */
 }
 
-.selected-lib {
-  background-color: rgb(
-    202,
-    116,
-    146
-  ); /* Define the background color for selected items */
+.selected-lib .selected-place {
+  background-color: red;
+  color:white;
 }
 
-.selected-place {
-  background-color: rgb(
-    202,
-    116,
-    146
-  ); /* Define the background color for selected items */
-}
 
 #rp-lib-name {
   padding-left: 40px;
@@ -193,25 +185,23 @@ input[type="text"] {
 
 #libraryInput {
   position: fixed;
-  width: 14%;
+  width: 12.4rem;
   background-color: white; /* Green background */
   color: black;
   text-align: start;
   line-height: 2rem; /* Align text vertically */
   font-size: 1rem;
-  bottom: 78px;
+  bottom: 70px;
   left: 0;
   font-family: "Chakra Petch", sans-serif;
   font-style: normal;
   font-weight: 400;
 }
 
-
 .pre-update-library-input-container {
   display: flex; /* Use flexbox for alignment */
   align-items: center; /* Center items vertically */
 }
-
 
 .update-library-input-container {
   display: flex; /* Use flexbox for alignment */
@@ -230,48 +220,33 @@ input[type="text"] {
   /* border: none; */
 }
 
-
 .turndown-icon {
   /* Rotate the icon 90 degrees clockwise */
   transform: rotate(90deg);
   margin-left: 16px;
-
+  animation: blink 1.5s infinite;
 }
 
 .update-library-btn {
-  /* Rotate the icon 90 degrees clockwise */
   transform: rotate(90deg);
   margin-left: 16px;
-
 }
 @keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-/* #update-library-input:focus {
-  animation: blink 1s infinite;
-} */
-
-.turndown-icon {
-  animation: blink 2.2s infinite;
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 #addLibBtn:hover {
   background-color: white;
   color: black;
 }
-/*   
-  #libraryInput {
-      display: none;
-  } */
-
-/* #addLibBtnText {
-    padding: 10px 10px;
-    font-weight: 400;
-    font-size: x-larges;
-  } */
 
 #addLibBtnText {
   font-size: xx-large;
@@ -284,10 +259,7 @@ input[type="text"] {
   display: flex; /* Use flexbox for alignment */
   align-items: center; /* Center items vertically */
   justify-content: space-between; /* Distribute items evenly along the row */
-
 }
-
-
 
 #rp-topnav span {
   font-size: 1.4rem;
@@ -472,15 +444,18 @@ input[type="text"] {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  padding: 10px 20px;
+  padding: 16px 20px;
   font-size: 12px;
-  color: #fff;
+  /* color: #fff; */
+  color: #333; /* Button text color */
+  width: 50%;
 }
 
 #tabs button.active-tab {
-  background-color: #ddd; /* Active tab background color */
-  border-radius: 5px;
-  color: #333; /* Button text color */
+  color: #ddd; /* Active tab background color */
+  /* border-radius: 5px; */
+  background-color: #333; /* Button text color */
+/* width: 50%; */
 }
 
 #tabs button:focus {
