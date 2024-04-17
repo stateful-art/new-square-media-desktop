@@ -23,6 +23,7 @@ import {
 } from "../../../wailsjs/go/multimedia/Library";
 
 import Player from "../Player/Player";
+import QueuePanel from "../QueuePanel/QueuePanel";
 // import SearchBar from "../SearchBar/SearchBar";
 
 export type SongLibrary = {
@@ -67,6 +68,8 @@ const MusicLibrary: React.FC = () => {
   const [selectedPlace, setSelectedPlace] = useState<string>("");
   const [updateLibName, setUpdateLibName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
+
   const [places, setPlaces] = useState<Place[]>([
     {
       name: "Hardrock Cafe",
@@ -234,14 +237,6 @@ const MusicLibrary: React.FC = () => {
 
   const handleLibraryClick = (name: string, path: string) => {
     setSelectedLibrary(name);
-    // console.log(`listing content for folder ${name} ${path}`);
-    console.log(
-      "TEST isLibNameUpdateInputVisible>>",
-      isLibNameUpdateInputVisible
-    );
-    console.log("TEST updateLibName>>", updateLibName);
-    console.log("TEST isEditing>>", isEditing);
-
     ListLibraryContents(name, path).then((contents) =>
       setLibraryContents(contents)
     );
@@ -375,6 +370,7 @@ const MusicLibrary: React.FC = () => {
             +
           </button>
         )}
+      {/* <h3 style={{fontSize:"6rem", color: "black"}}> {isQueuePanelOpen ? "yes": "no"}</h3>  */}
         <ul id="libraryList">
           {isLibraryView
             ? libraries.map((library) => (
@@ -481,7 +477,7 @@ const MusicLibrary: React.FC = () => {
                       className={"add-queue-btn"}
                       icon={faPlus}
                       // style={{ cursor: "pointer" }}
-                      size="lg"
+                      size="xl"
                       onClick={(e) => {
                         e.stopPropagation(); // Stop event propagation
                         handleAddToQueue(item);
@@ -534,6 +530,12 @@ const MusicLibrary: React.FC = () => {
         </ul>
       </div>
 
+      <QueuePanel
+        queue={queue}
+        isOpen={isQueuePanelOpen} // Pass the state to the QueuePanel component
+        setSelectedSongName={setSelectedSong}
+      />
+
       <Player
         songName={selectedSong}
         setSelectedSongName={setSelectedSong}
@@ -541,9 +543,10 @@ const MusicLibrary: React.FC = () => {
         libName={selectedLibrary}
         queue={queue}
         setQueue={setQueue}
+        setIsQueuePanelOpen={setIsQueuePanelOpen}
       />
-      <div id="queuePanel" className="hidden"></div>
-      <div id="historyPanel" className="hidden"></div>
+      {/* <div id="queuePanel" className="hidden"></div>
+      <div id="historyPanel" className="hidden"></div> */}
     </>
   );
 };

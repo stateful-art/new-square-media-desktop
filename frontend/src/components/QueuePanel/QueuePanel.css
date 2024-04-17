@@ -1,0 +1,38 @@
+#queuePanel {
+  position: fixed;
+  bottom: 80px;
+  right: 0;
+  width: 20%;
+  background-color: #f1f1f1;
+  color: black;
+  padding: 10px;
+  box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  text-align: start;
+  font-family: "Chakra Petch", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+}
+
+#queuePanel ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#queuePanel li {
+  cursor: pointer;
+  padding: 5px;
+  border-bottom: 2px solid #ccc;
+}
+
+#queuePanel li:hover {
+  background-color: #ddd;
+}
+
+#queuePanel .hide {
+    display: none !important;  
+}
+
+/* #queuePanel .show {
+    display: flex;
+} */

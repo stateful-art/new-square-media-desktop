@@ -4,6 +4,9 @@ import {
   faPlay,
   faPause,
   faStepForward,
+  faList,
+  faList12,
+  faListDots,
 } from "@fortawesome/free-solid-svg-icons";
 import { GetSong } from "../../../wailsjs/go/multimedia/Library";
 import { SongLibrary } from "../MusicLibrary/MusicLibrary";
@@ -15,6 +18,7 @@ interface PlayerProps {
   libName: string;
   queue: Set<SongLibrary>; // Add queue as a prop
   setQueue: React.Dispatch<React.SetStateAction<Set<SongLibrary>>>; // Include setQueue in the props
+  setIsQueuePanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Player: React.FC<PlayerProps> = ({
@@ -23,6 +27,7 @@ const Player: React.FC<PlayerProps> = ({
   filePath,
   queue,
   setQueue,
+  setIsQueuePanelOpen,
 }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
@@ -31,6 +36,7 @@ const Player: React.FC<PlayerProps> = ({
   const [isSongEnded, setIsSongEnded] = useState(false);
   const [currentSongName, setCurrentSongName] = useState("");
   const [nextSongIndex, setNextSongIndex] = useState(0);
+  // const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
 
   function loadAudio(base64String: string) {
     const audioPlayer = audioRef.current;
@@ -65,26 +71,28 @@ const Player: React.FC<PlayerProps> = ({
       const nextSong = Array.from(queue)[nextSongIndex];
       // Check if the next song is different from the currently playing song
       // if (nextSong.name !== songName) {
-        GetSong(nextSong.path)
-          .then((base64String) => {
-            loadAudio(base64String);
-            audioRef.current?.play();
-            setSelectedSongName(nextSong.name)
-            setIsPlaying(true);
-          
-            console.log("checking if nextSongIndex + 1 < queue.size")
+      if (nextSongIndex + 1 < queue.size) {
+        console.log("nextSongIndex", nextSongIndex);
+        console.log("queue.size", queue.size);
+        console.log("nextSongIndex + 1 < queue.size");
+        setNextSongIndex(nextSongIndex + 1);
+      } else {
+        audioRef.current?.pause();
+      }
 
-            if (nextSongIndex + 1 < queue.size) {
-              console.log("nextSongIndex", nextSongIndex)
-              console.log("queue.size", queue.size)
-              console.log("nextSongIndex + 1 < queue.size")
-              setNextSongIndex(nextSongIndex + 1);
-            }
+      GetSong(nextSong.path)
+        .then((base64String) => {
+          loadAudio(base64String);
+          audioRef.current?.play();
+          setSelectedSongName(nextSong.name);
+          setIsPlaying(true);
 
-            setCurrentSongName(nextSong.name);
-            setIsSongEnded(false);
-          })
-          .catch((error) => console.error("Error fetching audio:", error));
+          console.log("checking if nextSongIndex + 1 < queue.size");
+
+          setCurrentSongName(nextSong.name);
+          setIsSongEnded(false);
+        })
+        .catch((error) => console.error("Error fetching audio:", error));
       // } else {
       //   // If the next song is the same as the currently playing song, do nothing
       //   setIsSongEnded(true); // Reset the song ended state
@@ -168,6 +176,10 @@ const Player: React.FC<PlayerProps> = ({
     }
   };
 
+  const toggleQueuePanel = () => {
+    setIsQueuePanelOpen((prevState) => !prevState);
+  };
+
   const updateCurrentTime = () => {
     const audioPlayer = audioRef.current;
     if (audioPlayer) {
@@ -214,24 +226,26 @@ const Player: React.FC<PlayerProps> = ({
       // // Set the new queue
       // setQueue(newQueue);
       // Load and play the next song
+      if (nextSongIndex + 1 < queue.size) {
+        console.log("nextSongIndex", nextSongIndex);
+        console.log("queue.size", queue.size);
+        console.log("nextSongIndex + 1 < queue.size");
+        setNextSongIndex(nextSongIndex + 1);
+      } else {
+        audioRef.current?.pause();
+      }
       GetSong(nextSong.path)
         .then((base64String) => {
           loadAudio(base64String);
           audioRef.current?.play();
           setIsPlaying(true);
           setCurrentSongName(nextSong.name);
-          setSelectedSongName(nextSong.name)
+          setSelectedSongName(nextSong.name);
           //say we got set of 10 songs.
           // last one will be 9 nextSongIndex
 
-          console.log("checking if nextSongIndex + 1 < queue.size")
+          console.log("checking if nextSongIndex + 1 < queue.size");
 
-          if (nextSongIndex + 1 < queue.size) {
-            console.log("nextSongIndex", nextSongIndex)
-            console.log("queue.size", queue.size)
-            console.log("nextSongIndex + 1 < queue.size")
-            setNextSongIndex(nextSongIndex + 1);
-          }
           // queue.delete(nextSong);
         })
         .catch((error) => console.error("Error fetching audio:", error));
@@ -242,7 +256,7 @@ const Player: React.FC<PlayerProps> = ({
     <div id="player">
       {/* {!Number.isNaN(getDuration()) && ( */}
       <>
-        <div id="songName">{currentSongName}</div>
+        <div id="songName">{currentSongName.replace(/\.[^.]+$/, "")}</div>
         <FontAwesomeIcon
           className="playPauseButton"
           icon={isPlaying ? faPause : faPlay}
@@ -287,7 +301,9 @@ const Player: React.FC<PlayerProps> = ({
           onChange={handleVolumeChange}
         />
       </>
-      {/* )} */}
+      <div id="toggleQueueButton" onClick={toggleQueuePanel}>
+        <FontAwesomeIcon icon={faListDots} size="2x" />
+      </div>
     </div>
   );
 };
