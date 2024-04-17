@@ -7,6 +7,8 @@ import {
   faTurnDown,
   faMusic,
   faEarth,
+  faLock,
+  faUnlock,
 } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
@@ -499,27 +501,33 @@ const MusicLibrary: React.FC = () => {
             </>
           ) : (
             <>
-              <ul id="fileList">
-                {selectedPlace && selectedPlaceContent.length > 0 &&
+              <div className="playlist-container">
+                {selectedPlace &&
+                  selectedPlaceContent.length > 0 &&
                   selectedPlaceContent.map((playlist) => (
-                    <li
-                      key={playlist.id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                      // onClick={() =>
-                      //   item.isPlaylist
-                      //     ? handlePlaylistClick(item.path)
-                      //     : handleSongClick(item)
-                      // }
-                    >
-                      <span>{playlist.name}</span>
-                      <span>{playlist.songs?.length} songs</span>
-                    </li>
+                    <div className="playlist-card">
+                      <div className="card-content">
+                        <img
+                          src="https://www.newnew.media/logo192.png"
+                          alt="Playlist Image"
+                          className="playlist-image"
+                        />
+                        <h3 className="playlist-name">{playlist.name}</h3>
+                        <p className="song-count">
+                          {playlist.songs?.length} songs
+                        </p>
+                        <p className="description">{playlist.description}</p>
+                      </div>
+                      <span className="playlist-type-icon">
+                        {playlist.type === "private" ? (
+                          <FontAwesomeIcon icon={faLock} size="lg" />
+                        ) : (
+                          <FontAwesomeIcon icon={faEarth} size="lg" />
+                        )}
+                      </span>
+                    </div>
                   ))}
-              </ul>
+              </div>
             </>
           )}
         </ul>

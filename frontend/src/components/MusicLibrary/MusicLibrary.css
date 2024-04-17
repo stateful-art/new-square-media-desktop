@@ -450,3 +450,81 @@ input[type="text"] {
 #tabs button:focus {
   outline: none; /* Remove focus outline */
 }
+
+
+
+
+.playlist-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
+  gap: 20px; /* Gap between cards */
+  width: calc(100% - 8%); /* Set width to 100% minus the margin */
+  margin-top: 4%; /* Adjust top margin */
+  margin-left: 4%; /* Adjust left margin */
+}
+
+
+/* Styles for each playlist card */
+/* .playlist-card {
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f0f0f0;
+  color: #000000;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+} */
+
+.playlist-card {
+  position: relative; /* Set position to relative */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensure the icon sticks to the bottom */
+  padding: 20px;
+  background-color: transparent;
+  border: 1px solid white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+
+.playlist-image {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 6px;
+}
+
+.playlist-name {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.song-count,
+.description {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+/* Hover effect */
+.playlist-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.card-content {
+  flex-grow: 1; /* Ensure the content takes up remaining space */
+}
+
+.playlist-type-icon {
+  position: absolute;
+  bottom: 5px; /* Adjust as needed */
+  right: 5px; /* Adjust as needed */
+  padding: 5px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
