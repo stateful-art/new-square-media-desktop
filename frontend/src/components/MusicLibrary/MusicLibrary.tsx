@@ -22,6 +22,9 @@ import {
   OpenFolderDialog,
 } from "../../../wailsjs/go/multimedia/Library";
 
+import { GetPlaces } from "../../../wailsjs/go/place/Place";
+import { GetPlayListsOfPlace } from "../../../wailsjs/go/playlist/Playlist";
+
 import Player from "../Player/Player";
 import QueuePanel from "../QueuePanel/QueuePanel";
 // import SearchBar from "../SearchBar/SearchBar";
@@ -32,16 +35,68 @@ export type SongLibrary = {
   isFolder?: boolean;
 };
 
-type Item = {
-  name: string;
-  path: string;
-  isPlaylist?: boolean;
+// type Item = {
+//   name: string;
+//   path: string;
+//   isPlaylist?: boolean;
+// };
+
+// type GeometryType =
+//   | "Point"
+//   | "LineString"
+//   | "Polygon"
+//   | "MultiPoint"
+//   | "MultiLineString"
+//   | "MultiPolygon"
+//   | "GeometryCollection";
+
+type Location = {
+  type: string;
+  coordinates: number[];
 };
 
-type Place = {
+type Link = {
+  platform: string;
+  url: string;
+};
+
+type PlaceDTO = {
+  id?: string;
+  owner?: string;
+  email: string;
+  phone: string;
+  spotify_id: string;
   name: string;
+  location: Location;
+  city: string;
+  country: string;
   description: string;
-  items: Item[];
+  image: string;
+  links: Link[];
+};
+
+type Song = {
+  id?: string;
+  name?: string;
+  artist?: string;
+  playCount?: number;
+};
+
+// type PlaylistType = "private" | "public";
+
+type RevenueSharingModel = "collective" | "individual";
+
+type PlaylistDTO = {
+  id?: string;
+  name?: string;
+  description?: string;
+  owner?: string;
+  type?: string;
+  revenueSharingModel?: RevenueSharingModel;
+  revenueCutPercentage?: number;
+  songs?: Song[];
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 const MusicLibrary: React.FC = () => {
@@ -52,7 +107,7 @@ const MusicLibrary: React.FC = () => {
   // const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [libraryContents, setLibraryContents] = useState<SongLibrary[]>([]);
-  const [placeContents, setPlaceContents] = useState<Item[]>([]);
+  const [placeLinks, setPlaceLinks] = useState<Link[]>([]);
 
   const [selectedSong, setSelectedSong] = useState<string>("");
   const [selectedLibrary, setSelectedLibrary] = useState<string>("");
@@ -70,73 +125,28 @@ const MusicLibrary: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
 
-  const [places, setPlaces] = useState<Place[]>([
-    {
-      name: "Hardrock Cafe",
-      description: "Description 1",
-      items: [
-        {
-          name: "Pls",
-          path: "/path/to/playlist1",
-          isPlaylist: true,
-        },
-        {
-          name: "OOOw",
-          path: "/path/to/song1",
-          isPlaylist: false,
-        },
-        // Add more items as needed
-      ],
-    },
-    {
-      name: "Elefante Bar",
-      description: "Description 2",
-      items: [
-        {
-          name: "FaFa",
-          path: "/path/to/playlist1",
-          isPlaylist: true,
-        },
-        {
-          name: "Ele ele",
-          path: "/path/to/song1",
-          isPlaylist: false,
-        },
-      ],
-    },
-    {
-      name: "Karga Bar",
-      description: "Description 3",
-      items: [
-        {
-          name: "Karga mix",
-          path: "/path/to/playlist1",
-          isPlaylist: true,
-        },
-        {
-          name: "Song 1",
-          path: "/path/to/song1",
-          isPlaylist: false,
-        },
-      ],
-    },
-    {
-      name: "Coco Bistro",
-      description: "Coco Special",
-      items: [
-        {
-          name: "Arsiv",
-          path: "/path/to/playlist1",
-          isPlaylist: true,
-        },
-        {
-          name: "Gangham style",
-          path: "/path/to/song1",
-          isPlaylist: false,
-        },
-      ],
-    },
-  ]);
+  const [places, setPlaces] = useState<PlaceDTO[]>([]);
+  const [selectedPlaceContent, setSelectedPlaceContent] = useState<
+    PlaylistDTO[]
+  >([]);
+
+  useEffect(() => {
+    GetPlaces()
+      .then((x) => setPlaces(x))
+      .catch((error) => {
+        console.error("Error fetching places:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!isLibraryView) {
+      GetPlaces()
+        .then((x) => setPlaces(x))
+        .catch((error) => {
+          console.error("Error fetching places:", error);
+        });
+    }
+  }, [isLibraryView, selectedPlace]);
 
   useEffect(() => {
     LoadLibraries().then(() => {
@@ -222,19 +232,6 @@ const MusicLibrary: React.FC = () => {
     setUpdateLibName(event.target.value);
   };
 
-  const getPlaceItems = (name: string) => {
-    const place = places.find((place) => place.name === name);
-    return place ? place.items : [];
-  };
-
-  const handlePlaceClick = (name: string) => {
-    console.log("selected place >> ", name);
-    setSelectedPlace(name);
-
-    let contents = getPlaceItems(name);
-    setPlaceContents(contents);
-  };
-
   const handleLibraryClick = (name: string, path: string) => {
     setSelectedLibrary(name);
     ListLibraryContents(name, path).then((contents) =>
@@ -277,6 +274,14 @@ const MusicLibrary: React.FC = () => {
       newQueue.add(item);
       return newQueue;
     });
+  };
+
+  const handleGetPlaceContent = (id: string) => {
+    if (id) {
+      GetPlayListsOfPlace(id).then((x) => {
+        setSelectedPlaceContent(x);
+      });
+    }
   };
 
   // TESTING: Log the queue & size whenever the queue state changes
@@ -370,7 +375,7 @@ const MusicLibrary: React.FC = () => {
             +
           </button>
         )}
-      {/* <h3 style={{fontSize:"6rem", color: "black"}}> {isQueuePanelOpen ? "yes": "no"}</h3>  */}
+        {/* <h3 style={{fontSize:"6rem", color: "black"}}> {isQueuePanelOpen ? "yes": "no"}</h3>  */}
         <ul id="libraryList">
           {isLibraryView
             ? libraries.map((library) => (
@@ -386,14 +391,19 @@ const MusicLibrary: React.FC = () => {
               ))
             : places.map((place) => (
                 <li
-                  key={place.name}
-                  onClick={() => handlePlaceClick(place.name)}
+                  key={place.id}
+                  onClick={() => {
+                    setSelectedPlace(place.name);
+                    // setPlaceLinks(place.links);
+                    if (place.id) {
+                      handleGetPlaceContent(place.id);
+                    }
+                  }}
                   className={
                     selectedPlace === place.name ? "selected-place" : ""
                   }
                 >
                   {place.name}
-                  {/* <p>{place.description}</p> */}
                 </li>
               ))}
         </ul>
@@ -490,38 +500,23 @@ const MusicLibrary: React.FC = () => {
           ) : (
             <>
               <ul id="fileList">
-                {selectedPlace &&
-                  placeContents.map((item) => (
+                {selectedPlace && selectedPlaceContent.length > 0 &&
+                  selectedPlaceContent.map((playlist) => (
                     <li
-                      key={item.name}
+                      key={playlist.id}
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        backgroundColor: item.isPlaylist
-                          ? "#535258"
-                          : selectedSong === item.name
-                          ? "red"
-                          : "transparent",
                       }}
-                      onClick={() =>
-                        item.isPlaylist
-                          ? handlePlaylistClick(item.path)
-                          : handleSongClick(item)
-                      }
+                      // onClick={() =>
+                      //   item.isPlaylist
+                      //     ? handlePlaylistClick(item.path)
+                      //     : handleSongClick(item)
+                      // }
                     >
-                      <span>{item.name}</span>
-                      {!item.isPlaylist && (
-                        <FontAwesomeIcon
-                          className={"add-queue-btn"}
-                          icon={faPlus}
-                          size="lg"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToQueue(item);
-                          }}
-                        />
-                      )}
+                      <span>{playlist.name}</span>
+                      <span>{playlist.songs?.length} songs</span>
                     </li>
                   ))}
               </ul>

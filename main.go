@@ -8,8 +8,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	goruntime "runtime"
 
 	Multimedia "lolipie/multimedia"
+	Place "lolipie/place"
+	Playlist "lolipie/playlist"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/menu"
@@ -52,6 +55,8 @@ func main() {
 
 	lib := Multimedia.NewLibrary(db)
 	search := Multimedia.NewTrieNode()
+	place := Place.NewPlace()
+	playlist := Playlist.NewPlaylist()
 
 	AppMenu := menu.NewMenu()
 	FileMenu := AppMenu.AddSubmenu("File")
@@ -59,6 +64,10 @@ func main() {
 	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
 		runtime.Quit(app.ctx)
 	})
+
+	if goruntime.GOOS == "darwin" { //std "runtime" package
+		AppMenu.Append(menu.EditMenu()) // on macos platform, we should append EditMenu to enable Cmd+A,Cmd+C,Cmd+V,Cmd+Z... shortcut
+	}
 
 	// Create application with options
 	erro := wails.Run(&options.App{
@@ -74,10 +83,12 @@ func main() {
 		OnStartup: func(ctx context.Context) {
 			app.startup(ctx)
 			lib.Startup(ctx)
+			place.Startup(ctx)
+			playlist.Startup(ctx)
 			search.Startup(ctx)
 		},
 		Bind: []interface{}{
-			app, search, lib,
+			app, lib, place, playlist, search,
 		},
 	})
 
