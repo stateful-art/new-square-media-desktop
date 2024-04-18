@@ -5,16 +5,19 @@ import { SongLibrary } from "../MusicLibrary/MusicLibrary";
 interface QueuePanelProps {
   queue: Set<SongLibrary>;
   setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedFilePath: React.Dispatch<React.SetStateAction<string>>;
   isOpen: boolean; 
 }
 
 const QueuePanel: React.FC<QueuePanelProps> = ({
   queue,
   setSelectedSongName,
+  setSelectedFilePath,
   isOpen,
 }) => {
   const playSong = (song: SongLibrary) => {
     setSelectedSongName(song.name);
+    setSelectedFilePath(song.path)
   };
 
   return (

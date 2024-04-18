@@ -537,6 +537,7 @@ const MusicLibrary: React.FC = () => {
         queue={queue}
         isOpen={isQueuePanelOpen} // Pass the state to the QueuePanel component
         setSelectedSongName={setSelectedSong}
+       setSelectedFilePath={setSelectedFilePath}
       />
 
       <Player
