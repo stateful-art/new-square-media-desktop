@@ -4,8 +4,6 @@ import {
   faPlay,
   faPause,
   faStepForward,
-  faList,
-  faList12,
   faListDots,
 } from "@fortawesome/free-solid-svg-icons";
 import { GetSong } from "../../../wailsjs/go/multimedia/Library";
@@ -16,6 +14,9 @@ interface PlayerProps {
   setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
   filePath: string;
   libName: string;
+  isPausable: boolean;
+  isInputFieldFocused:boolean;
+
   queue: Set<SongLibrary>; // Add queue as a prop
   setQueue: React.Dispatch<React.SetStateAction<Set<SongLibrary>>>; // Include setQueue in the props
   setIsQueuePanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,13 +27,16 @@ const Player: React.FC<PlayerProps> = ({
   setSelectedSongName,
   filePath,
   queue,
+  isPausable,
+  isInputFieldFocused,
+
   setQueue,
   setIsQueuePanelOpen,
 }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [volume, setVolume] = useState<number>(1);
+  const [volume, setVolume] = useState<number>(0);
   const [isSongEnded, setIsSongEnded] = useState(false);
   const [currentSongName, setCurrentSongName] = useState("");
   const [nextSongIndex, setNextSongIndex] = useState(0);
@@ -44,17 +48,28 @@ const Player: React.FC<PlayerProps> = ({
       audioPlayer.src = "data:audio/mpeg;base64," + base64String;
     }
   }
-
+  
+  
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // currently, when this on;
   // when user presses space key when they enter a new lib name
   // if a song is being played, it stops playing.
   // TODO: receive isInputVisible bool as a prop to this component
 
+
+//   useEffect(()=> {
+// console.log("updated ")
+//   }, [])
+
+
+
   // useEffect(() => {
   //   const handleKeyDown = (event: KeyboardEvent) => {
-  //     if (event.key === " " && isPlaying) {
+  //     if (event.key === " " && isPausable) {
+  //       console.log("pausable @ player");
   //       togglePlayPause();
+  //     } else {
+  //       console.log("non-pausable @ player");
   //     }
   //   };
   //   window.addEventListener("keydown", handleKeyDown);
@@ -62,7 +77,37 @@ const Player: React.FC<PlayerProps> = ({
   //     window.removeEventListener("keydown", handleKeyDown);
   //   };
   // }, [isPlaying]); // Include isPlaying in the dependency array
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// Update key press event handler to consider the focus state of input fields
+// useEffect(() => {
+//   const handleKeyDown = (event: KeyboardEvent) => {
+//     // Check if the space key is pressed, input field is not focused, and isPausable is true
+//     if (event.key === " " && !isInputFieldFocused) {
+//       togglePlayPause();
+//     }
+//   };
+//   window.addEventListener("keydown", handleKeyDown);
+//   return () => {
+//     window.removeEventListener("keydown", handleKeyDown);
+//   };
+// }, [isPlaying, isInputFieldFocused]); // Include isInputFieldFocused in the dependency array
+
+useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    // Check if the space key is pressed, input field is not focused, and isPausable is true
+    if (event.key === " " && !isInputFieldFocused) {
+      togglePlayPause();
+    }
+  };
+  window.addEventListener("keydown", handleKeyDown);
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [isPlaying, isInputFieldFocused]); // Include isInputFieldFocused in the dependency array
+
+
+
 
   useEffect(() => {
     // Check if the queue is empty and if the current song has ended
@@ -163,16 +208,27 @@ const Player: React.FC<PlayerProps> = ({
     };
   }, [filePath]);
 
+  // const togglePlayPause = () => {
+  //   const audioPlayer = audioRef.current;
+  //   if (audioPlayer) {
+  //     if (audioPlayer.paused) {
+  //       audioPlayer.play();
+  //       setIsPlaying(true);
+  //     } else {
+  //       audioPlayer.pause();
+  //       setIsPlaying(false);
+  //     }
+  //   }
+  // };
+
   const togglePlayPause = () => {
     const audioPlayer = audioRef.current;
-    if (audioPlayer) {
-      if (audioPlayer.paused) {
-        audioPlayer.play();
-        setIsPlaying(true);
-      } else {
-        audioPlayer.pause();
-        setIsPlaying(false);
-      }
+    setIsPlaying((prevState) => !prevState);
+
+    if (isPlaying) {
+      audioPlayer?.pause();
+    } else {
+      audioPlayer?.play();
     }
   };
 
@@ -254,7 +310,6 @@ const Player: React.FC<PlayerProps> = ({
 
   return (
     <div id="player">
-      {/* {!Number.isNaN(getDuration()) && ( */}
       <>
         <div id="songName">{currentSongName.replace(/\.[^.]+$/, "")}</div>
         <FontAwesomeIcon
@@ -276,20 +331,25 @@ const Player: React.FC<PlayerProps> = ({
           autoPlay
           onTimeUpdate={updateCurrentTime}
         ></audio>
-        <div id="prog">
-          {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
-          <input
-            type="range"
-            id="progress-control"
-            className="progress-control"
-            min="0"
-            max={getDuration()}
-            step="1"
-            value={currentTime}
-            onChange={handleProgressChange}
-          />
-          {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
-        </div>
+
+        {!Number.isNaN(getDuration()) && (
+          <>
+            <div id="prog">
+              {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
+              <input
+                type="range"
+                id="progress-control"
+                className="progress-control"
+                min="0"
+                max={getDuration()}
+                step="1"
+                value={currentTime}
+                onChange={handleProgressChange}
+              />
+              {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
+            </div>
+          </>
+        )}
         <input
           type="range"
           id="volumeControl"
@@ -299,9 +359,10 @@ const Player: React.FC<PlayerProps> = ({
           step="0.01"
           value={volume}
           onChange={handleVolumeChange}
+          
         />
       </>
-      <div id="toggleQueueButton" onClick={toggleQueuePanel}>
+      <div onClick={toggleQueuePanel} className="toggle-queue-btn">
         <FontAwesomeIcon icon={faListDots} size="2x" />
       </div>
     </div>

@@ -71,7 +71,11 @@ func main() {
 
 	// Create application with options
 	erro := wails.Run(&options.App{
-		Title:  "New Square",
+		Title: "New Square",
+		// Frameless: true,
+
+		// CSSDragProperty: "widows",
+		// CSSDragValue:    "1",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{

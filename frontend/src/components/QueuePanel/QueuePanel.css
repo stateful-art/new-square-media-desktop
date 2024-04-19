@@ -2,9 +2,10 @@
   position: fixed;
   bottom: 80px;
   right: 0;
-  width: 20%;
-  background-color: #f1f1f1;
-  color: black;
+  width: 25%;
+  background-color: rgba(0, 0, 0);
+  border: 2px white solid;
+  color: white;
   padding: 10px;
   box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.3);
   z-index: 1001;
@@ -16,23 +17,22 @@
 
 #queuePanel ul {
   list-style-type: none;
-  padding: 0;
+  font-size: 1rem;
+  padding: 0px 6px;
 }
 
 #queuePanel li {
   cursor: pointer;
-  padding: 5px;
+  padding: 4px;
   border-bottom: 2px solid #ccc;
 }
 
 #queuePanel li:hover {
-  background-color: #ddd;
+  cursor: pointer;
+  background-color: white;
+  color: black;
 }
 
 #queuePanel .hide {
-    display: none !important;  
+  display: none !important;
 }
-
-/* #queuePanel .show {
-    display: flex;
-} */

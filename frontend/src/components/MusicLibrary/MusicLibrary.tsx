@@ -8,7 +8,7 @@ import {
   faMusic,
   faEarth,
   faLock,
-  faUnlock,
+  faComputer,
 } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
@@ -23,6 +23,9 @@ import {
   RemoveLibraryDialog,
   OpenFolderDialog,
 } from "../../../wailsjs/go/multimedia/Library";
+
+import SpotifyIcon from "../../assets/icons/spotify-icon.png"; // Import Spotify SVG icon
+import YoutubeIcon from "../../assets/icons/youtube-icon.png"; // Import Spotify SVG icon
 
 import { GetPlaces } from "../../../wailsjs/go/place/Place";
 import { GetPlayListsOfPlace } from "../../../wailsjs/go/playlist/Playlist";
@@ -89,16 +92,19 @@ type Song = {
 type RevenueSharingModel = "collective" | "individual";
 
 type PlaylistDTO = {
-  id?: string;
+  _id?: string;
   name?: string;
   description?: string;
   owner?: string;
   type?: string;
-  revenueSharingModel?: RevenueSharingModel;
-  revenueCutPercentage?: number;
+  content_source?: string;
+  revenue_sharing_model?: string;
+  revenue_cut_percentage?: number;
   songs?: Song[];
-  createdAt?: string;
-  updatedAt?: string;
+  url?: string;
+  image?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 const MusicLibrary: React.FC = () => {
@@ -126,11 +132,26 @@ const MusicLibrary: React.FC = () => {
   const [updateLibName, setUpdateLibName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
-
+  const [isPausable, setIsPausable] = useState(true);
   const [places, setPlaces] = useState<PlaceDTO[]>([]);
   const [selectedPlaceContent, setSelectedPlaceContent] = useState<
     PlaylistDTO[]
   >([]);
+
+  // Add state variable to track input field focus state
+  const [isInputFieldFocused, setIsInputFieldFocused] = useState(false);
+
+  // Event handler to handle input field focus
+  const handleInputFieldFocus = () => {
+    setIsInputFieldFocused(true);
+    console.log("@handleInputFieldFocus, IsInputFieldFocused >> TRUE ");
+  };
+
+  // Event handler to handle input field blur
+  const handleInputFieldBlur = () => {
+    setIsInputFieldFocused(false);
+    console.log("@handleInputFieldBlur, IsInputFieldFocused >> FALSE ");
+  };
 
   useEffect(() => {
     GetPlaces()
@@ -139,6 +160,20 @@ const MusicLibrary: React.FC = () => {
         console.error("Error fetching places:", error);
       });
   }, []);
+
+  // useEffect(() => {
+  //   // console.log("seems isInputVisible or isLibNameUpdateInputVisible updated. ")
+  //   if (isEditing) {
+  //     console.log("isInputVisible || isLibNameUpdateInputVisible")
+  //     console.log("setIsPausable to false...")
+  //     setIsPausable(false);
+
+  //   } else {
+  //     console.log("setIsPausable to true...")
+
+  //     setIsPausable(true);
+  //   }
+  // }, [isInputVisible, isLibNameUpdateInputVisible]);
 
   useEffect(() => {
     if (!isLibraryView) {
@@ -152,7 +187,6 @@ const MusicLibrary: React.FC = () => {
 
   useEffect(() => {
     LoadLibraries().then(() => {
-      setIsInputVisible(false);
       setNewLibName("");
       ListLibraries().then((libraries) => setLibraries(libraries));
     });
@@ -186,6 +220,9 @@ const MusicLibrary: React.FC = () => {
     }
   };
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // setIsEditing(true);
+    // setIsEditing((prevState) => !prevState);
+
     setNewLibName(event.target.value);
   };
 
@@ -194,6 +231,10 @@ const MusicLibrary: React.FC = () => {
   ) => {
     if (event.key === "Enter") {
       handleFolderSelect();
+      // setIsEditing(false)
+      // setIsEditing((prevState) => !prevState);
+
+      setIsInputVisible(false);
       setNewLibName("");
     }
   };
@@ -207,15 +248,15 @@ const MusicLibrary: React.FC = () => {
       console.log("newLibName", updateLibName);
       //       setSelectedLibrary(updateLibName); // update name.
       //       console.log("setting newLibName as selectedLibrary.  ");
-      // setIsEditing(false)
+      setIsEditing(false);
       //       setIsLibNameUpdateInputVisible(false);
       UpdateLibraryName(selectedLibrary, updateLibName).then(() => {
         ListLibraries().then((libraries) => {
           setSelectedLibrary(updateLibName); // update name.
           setUpdateLibName("");
           console.log("setting newLibName as selectedLibrary.  ");
-          setIsEditing(false);
-          setIsLibNameUpdateInputVisible(false);
+          // setIsEditing(false);
+          // setIsLibNameUpdateInputVisible(false);
           setLibraries(libraries);
         });
       });
@@ -286,17 +327,12 @@ const MusicLibrary: React.FC = () => {
     }
   };
 
-  // TESTING: Log the queue & size whenever the queue state changes
-  useEffect(() => {
-    console.log(queue);
-    console.log("number of songs in the queue now: ", queue.size);
-  }, [queue]);
-  ///////////////////////////////////////////////////////////////
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isInputVisible) {
+    
         setIsInputVisible(false);
+        setIsInputFieldFocused(false);
       }
     };
 
@@ -311,6 +347,7 @@ const MusicLibrary: React.FC = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isLibNameUpdateInputVisible) {
         setIsLibNameUpdateInputVisible(false);
+        setIsInputFieldFocused(false);
       }
     };
 
@@ -363,15 +400,27 @@ const MusicLibrary: React.FC = () => {
         {/* <SearchBar onSearch={handleSearch} /> */}
 
         {isInputVisible ? (
-          <input
-            id="libraryInput"
-            type="text"
-            value={newLibName}
-            onChange={handleInputChange}
-            onKeyDown={handleInputKeyPress}
-            onFocus={(e) => e.target.select()} // Select all text when the input field is focused
-            placeholder="new library name"
-          />
+          <div>
+            {/* <input
+              id="libraryInput"
+              type="text"
+              value={newLibName}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyPress}
+              onFocus={(e) => e.target.select()} // Select all text when the input field is focused
+              placeholder="new library name"
+            /> */}
+            <input
+              id="libraryInput"
+              type="text"
+              value={newLibName}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyPress}
+              onFocus={handleInputFieldFocus} // Update onFocus event handler
+              onBlur={handleInputFieldBlur} // Add onBlur event handler
+              placeholder="new library name"
+            />
+          </div>
         ) : (
           <button type="submit" id="addLibBtn" onClick={toggleInputVisibility}>
             +
@@ -508,7 +557,7 @@ const MusicLibrary: React.FC = () => {
                     <div className="playlist-card">
                       <div className="card-content">
                         <img
-                          src="https://www.newnew.media/logo192.png"
+                          src={playlist.image}
                           alt="Playlist Image"
                           className="playlist-image"
                         />
@@ -525,6 +574,16 @@ const MusicLibrary: React.FC = () => {
                           <FontAwesomeIcon icon={faEarth} size="lg" />
                         )}
                       </span>
+
+                      <span className="content-source-icon">
+                        {playlist.content_source === "spotify" ? (
+                          <img src={SpotifyIcon} width={"24px"}></img>
+                        ) : playlist.content_source === "youtube" ? (
+                          <img src={YoutubeIcon} width={"30px"}></img>
+                        ) : (
+                          <FontAwesomeIcon icon={faComputer} size="lg" />
+                        )}
+                      </span>
                     </div>
                   ))}
               </div>
@@ -537,7 +596,7 @@ const MusicLibrary: React.FC = () => {
         queue={queue}
         isOpen={isQueuePanelOpen} // Pass the state to the QueuePanel component
         setSelectedSongName={setSelectedSong}
-       setSelectedFilePath={setSelectedFilePath}
+        setSelectedFilePath={setSelectedFilePath}
       />
 
       <Player
@@ -546,6 +605,8 @@ const MusicLibrary: React.FC = () => {
         filePath={selectedFilePath}
         libName={selectedLibrary}
         queue={queue}
+        isPausable={isPausable}
+        isInputFieldFocused={isInputFieldFocused} // Pass focus state as a prop
         setQueue={setQueue}
         setIsQueuePanelOpen={setIsQueuePanelOpen}
       />

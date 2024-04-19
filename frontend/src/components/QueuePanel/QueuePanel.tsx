@@ -22,13 +22,16 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
 
   return (
     <div id="queuePanel" className={isOpen ? "" : "hidden"}>
-      <ul>
-        {Array.from(queue).map((song) => (
-          <li key={song.name} onClick={() => playSong(song)}>
-            {song.name.replace(/\.[^.]+$/, "")}
-          </li>
-        ))}
-      </ul>
+     {queue.size > 0 ? 
+     <ul>
+     {Array.from(queue).map((song) => (
+       <li key={song.name} onClick={() => playSong(song)}>
+         {song.name.replace(/\.[^.]+$/, "")}
+       </li>
+     ))}
+   </ul>: <>
+   Queue is empty.</> 
+    }
     </div>
   );
 };

@@ -144,9 +144,12 @@ export namespace playlist {
 	    description?: string;
 	    owner?: string;
 	    type?: string;
+	    content_source?: string;
 	    revenue_sharing_model?: string;
 	    revenue_cut_percentage?: number;
 	    songs?: Song[];
+	    url?: string;
+	    image?: string;
 	    created_at?: string;
 	    updated_at?: string;
 	
@@ -161,9 +164,12 @@ export namespace playlist {
 	        this.description = source["description"];
 	        this.owner = source["owner"];
 	        this.type = source["type"];
+	        this.content_source = source["content_source"];
 	        this.revenue_sharing_model = source["revenue_sharing_model"];
 	        this.revenue_cut_percentage = source["revenue_cut_percentage"];
 	        this.songs = this.convertValues(source["songs"], Song);
+	        this.url = source["url"];
+	        this.image = source["image"];
 	        this.created_at = source["created_at"];
 	        this.updated_at = source["updated_at"];
 	    }
