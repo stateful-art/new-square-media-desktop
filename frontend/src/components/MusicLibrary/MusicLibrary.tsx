@@ -330,7 +330,6 @@ const MusicLibrary: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isInputVisible) {
-    
         setIsInputVisible(false);
         setIsInputFieldFocused(false);
       }
@@ -432,7 +431,10 @@ const MusicLibrary: React.FC = () => {
             ? libraries.map((library) => (
                 <li
                   key={library.name}
-                  onClick={() => handleLibraryClick(library.name, library.path)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleLibraryClick(library.name, library.path);
+                  }}
                   className={
                     selectedLibrary === library.name ? "selected-lib" : ""
                   }
