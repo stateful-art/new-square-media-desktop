@@ -107,6 +107,13 @@ type PlaylistDTO = {
   updated_at?: string;
 };
 
+type PlaceSummary = {
+  name: string;
+  description: string;
+  numberOfPlaylists?: number;
+  numberOfSongs?: number;
+};
+
 const MusicLibrary: React.FC = () => {
   const [folderPath, setFolderPath] = useState<string>("");
   const [newLibName, setNewLibName] = useState<string>("");
@@ -137,6 +144,8 @@ const MusicLibrary: React.FC = () => {
   const [selectedPlaceContent, setSelectedPlaceContent] = useState<
     PlaylistDTO[]
   >([]);
+
+  const [placeSummary, setPlaceSummary] = useState<PlaceSummary>();
 
   // Add state variable to track input field focus state
   const [isInputFieldFocused, setIsInputFieldFocused] = useState(false);
@@ -322,10 +331,24 @@ const MusicLibrary: React.FC = () => {
   const handleGetPlaceContent = (id: string) => {
     if (id) {
       GetPlayListsOfPlace(id).then((x) => {
+        console.log(x);
         setSelectedPlaceContent(x);
+        if (placeSummary) {
+          placeSummary.numberOfPlaylists = x.length;
+          placeSummary.numberOfSongs = sumNumberOfSongs(x);
+          setPlaceSummary(placeSummary)
+        }
       });
     }
   };
+
+  function sumNumberOfSongs(playlists: PlaylistDTO[]) {
+    let totalSongs = 0;
+    playlists.forEach((playlist) => {
+      if (playlist.songs) totalSongs += playlist.songs.length;
+    });
+    return totalSongs;
+  }
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -447,7 +470,10 @@ const MusicLibrary: React.FC = () => {
                   key={place.id}
                   onClick={() => {
                     setSelectedPlace(place.name);
-                    // setPlaceLinks(place.links);
+                    setPlaceSummary({
+                      name: place.name,
+                      description: place.description
+                    });
                     if (place.id) {
                       handleGetPlaceContent(place.id);
                     }
@@ -506,7 +532,12 @@ const MusicLibrary: React.FC = () => {
         ) : (
           <>
             <div id="rp-topnav">
-              <span>{selectedPlace}</span>
+              {/* <span>{selectedPlace}</span> */}
+              <span><strong>{placeSummary?.name}</strong></span>
+              <span style={{fontSize:"1rem"}}>{placeSummary?.description}</span>
+              <span><strong>{placeSummary?.numberOfSongs} </strong>songs in <strong>{placeSummary?.numberOfPlaylists}</strong>  playlists</span>
+              
+
             </div>
           </>
         )}
