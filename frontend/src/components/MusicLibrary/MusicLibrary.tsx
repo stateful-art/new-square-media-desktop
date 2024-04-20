@@ -34,6 +34,7 @@ import { GetPlayListsOfPlace } from "../../../wailsjs/go/playlist/Playlist";
 
 import Player from "../Player/Player";
 import QueuePanel from "../QueuePanel/QueuePanel";
+import PlaceMap from "../PlaceMap/PlaceMap";
 // import SearchBar from "../SearchBar/SearchBar";
 
 export type SongLibrary = {
@@ -57,7 +58,7 @@ export type SongLibrary = {
 //   | "MultiPolygon"
 //   | "GeometryCollection";
 
-type Location = {
+export type Location = {
   type: string;
   coordinates: number[];
 };
@@ -335,16 +336,26 @@ const MusicLibrary: React.FC = () => {
     console.log(location);
   };
 
-  const handleGetPlaceContent = (id: string) => {
+  const handleGetPlaceContent = (
+    id: string,
+    name: string,
+    description: string,
+    location: Location
+  ) => {
     if (id) {
       GetPlayListsOfPlace(id).then((x) => {
         console.log(x);
         setSelectedPlaceContent(x);
-        if (placeSummary) {
-          placeSummary.numberOfPlaylists = x.length;
-          placeSummary.numberOfSongs = sumNumberOfSongs(x);
-          setPlaceSummary(placeSummary);
-        }
+
+        // summary.numberOfPlaylists = x.length;
+        // summary.numberOfSongs = sumNumberOfSongs(x);
+        setPlaceSummary({
+          name: name,
+          description: description,
+          location: location,
+          numberOfPlaylists: x.length,
+          numberOfSongs: sumNumberOfSongs(x),
+        });
       });
     }
   };
@@ -389,6 +400,14 @@ const MusicLibrary: React.FC = () => {
 
   const toggleInputVisibility = () => {
     setIsInputVisible((prevIsInputVisible) => !prevIsInputVisible);
+  };
+
+  const toggleMapView = () => {
+    console.log("@toggleMapView")
+
+    console.log(isMapView ? "closing map": "opening map")
+
+    setIsMapView((prev) => !prev);
   };
 
   const toggleLibNameUpdateInputVisibility = () => {
@@ -476,15 +495,20 @@ const MusicLibrary: React.FC = () => {
                 <li
                   key={place.id}
                   onClick={() => {
-                    setIsMapView(false)
+                    setIsMapView(false);
                     setSelectedPlace(place.name);
-                    setPlaceSummary({
-                      name: place.name,
-                      description: place.description,
-                      location: place.location,
-                    });
+                    // setPlaceSummary({
+                    //   // name: place.name,
+                    //   description: place.description,
+                    //   location: place.location,
+                    // });
                     if (place.id) {
-                      handleGetPlaceContent(place.id);
+                      handleGetPlaceContent(
+                        place.id,
+                        place.name,
+                        place.description,
+                        place.location
+                      );
                     }
                   }}
                   className={
@@ -547,42 +571,56 @@ const MusicLibrary: React.FC = () => {
           <>
             {isMapView ? (
               <>
-                <iframe
+                <div id="rp-topnav">
+                  {/* <span>{selectedPlace}</span> */}
+                  <span>
+                    <strong>{selectedPlace}</strong>
+                  </span>
+                  <span style={{ fontSize: "1rem" }}>
+                    {placeSummary?.description}
+                  </span>
+                  <span>
+                    <strong>{placeSummary?.numberOfSongs} </strong>songs in{" "}
+                    <strong>{placeSummary?.numberOfPlaylists}</strong> playlists
+                  </span>
+                  {/* <FontAwesomeIcon
+                    className="add-place-to-favorite"
+                    icon={faHeart}
+                    size="lg"
+                    onClick={() => {
+                      // getMapLink(placeSummary?.location)
+                      setIsMapView(true);
+                    }}
+                  /> */}
+                   <FontAwesomeIcon
+                  className="see-on-map-icon"
+                  icon={faEarth}
+                  size="lg"
+                  onClick={() => toggleMapView()}
+                />
+                </div>
+                {placeSummary?.location.coordinates[0] &&
+                  placeSummary?.location.coordinates[1] && (
+                    <PlaceMap
+                      latitude={placeSummary?.location.coordinates[0]}
+                      longitude={placeSummary?.location.coordinates[1]}
+                    />
+                  )}
+                {/* <iframe
                   src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d102151.86512015607!2d30.645754971289048!3d36.86053528674207!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2str!4v1713560897050!5m2!1sen!2str"
                   // width="600"
                   // height="450"
                   style={{ border: "0" }}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-                <div id="rp-topnav">
-                {/* <span>{selectedPlace}</span> */}
-                <span>
-                  <strong>{placeSummary?.name}</strong>
-                </span>
-                <span style={{ fontSize: "1rem" }}>
-                  {placeSummary?.description}
-                </span>
-                <span>
-                  <strong>{placeSummary?.numberOfSongs} </strong>songs in{" "}
-                  <strong>{placeSummary?.numberOfPlaylists}</strong> playlists
-                </span>
-                <FontAwesomeIcon
-                  className="add-place-to-fav-icon"
-                  icon={faHeart}
-                  size="lg"
-                  onClick={() =>{
-                    // getMapLink(placeSummary?.location)
-                    setIsMapView(true)
-                  }}
-                />
-              </div>
+                ></iframe>{" "} */}
+                
               </>
             ) : (
               <div id="rp-topnav">
                 {/* <span>{selectedPlace}</span> */}
                 <span>
-                  <strong>{placeSummary?.name}</strong>
+                  <strong>{selectedPlace}</strong>
                 </span>
                 <span style={{ fontSize: "1rem" }}>
                   {placeSummary?.description}
@@ -595,10 +633,7 @@ const MusicLibrary: React.FC = () => {
                   className="see-on-map-icon"
                   icon={faEarth}
                   size="lg"
-                  onClick={() =>{
-                    // getMapLink(placeSummary?.location)
-                    setIsMapView(true)
-                  }}
+                  onClick={() => toggleMapView()}
                 />
               </div>
             )}
