@@ -1,9 +1,10 @@
 
 #place-map {
     display: flex;
-    height: fit-content;
+    /* height: fit-content; */
     z-index: 1002;
     --wails-draggable:no-drag;
+    
 }
 
 /* hide the attribution link below the map */

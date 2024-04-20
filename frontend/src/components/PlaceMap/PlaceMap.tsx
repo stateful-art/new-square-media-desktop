@@ -12,7 +12,7 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
   const [viewport, setViewport] = useState<ViewState>({
     latitude: latitude,
     longitude: longitude,
-    zoom: 10,
+    zoom: 2,
     bearing: 0,
     pitch: 0,
     padding: { top: 0, left: 0, bottom: 0, right: 0 },
@@ -25,7 +25,7 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
   const handleMapLoad = (map: MapboxMap) => {
     map.flyTo({
       center: [longitude, latitude],
-      zoom: 15, // Set the desired zoom level
+      zoom: 18, // Set the desired zoom level
       speed: 0.5, // Adjust the speed of the animation
       curve: 1, // Adjust the curve of the animation
       essential: true, // Ensure the animation is considered essential
@@ -39,7 +39,9 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
         onLoad={(e) => handleMapLoad(e.target)}
         onZoom={(e) => handleViewportChange(e.viewState)}
         onDrag={(e) => handleViewportChange(e.viewState)}
-        mapStyle="mapbox://styles/mapbox/streets-v11"
+        // mapStyle="mapbox://styles/mapbox/streets-v11"
+        mapStyle="mapbox://styles/streamerd/ck7mims3100xy1jpq77d2txs6"
+
         mapboxAccessToken={MAPBOX_TOKEN}
       />
     </div>
