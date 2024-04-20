@@ -293,6 +293,20 @@ input[type="text"] {
   font-size: 1.2rem;
 }
 
+#no-lib-selected-to-list{
+  margin-top: 30%;
+  font-size: 1.4rem;
+
+}
+
+#no-place-selected-to-list{
+  margin-top: 30%;
+  font-size: 1.4rem;
+
+}
+
+
+
 
 #breadcrumb {
   list-style-type: none;

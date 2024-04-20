@@ -320,6 +320,8 @@ const MusicLibrary: React.FC = () => {
       if (selection === "yes") {
         RemoveLibrary(libName).then(() => {
           ListLibraries().then((libraries) => setLibraries(libraries));
+          setLibraryContents([]);
+          setSelectedLibrary("")
         });
       }
     });
@@ -544,7 +546,7 @@ const MusicLibrary: React.FC = () => {
       <div id="rightPanel">
         {isLibraryView ? (
           <>
-            {selectedLibrary !== "" && (
+            {selectedLibrary !== "" ? (
               <div id="rp-topnav">
                 {isLibNameUpdateInputVisible ? (
                   <div className="update-library-input-container">
@@ -582,11 +584,12 @@ const MusicLibrary: React.FC = () => {
                   onClick={() => handleRemoveLibrary(selectedLibrary)}
                 />
               </div>
-            )}
+            ): <span id="no-lib-selected-to-list">Please select a library to display</span>
+            }
           </>
         ) : (
           <>
-            {isMapView ? (
+            {isMapView ?  (
               <>
                 <div id="rp-topnav">
                   {/* <span>{selectedPlace}</span> */}
@@ -633,9 +636,11 @@ const MusicLibrary: React.FC = () => {
                 ></iframe>{" "} */}
                 
               </>
-            ) : (
-              <div id="rp-topnav">
-                {/* <span>{selectedPlace}</span> */}
+            ) : <>
+              {
+                selectedPlace !== "" ?
+                (<div id="rp-topnav">
+                
                 <span>
                   <strong>{selectedPlace}</strong>
                 </span>
@@ -643,7 +648,7 @@ const MusicLibrary: React.FC = () => {
                   {placeSummary?.description}
                 </span>
                 <span>
-                  <strong>{placeSummary?.numberOfSongs} </strong>songs in{" "}
+                  <strong>{placeSummary?.numberOfSongs} </strong>asongs in{" "}
                   <strong>{placeSummary?.numberOfPlaylists}</strong> playlists
                 </span>
                 <FontAwesomeIcon
@@ -652,8 +657,12 @@ const MusicLibrary: React.FC = () => {
                   size="lg"
                   onClick={() => toggleMapView()}
                 />
-              </div>
-            )}
+              </div>): 
+              <span id="no-place-selected-to-list">Please select a place to display</span>
+
+              }
+            </>  
+            }
           </>
         )}
 
