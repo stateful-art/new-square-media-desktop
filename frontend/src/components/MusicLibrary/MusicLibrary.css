@@ -37,6 +37,10 @@ body {
   color: white;
 }
 
+.place-onair-icon {
+  padding-right: 1rem;
+}
+
 #rightPanel {
   width: 85%;
   float: right;
@@ -73,6 +77,12 @@ body {
   align-items: center; /* Vertically center items */
 }
 
+.see-on-map-icon:hover{
+  color:rgb(110, 192, 216);
+  cursor: pointer;
+  
+}
+
 #rightPanel li > span {
   flex-grow: 1; /* Allow the span to grow and take up remaining space */
 }
@@ -90,6 +100,8 @@ body {
   background-color: black;
   color: white;
 }
+
+
 
 #rp-lib-name {
   padding-left: 40px;
@@ -113,6 +125,18 @@ body {
   color: #000000;
   /* font-size: 1.6rem; */
 }
+
+
+.remove-queue-btn {
+  margin-right: 2rem;
+}
+
+.remove-queue-btn:hover {
+  cursor: pointer;
+  color: #000000;
+  /* font-size: 1.6rem; */
+}
+
 
 #modal {
   display: none;

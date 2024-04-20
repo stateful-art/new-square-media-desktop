@@ -1,0 +1,11 @@
+
+#place-map {
+    display: flex;
+    z-index: 1002;
+    --wails-draggable:no-drag;
+}
+
+/* hide the attribution link below the map */
+.mapboxgl-ctrl-bottom-right{
+    display: none !important;
+}

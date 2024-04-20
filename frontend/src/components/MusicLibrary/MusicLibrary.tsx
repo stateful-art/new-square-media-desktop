@@ -9,6 +9,9 @@ import {
   faEarth,
   faLock,
   faComputer,
+  faRss,
+  faHeart,
+  faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
@@ -32,6 +35,7 @@ import { GetPlayListsOfPlace } from "../../../wailsjs/go/playlist/Playlist";
 
 import Player from "../Player/Player";
 import QueuePanel from "../QueuePanel/QueuePanel";
+import PlaceMap from "../PlaceMap/PlaceMap";
 // import SearchBar from "../SearchBar/SearchBar";
 
 export type SongLibrary = {
@@ -55,7 +59,7 @@ export type SongLibrary = {
 //   | "MultiPolygon"
 //   | "GeometryCollection";
 
-type Location = {
+export type Location = {
   type: string;
   coordinates: number[];
 };
@@ -112,6 +116,7 @@ type PlaceSummary = {
   description: string;
   numberOfPlaylists?: number;
   numberOfSongs?: number;
+  location: Location;
 };
 
 const MusicLibrary: React.FC = () => {
@@ -134,7 +139,7 @@ const MusicLibrary: React.FC = () => {
   const [queue, setQueue] = useState<Set<SongLibrary>>(new Set()); // Step 1: Define queue state as a Set
 
   const [isLibraryView, setIsLibraryView] = useState<boolean>(true); // Track whether to display libraries or places
-
+  const [isMapView, setIsMapView] = useState<boolean>(false);
   const [selectedPlace, setSelectedPlace] = useState<string>("");
   const [updateLibName, setUpdateLibName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -328,16 +333,44 @@ const MusicLibrary: React.FC = () => {
     });
   };
 
-  const handleGetPlaceContent = (id: string) => {
+  const handleRemoveFromQueue = (item: SongLibrary) => {
+    setQueue((prevQueue) => {
+       const newQueue = new Set(prevQueue);
+       newQueue.delete(item);
+       return newQueue;
+    });
+   };
+
+   const isSongInQueue = (songName: string): boolean => {
+    return Array.from(queue).some(item => item.name === songName);
+   };
+   
+   
+
+  const getMapLink = (location: Location | undefined) => {
+    console.log(location);
+  };
+
+  const handleGetPlaceContent = (
+    id: string,
+    name: string,
+    description: string,
+    location: Location
+  ) => {
     if (id) {
       GetPlayListsOfPlace(id).then((x) => {
         console.log(x);
         setSelectedPlaceContent(x);
-        if (placeSummary) {
-          placeSummary.numberOfPlaylists = x.length;
-          placeSummary.numberOfSongs = sumNumberOfSongs(x);
-          setPlaceSummary(placeSummary)
-        }
+
+        // summary.numberOfPlaylists = x.length;
+        // summary.numberOfSongs = sumNumberOfSongs(x);
+        setPlaceSummary({
+          name: name,
+          description: description,
+          location: location,
+          numberOfPlaylists: x.length,
+          numberOfSongs: sumNumberOfSongs(x),
+        });
       });
     }
   };
@@ -382,6 +415,14 @@ const MusicLibrary: React.FC = () => {
 
   const toggleInputVisibility = () => {
     setIsInputVisible((prevIsInputVisible) => !prevIsInputVisible);
+  };
+
+  const toggleMapView = () => {
+    console.log("@toggleMapView")
+
+    console.log(isMapView ? "closing map": "opening map")
+
+    setIsMapView((prev) => !prev);
   };
 
   const toggleLibNameUpdateInputVisibility = () => {
@@ -469,19 +510,31 @@ const MusicLibrary: React.FC = () => {
                 <li
                   key={place.id}
                   onClick={() => {
+                    setIsMapView(false);
                     setSelectedPlace(place.name);
-                    setPlaceSummary({
-                      name: place.name,
-                      description: place.description
-                    });
+                    // setPlaceSummary({
+                    //   // name: place.name,
+                    //   description: place.description,
+                    //   location: place.location,
+                    // });
                     if (place.id) {
-                      handleGetPlaceContent(place.id);
+                      handleGetPlaceContent(
+                        place.id,
+                        place.name,
+                        place.description,
+                        place.location
+                      );
                     }
                   }}
                   className={
                     selectedPlace === place.name ? "selected-place" : ""
                   }
                 >
+                  <FontAwesomeIcon
+                    className="place-onair-icon"
+                    icon={faRss}
+                    size="1x"
+                  />
                   {place.name}
                 </li>
               ))}
@@ -531,16 +584,77 @@ const MusicLibrary: React.FC = () => {
           </>
         ) : (
           <>
-            <div id="rp-topnav">
-              {/* <span>{selectedPlace}</span> */}
-              <span><strong>{placeSummary?.name}</strong></span>
-              <span style={{fontSize:"1rem"}}>{placeSummary?.description}</span>
-              <span><strong>{placeSummary?.numberOfSongs} </strong>songs in <strong>{placeSummary?.numberOfPlaylists}</strong>  playlists</span>
-              
-
-            </div>
+            {isMapView ? (
+              <>
+                <div id="rp-topnav">
+                  {/* <span>{selectedPlace}</span> */}
+                  <span>
+                    <strong>{selectedPlace}</strong>
+                  </span>
+                  <span style={{ fontSize: "1rem" }}>
+                    {placeSummary?.description}
+                  </span>
+                  <span>
+                    <strong>{placeSummary?.numberOfSongs} </strong>songs in{" "}
+                    <strong>{placeSummary?.numberOfPlaylists}</strong> playlists
+                  </span>
+                  {/* <FontAwesomeIcon
+                    className="add-place-to-favorite"
+                    icon={faHeart}
+                    size="lg"
+                    onClick={() => {
+                      // getMapLink(placeSummary?.location)
+                      setIsMapView(true);
+                    }}
+                  /> */}
+                   <FontAwesomeIcon
+                  className="see-on-map-icon"
+                  icon={faEarth}
+                  size="lg"
+                  onClick={() => toggleMapView()}
+                />
+                </div>
+                {placeSummary?.location.coordinates[0] &&
+                  placeSummary?.location.coordinates[1] && (
+                    <PlaceMap
+                      latitude={placeSummary?.location.coordinates[0]}
+                      longitude={placeSummary?.location.coordinates[1]}
+                    />
+                  )}
+                {/* <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d102151.86512015607!2d30.645754971289048!3d36.86053528674207!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2str!4v1713560897050!5m2!1sen!2str"
+                  // width="600"
+                  // height="450"
+                  style={{ border: "0" }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>{" "} */}
+                
+              </>
+            ) : (
+              <div id="rp-topnav">
+                {/* <span>{selectedPlace}</span> */}
+                <span>
+                  <strong>{selectedPlace}</strong>
+                </span>
+                <span style={{ fontSize: "1rem" }}>
+                  {placeSummary?.description}
+                </span>
+                <span>
+                  <strong>{placeSummary?.numberOfSongs} </strong>songs in{" "}
+                  <strong>{placeSummary?.numberOfPlaylists}</strong> playlists
+                </span>
+                <FontAwesomeIcon
+                  className="see-on-map-icon"
+                  icon={faEarth}
+                  size="lg"
+                  onClick={() => toggleMapView()}
+                />
+              </div>
+            )}
           </>
         )}
+
         <ul id="fileList">
           {isLibraryView ? (
             <>
@@ -567,6 +681,33 @@ const MusicLibrary: React.FC = () => {
                   <span>{item.name.replace(/\.[^.]+$/, "")}</span>
 
                   {!item.isFolder && (
+        <>
+          {!isSongInQueue(item.name) && (
+            <FontAwesomeIcon
+              className={"add-queue-btn"}
+              icon={faPlus}
+              size="xl"
+              onClick={(e) => {
+                e.stopPropagation(); // Stop event propagation
+                handleAddToQueue(item);
+              }}
+            />
+          )}
+          {isSongInQueue(item.name) && (
+            <FontAwesomeIcon
+              className={"remove-queue-btn"}
+              icon={faMinus}
+              size="xl"
+              onClick={(e) => {
+                e.stopPropagation(); // Stop event propagation
+                handleRemoveFromQueue(item);
+              }}
+            />
+          )}
+        </>
+      )}
+                  {/* {!item.isFolder && !isSongInQueue(item.name) &&   (
+                      
                     <FontAwesomeIcon
                       className={"add-queue-btn"}
                       icon={faPlus}
@@ -577,7 +718,13 @@ const MusicLibrary: React.FC = () => {
                         handleAddToQueue(item);
                       }}
                     />
-                  )}
+                  )} */}
+
+
+
+
+
+
                 </li>
               ))}
             </>
