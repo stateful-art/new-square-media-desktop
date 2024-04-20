@@ -11,6 +11,7 @@ import {
   faComputer,
   faRss,
   faHeart,
+  faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
@@ -331,6 +332,20 @@ const MusicLibrary: React.FC = () => {
       return newQueue;
     });
   };
+
+  const handleRemoveFromQueue = (item: SongLibrary) => {
+    setQueue((prevQueue) => {
+       const newQueue = new Set(prevQueue);
+       newQueue.delete(item);
+       return newQueue;
+    });
+   };
+
+   const isSongInQueue = (songName: string): boolean => {
+    return Array.from(queue).some(item => item.name === songName);
+   };
+   
+   
 
   const getMapLink = (location: Location | undefined) => {
     console.log(location);
@@ -666,6 +681,33 @@ const MusicLibrary: React.FC = () => {
                   <span>{item.name.replace(/\.[^.]+$/, "")}</span>
 
                   {!item.isFolder && (
+        <>
+          {!isSongInQueue(item.name) && (
+            <FontAwesomeIcon
+              className={"add-queue-btn"}
+              icon={faPlus}
+              size="xl"
+              onClick={(e) => {
+                e.stopPropagation(); // Stop event propagation
+                handleAddToQueue(item);
+              }}
+            />
+          )}
+          {isSongInQueue(item.name) && (
+            <FontAwesomeIcon
+              className={"remove-queue-btn"}
+              icon={faMinus}
+              size="xl"
+              onClick={(e) => {
+                e.stopPropagation(); // Stop event propagation
+                handleRemoveFromQueue(item);
+              }}
+            />
+          )}
+        </>
+      )}
+                  {/* {!item.isFolder && !isSongInQueue(item.name) &&   (
+                      
                     <FontAwesomeIcon
                       className={"add-queue-btn"}
                       icon={faPlus}
@@ -676,7 +718,13 @@ const MusicLibrary: React.FC = () => {
                         handleAddToQueue(item);
                       }}
                     />
-                  )}
+                  )} */}
+
+
+
+
+
+
                 </li>
               ))}
             </>

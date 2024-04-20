@@ -126,6 +126,18 @@ body {
   /* font-size: 1.6rem; */
 }
 
+
+.remove-queue-btn {
+  margin-right: 2rem;
+}
+
+.remove-queue-btn:hover {
+  cursor: pointer;
+  color: #000000;
+  /* font-size: 1.6rem; */
+}
+
+
 #modal {
   display: none;
   position: fixed;
