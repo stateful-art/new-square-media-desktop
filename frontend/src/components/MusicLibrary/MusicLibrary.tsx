@@ -554,6 +554,8 @@ const MusicLibrary: React.FC = () => {
                       value={isEditing ? updateLibName : selectedLibrary}
                       onChange={handleLibNameUpdateInputChange}
                       onKeyDown={handleLibNameUpdateInputKeyPress}
+                      onFocus={handleInputFieldFocus} // Update onFocus event handler
+                      onBlur={handleInputFieldBlur} // Add onBlur event handler
                     />
                     <FontAwesomeIcon
                       icon={faTurnDown}
