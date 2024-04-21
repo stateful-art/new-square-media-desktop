@@ -1,27 +1,44 @@
 #player {
   display: flex;
-  align-items: center;
-  justify-content: space-around; /* Ensure the elements are spaced evenly */
-  padding: 0 20px;
+  align-items: center; /* Centers items vertically */
+  justify-content: space-around; /* Spreads out the items */
+  padding: 0 20px; /* Add padding on the sides */
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 80px;
-  background-color:  rgba(57, 51, 51, 0.88);
+  /* background-color: #141313; */
+  /* background-color: #e26868; */
+  /* background-color: #cd70bc; */
+  background-color: #cd70bc;
+
+
+  display: flex;
+  align-items: center;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   z-index: 100;
-  
+  margin-right: 20px;
+  /* border-radius: 0px 20px; */
+  /* border-radius: 20px 0px; */
+  border-top-left-radius: 0; /* Keep top left corner square */
+  border-top-right-radius: 0; /* Keep top right corner square */
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 #songName {
-  /* overflow: hidden; */
+  width: 20%; /* Adjust width as needed */
+  overflow: hidden;
   white-space: nowrap;
   color: white;
   font-family: "Chakra Petch", sans-serif;
   font-style: normal;
-  font-weight: 600;
-  font-size: 1.6rem;
+  font-weight: 400;
+}
+
+#songName p:hover {
+  animation-play-state: paused;
 }
 
 .scroll-text {
@@ -39,39 +56,63 @@
   }
 }
 
-#customAudioPlayer {
-  display: flex;
-  align-items: center;
+#audioPlayer {
+  /* Remove flex-grow and explicitly control the width if necessary */
+  width: 64%; /* Example width, adjust as needed */
+  order: 2; /* Ensures the audio player is positioned as the second item */
+  margin-right: 36%;
 }
 
 .audioControls {
   display: flex;
   align-items: center;
-  margin-right: 20px; /* Adjust margin for spacing */
+  /* margin-right: 20px; Adjust margin for spacing */
+}
+/* styles.css */
+
+/* Style for custom slider thumb */
+.custom-thumb {
+  position:relative;
+  width: 10px;
+  height: 40px;
+  background-color: #0e0e0f;
+  border-radius: 0;
+  cursor: pointer;
 }
 
+/* Hide default slider thumb */
 .volume-control {
-  width: 100px; /* Adjust width as needed */
-  height: 10px; /* Adjust height as needed */
+  -webkit-appearance: none;
+  appearance: none;
+  /* transform: rotate(-90deg); */
+  width: 200px; /* Ensures the input covers the entire width */
+  height: 20px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
   background-color: #ddd; /* Background color of the volume control */
   border-radius: 5px; /* Border radius for rounded corners */
-  left: 0;
+  position: relative;
 }
 
-.volume-control::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Remove default appearance */
-  appearance: none; /* Remove default appearance */
-  width: 20px; /* Width of the slider thumb */
-  height: 20px; /* Height of the slider thumb */
-  background-color: #007bff; /* Color of the slider thumb */
-  border-radius: 50%; /* Make the slider thumb circular */
-  cursor: pointer; /* Show pointer cursor */
-}
-
-.progress-control {
-  width: 100%; /* Adjust width as needed */
+/* Style for the track of the slider */
+.volume-control::-webkit-slider-runnable-track {
+  width: 100%; /* Ensures the track covers the entire width */
   height: 10px; /* Adjust height as needed */
+  background-color: #ddd; /* Background color of the track */
+  border-radius: 5px; /* Border radius for rounded corners */
+}
+
+/* Style for the fill of the slider (track up to the thumb) */
+.volume-control::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0; /* Hide the default thumb */
+  height: 0; /* Hide the default thumb */
+}
+
+/* Adjust styles for Firefox */
+.volume-control::-moz- .progress-control {
+  width: 100%; /* Adjust width as needed */
+  height: 50px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
   background-color: #ddd; /* Default background color of the progress control */
   border-radius: 5px; /* Border radius for rounded corners */
@@ -80,22 +121,28 @@
 .progress-control::-webkit-slider-thumb {
   -webkit-appearance: none; /* Remove default appearance */
   appearance: none; /* Remove default appearance */
-  width: 0; /* Width of the slider thumb */
-  height: 0; /* Height of the slider thumb */
-  background-color: transparent; /* Make the slider thumb transparent */
+  width: 150; /* Width of the slider thumb */
+  height: 150; /* Height of the slider thumb */
+  background-color: green; /* Make the slider thumb transparent */
   cursor: default; /* Set default cursor */
 }
 
 /* Define the gradient background for the progress control */
 .progress-control {
-  background: linear-gradient(to right, #007bff 0%, #007bff calc((100% - 2px) * var(--progress)), #ddd calc((100% - 2px) * var(--progress)), #ddd 100%);
+  background: linear-gradient(
+    to right,
+    #007bff 0%,
+    #007bff calc((100% - 2px) * var(--progress)),
+    #ddd calc((100% - 2px) * var(--progress)),
+    #ddd 100%
+  );
 }
 
 .playPauseButton {
-  width: 60px;
-  height: 60px;
-  background-color: rgb(242, 237, 237);
-  color: #141313;
+  width: 40px;
+  height: 40px;
+  /* background-color: rgb(242, 237, 237); */
+  color: white;
   cursor: pointer !important;
 }
 
@@ -111,8 +158,7 @@
   width: 60%; /* Adjust width as needed */
   height: 30px;
   /* background-color: #333; */
-  background-color:green;
-
+  background-color: green;
 }
 
 #customProgressBar::-webkit-progress-bar {
@@ -126,4 +172,3 @@
 #customProgressBar::-moz-progress-bar {
   background-color: #d8779b; /* Adjust progress indicator color */
 }
-

@@ -12,12 +12,12 @@
   text-align: start;
   font-family: "Chakra Petch", sans-serif;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 200;
 }
 
 #queuePanel ul {
   list-style-type: none;
-  font-size: 1rem;
+  font-size: 1.1rem;
   padding: 0px 6px;
 }
 

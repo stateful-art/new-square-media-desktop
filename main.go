@@ -22,6 +22,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 )
 
 //go:embed all:frontend/dist
@@ -29,6 +30,10 @@ var assets embed.FS
 
 //go:embed all:data
 var embeddedData embed.FS
+
+//go:embed build/appicon.png
+var icon []byte
+
 var db *sql.DB
 
 func init() {
@@ -60,6 +65,10 @@ func main() {
 
 	AppMenu := menu.NewMenu()
 	FileMenu := AppMenu.AddSubmenu("File")
+	AboutMenu := AppMenu.AddSubmenu("About")
+	AboutMenu.AddSeparator()
+	AboutMenu.AddText("copyright © start", nil, nil)
+
 	FileMenu.AddSeparator()
 	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
 		runtime.Quit(app.ctx)
@@ -78,11 +87,32 @@ func main() {
 		// CSSDragValue:    "1",
 		Width:  1024,
 		Height: 768,
+
 		AssetServer: &assetserver.Options{
 			Assets:  assets,
 			Handler: Multimedia.NewLibraryLoader(),
 		},
-		Menu:             AppMenu,
+		Menu: AppMenu,
+
+		Mac: &mac.Options{
+			TitleBar: &mac.TitleBar{
+				TitlebarAppearsTransparent: true,
+				HideTitle:                  false,
+				HideTitleBar:               true,
+				FullSizeContent:            true,
+				UseToolbar:                 false,
+				HideToolbarSeparator:       true,
+			},
+			Appearance:           mac.NSAppearanceNameDarkAqua,
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  false,
+			About: &mac.AboutInfo{
+				Title:   "My Application",
+				Message: "© 2021 Me",
+				Icon:    icon,
+			},
+		},
+
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
 			app.startup(ctx)

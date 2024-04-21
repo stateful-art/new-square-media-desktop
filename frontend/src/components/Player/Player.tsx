@@ -8,13 +8,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { GetSong } from "../../../wailsjs/go/multimedia/Library";
 import { SongLibrary } from "../MusicLibrary/MusicLibrary";
+import "./Player.css";
 
 interface PlayerProps {
   songName: string;
   setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
   filePath: string;
   libName: string;
-  isInputFieldFocused:boolean;
+  isInputFieldFocused: boolean;
 
   queue: Set<SongLibrary>; // Add queue as a prop
   setQueue: React.Dispatch<React.SetStateAction<Set<SongLibrary>>>; // Include setQueue in the props
@@ -32,10 +33,63 @@ const Player: React.FC<PlayerProps> = ({
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [volume, setVolume] = useState<number>(0.5);
+  const [volume, setVolume] = useState<number>();
   const [isSongEnded, setIsSongEnded] = useState(false);
   const [currentSongName, setCurrentSongName] = useState("");
   const [nextSongIndex, setNextSongIndex] = useState(0);
+
+  const [value, setValue] = useState<number>(0.5); // Initial slider value
+  const [thumbPosition, setThumbPosition] = useState<number>(0); // Initial thumb position
+  useEffect(() => {
+    console.log("value changed >>>", value);
+    updateThumbPosition();
+  }, [value]);
+
+  const updateThumbPosition = () => {
+    const volumeControl = document.querySelector(
+      ".volume-control"
+    ) as HTMLInputElement;
+    if (volumeControl) {
+      console.log("volumeControl.offsetWidth >> ", volumeControl.offsetWidth);
+      console.log(
+        "volumeControl.offsetWidth >> ",
+        parseFloat(volumeControl.min)
+      );
+      console.log(
+        "(value - parseFloat(volumeControl.min) >> ",
+        value - parseFloat(volumeControl.min)
+      );
+
+      const thumbWidth =
+        (volumeControl.offsetWidth /
+          (parseFloat(volumeControl.max) - parseFloat(volumeControl.min))) *
+        (value - parseFloat(volumeControl.min));
+
+      console.log("thumbWidth", thumbWidth);
+
+      // setThumbPosition(
+      //   thumbWidth -
+      //     volumeControl.offsetWidth -
+      //     100 * (value)
+      // );
+
+      setThumbPosition(
+        thumbWidth -
+          volumeControl.offsetWidth
+      );
+    }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(event.target.value);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+      // setVolume(newVolume);
+      setValue(newVolume);
+    }
+    // };
+  };
 
   function loadAudio(base64String: string) {
     const audioPlayer = audioRef.current;
@@ -43,22 +97,19 @@ const Player: React.FC<PlayerProps> = ({
       audioPlayer.src = "data:audio/mpeg;base64," + base64String;
     }
   }
-  
-useEffect(() => {
-  const handleKeyDown = (event: KeyboardEvent) => {
-    // Check if the space key is pressed, input field is not focused, and isPausable is true
-    if (event.key === " " && !isInputFieldFocused) {
-      togglePlayPause();
-    }
-  };
-  window.addEventListener("keydown", handleKeyDown);
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-  };
-}, [isPlaying, isInputFieldFocused]); // Include isInputFieldFocused in the dependency array
 
-
-
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if the space key is pressed, input field is not focused, and isPausable is true
+      if (event.key === " " && !isInputFieldFocused) {
+        togglePlayPause();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isPlaying, isInputFieldFocused]); // Include isInputFieldFocused in the dependency array
 
   useEffect(() => {
     // Check if the queue is empty and if the current song has ended
@@ -196,9 +247,8 @@ useEffect(() => {
     if (queue.size > 0) {
       // Get the first song in the queue
       const nextSong = Array.from(queue)[nextSongIndex];
-    
+
       if (nextSongIndex + 1 < queue.size) {
-     
         setNextSongIndex(nextSongIndex + 1);
       } else {
         audioRef.current?.pause();
@@ -210,7 +260,6 @@ useEffect(() => {
           setIsPlaying(true);
           setCurrentSongName(nextSong.name);
           setSelectedSongName(nextSong.name);
-    
         })
         .catch((error) => console.error("Error fetching audio:", error));
     }
@@ -218,58 +267,69 @@ useEffect(() => {
 
   return (
     <div id="player">
-      <>
-        <div id="songName">{currentSongName.replace(/\.[^.]+$/, "")}</div>
-        <FontAwesomeIcon
-          className="playPauseButton"
-          icon={isPlaying ? faPause : faPlay}
-          onClick={togglePlayPause}
-          size="2x"
-        />
+      {/* <div id="songName" className={getSongNameStyle()}>{currentSongName.replace(/\.[^.]+$/, "")} </div> */}
+      <div id="songName">{currentSongName.replace(/\.[^.]+$/, "")} </div>
 
-        <FontAwesomeIcon
-          className="controlButton"
-          icon={faStepForward}
-          size="2x"
-          onClick={playNextSong}
-        />
-        <audio
-          id="audioPlayer"
-          ref={audioRef}
-          autoPlay
-          onTimeUpdate={updateCurrentTime}
-        ></audio>
+      <FontAwesomeIcon
+        className="playPauseButton"
+        icon={isPlaying ? faPause : faPlay}
+        onClick={togglePlayPause}
+        size="2x"
+      />
 
-        {!Number.isNaN(getDuration()) && (
-          <>
-            <div id="prog">
-              {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
-              <input
-                type="range"
-                id="progress-control"
-                className="progress-control"
-                min="0"
-                max={getDuration()}
-                step="1"
-                value={currentTime}
-                onChange={handleProgressChange}
-              />
-              {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
-            </div>
-          </>
-        )}
-        <input
-          type="range"
-          id="volumeControl"
-          className="volume-control"
-          min="0"
-          max="1"
-          step="0.01"
-          value={volume}
-          onChange={handleVolumeChange}
-          
-        />
-      </>
+      <FontAwesomeIcon
+        className="controlButton"
+        icon={faStepForward}
+        size="2x"
+        onClick={playNextSong}
+      />
+      <audio
+        id="audioPlayer"
+        ref={audioRef}
+        autoPlay
+        onTimeUpdate={updateCurrentTime}
+      ></audio>
+
+      {!Number.isNaN(getDuration()) && (
+        <>
+          <div id="prog">
+            {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
+            <input
+              type="range"
+              id="progress-control"
+              className="progress-control"
+              min="0"
+              max={getDuration()}
+              step="1"
+              value={currentTime}
+              onChange={handleProgressChange}
+            />
+            {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
+          </div>
+        </>
+      )}
+      {/* <input
+        type="range"
+        // id="volumeControl"
+        className="volume-control"
+        min="0"
+        max="1"
+        step="0.01"
+        value={volume}
+        onChange={handleVolumeChange}
+      /> */}
+
+      <input
+        type="range"
+        className="volume-control"
+        min="0"
+        max="1"
+        step="0.01"
+        value={value}
+        onChange={handleChange}
+      />
+      <div className="custom-thumb" style={{ left: `${thumbPosition}px` }} />
+
       <div onClick={toggleQueuePanel} className="toggle-queue-btn">
         <FontAwesomeIcon icon={faListDots} size="2x" />
       </div>
