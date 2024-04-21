@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactMapGL, {
   ViewState,
   MapboxMap,
@@ -45,17 +45,26 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
     }
   };
 
-  // const handleResize = (e: MapboxEvent) => {
+//   useEffect(() => {
+//     // Update the viewport state when latitude or longitude changes
+//     setViewport((prevViewport) => ({
+//       ...prevViewport,
+//       latitude: latitude,
+//       longitude: longitude,
+//     }));
+//  }, [latitude, longitude]);
 
-  //   // Access the map instance from the event
-  //   const mapInstance = e.target;
-  //   const container = mapInstance.getContainer();
-  //   const width = container.offsetWidth;
-  //   const height = container.offsetHeight;
-  //   if (width && height) {
-  //     setMapSize({ width, height });
-  //   }
-  // };
+
+useEffect(() => {
+  // Update the viewport state to "fly" to the new location
+  setViewport({
+    ...viewport,
+    latitude: latitude,
+    longitude: longitude,
+  });
+}, [latitude, longitude]); // Depend on latitude and longitude
+
+
   const handleMapLoad = (map: MapboxMap) => {
     map.flyTo({
       center: [longitude, latitude],
@@ -67,26 +76,27 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
     setMap(map);
   };
 
-  // useEffect(() => {
-  //   if (map) {
-  //     // Check if the project method is available on the map object
-  //     const point = map.project([longitude, latitude]);
-  //     console.log(
-  //       `Marker is ${mapSize.width - point.x} pixels from the right edge.`
-  //     );
-  //     console.log(
-  //       `Marker is ${mapSize.height - point.y} pixels from the top edge.`
-  //     );
-  //   } else {
-  //     console.error("The map object is not defined.");
-  //   }
-  // }, [map, mapSize]);
+  useEffect(() => {
+    // Check if the map instance is available
+    if (map) {
+      // Use the map instance to "fly to" the new location
+      map.flyTo({
+        center: [longitude, latitude],
+        zoom: 18, // Set the desired zoom level
+        speed: 1, // Adjust the speed of the animation
+        curve: 1, // Adjust the curve of the animation
+        essential: true, // Ensure the animation is considered essential
+      });
+    }
+ }, [latitude, longitude, map]); // Depend on latitude, longitude, and map
+
 
   return (
     <div id="place-map">
       <ReactMapGL
         {...viewport}
         onLoad={(e) => handleMapLoad(e.target)}
+        
         // onResize={handleResize}
         onZoom={(e) => handleViewportChange(e.viewState)}
         onDrag={(e) => handleViewportChange(e.viewState)}

@@ -307,6 +307,8 @@ const MusicLibrary: React.FC = () => {
     location: Location
   ) => {
     if (id) {
+      console.log("GetPlayListsOfPlace > locaton: ", location);
+
       GetPlayListsOfPlace(id).then((x) => {
         console.log(x);
         setSelectedPlaceContent(x);
@@ -439,10 +441,12 @@ const MusicLibrary: React.FC = () => {
                 <li
                   key={place.id}
                   onClick={() => {
-                    setIsMapView(false);
-                    setSelectedPlace(place.name);
-
+                    // setIsMapView(false);
+                    console.log("new place selected. ");
                     if (place.id) {
+                      console.log("getting place content for : ", place.id);
+                      
+                      setSelectedPlace(place.name);
                       handleGetPlaceContent(
                         place.id,
                         place.name,
@@ -537,15 +541,19 @@ const MusicLibrary: React.FC = () => {
                     onClick={() => toggleMapView()}
                   />
                 </div>
-                {placeSummary?.location.coordinates[0] &&
-                  placeSummary?.location.coordinates[1] && (
+
+                {placeSummary && (
+                  <>
                     <PlaceMap
-                      latitude={placeSummary?.location.coordinates[0]}
-                      longitude={placeSummary?.location.coordinates[1]}
+                      latitude={placeSummary.location.coordinates[0]}
+                      longitude={placeSummary.location.coordinates[1]}
                     />
-                  )}
+                    
+                  </>
+                )}
               </>
-            ) : (
+            ) : 
+            (
               <>
                 {selectedPlace !== "" ? (
                   <div id="rp-topnav">
@@ -567,7 +575,8 @@ const MusicLibrary: React.FC = () => {
                       onClick={() => toggleMapView()}
                     />
                   </div>
-                ) : (
+                ) :
+                 (
                   <span id="no-place-selected-to-list">
                     Please select a place to display
                   </span>
