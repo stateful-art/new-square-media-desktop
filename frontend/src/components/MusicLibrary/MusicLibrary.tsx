@@ -10,7 +10,6 @@ import {
   faLock,
   faComputer,
   faRss,
-  faHeart,
   faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
@@ -44,21 +43,6 @@ export type SongLibrary = {
   isFolder?: boolean;
 };
 
-// type Item = {
-//   name: string;
-//   path: string;
-//   isPlaylist?: boolean;
-// };
-
-// type GeometryType =
-//   | "Point"
-//   | "LineString"
-//   | "Polygon"
-//   | "MultiPoint"
-//   | "MultiLineString"
-//   | "MultiPolygon"
-//   | "GeometryCollection";
-
 export type Location = {
   type: string;
   coordinates: number[];
@@ -90,10 +74,6 @@ type Song = {
   artist?: string;
   playCount?: number;
 };
-
-// type PlaylistType = "private" | "public";
-
-type RevenueSharingModel = "collective" | "individual";
 
 type PlaylistDTO = {
   _id?: string;
@@ -127,7 +107,6 @@ const MusicLibrary: React.FC = () => {
   // const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [libraryContents, setLibraryContents] = useState<SongLibrary[]>([]);
-  const [placeLinks, setPlaceLinks] = useState<Link[]>([]);
 
   const [selectedSong, setSelectedSong] = useState<string>("");
   const [selectedLibrary, setSelectedLibrary] = useState<string>("");
@@ -144,7 +123,6 @@ const MusicLibrary: React.FC = () => {
   const [updateLibName, setUpdateLibName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
-  const [isPausable, setIsPausable] = useState(true);
   const [places, setPlaces] = useState<PlaceDTO[]>([]);
   const [selectedPlaceContent, setSelectedPlaceContent] = useState<
     PlaylistDTO[]
@@ -158,7 +136,6 @@ const MusicLibrary: React.FC = () => {
   // Event handler to handle input field focus
   const handleInputFieldFocus = () => {
     setIsInputFieldFocused(true);
-    console.log("@handleInputFieldFocus, IsInputFieldFocused >> TRUE ");
   };
 
   // Event handler to handle input field blur
@@ -174,20 +151,6 @@ const MusicLibrary: React.FC = () => {
         console.error("Error fetching places:", error);
       });
   }, []);
-
-  // useEffect(() => {
-  //   // console.log("seems isInputVisible or isLibNameUpdateInputVisible updated. ")
-  //   if (isEditing) {
-  //     console.log("isInputVisible || isLibNameUpdateInputVisible")
-  //     console.log("setIsPausable to false...")
-  //     setIsPausable(false);
-
-  //   } else {
-  //     console.log("setIsPausable to true...")
-
-  //     setIsPausable(true);
-  //   }
-  // }, [isInputVisible, isLibNameUpdateInputVisible]);
 
   useEffect(() => {
     if (!isLibraryView) {
@@ -257,32 +220,26 @@ const MusicLibrary: React.FC = () => {
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (event.key === "Enter") {
-      // handleUpdateLibraryName(selectedLibrary, updateLibName);
       console.log("new Enter event detected. ");
       console.log("newLibName", updateLibName);
-      //       setSelectedLibrary(updateLibName); // update name.
-      //       console.log("setting newLibName as selectedLibrary.  ");
       setIsEditing(false);
-      //       setIsLibNameUpdateInputVisible(false);
       UpdateLibraryName(selectedLibrary, updateLibName).then(() => {
         ListLibraries().then((libraries) => {
           setSelectedLibrary(updateLibName); // update name.
           setUpdateLibName("");
+          setIsLibNameUpdateInputVisible(false);
+          setIsInputFieldFocused(false);
           console.log("setting newLibName as selectedLibrary.  ");
-          // setIsEditing(false);
-          // setIsLibNameUpdateInputVisible(false);
+
           setLibraries(libraries);
         });
       });
-      // setNewLibName("");
     }
   };
 
   const handleLibNameUpdateInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // event.preventDefault()
-    // event.stopPropagation(); // Stop event propagation
     console.log("@handleLibNameUpdateInputChange");
     setIsEditing(true);
     console.log("event.target.value: ", event.target.value);
@@ -302,26 +259,18 @@ const MusicLibrary: React.FC = () => {
     });
   };
 
-  const handlePlaylistClick = (path: string) => {
-    ListLibraryContents(selectedPlace, path).then((contents) => {
-      setLibraryContents(contents);
-    });
-  };
-
   const handleSongClick = (item: SongLibrary) => {
     setSelectedSong(item.name);
     setSelectedFilePath(item.path);
   };
 
   const handleRemoveLibrary = (libName: string) => {
-    console.log("@handleRemoveLibrary for >>", libName);
-
     RemoveLibraryDialog().then((selection) => {
       if (selection === "yes") {
         RemoveLibrary(libName).then(() => {
           ListLibraries().then((libraries) => setLibraries(libraries));
           setLibraryContents([]);
-          setSelectedLibrary("")
+          setSelectedLibrary("");
         });
       }
     });
@@ -337,17 +286,15 @@ const MusicLibrary: React.FC = () => {
 
   const handleRemoveFromQueue = (item: SongLibrary) => {
     setQueue((prevQueue) => {
-       const newQueue = new Set(prevQueue);
-       newQueue.delete(item);
-       return newQueue;
+      const newQueue = new Set(prevQueue);
+      newQueue.delete(item);
+      return newQueue;
     });
-   };
+  };
 
-   const isSongInQueue = (songName: string): boolean => {
-    return Array.from(queue).some(item => item.name === songName);
-   };
-   
-   
+  const isSongInQueue = (songName: string): boolean => {
+    return Array.from(queue).some((item) => item.name === songName);
+  };
 
   const getMapLink = (location: Location | undefined) => {
     console.log(location);
@@ -363,9 +310,6 @@ const MusicLibrary: React.FC = () => {
       GetPlayListsOfPlace(id).then((x) => {
         console.log(x);
         setSelectedPlaceContent(x);
-
-        // summary.numberOfPlaylists = x.length;
-        // summary.numberOfSongs = sumNumberOfSongs(x);
         setPlaceSummary({
           name: name,
           description: description,
@@ -420,15 +364,10 @@ const MusicLibrary: React.FC = () => {
   };
 
   const toggleMapView = () => {
-    console.log("@toggleMapView")
-
-    console.log(isMapView ? "closing map": "opening map")
-
     setIsMapView((prev) => !prev);
   };
 
   const toggleLibNameUpdateInputVisibility = () => {
-    console.log("toggling LibNameUpdateInputVisibility");
     setIsLibNameUpdateInputVisible(
       (previousLibNameUpdateInputVisible) => !previousLibNameUpdateInputVisible
     );
@@ -445,7 +384,6 @@ const MusicLibrary: React.FC = () => {
   return (
     <>
       <div id="leftPanel">
-        {/* <h2 id="lp-title">New Square</h2> */}
         <div id="tabs">
           <button
             className={isLibraryView ? "active-tab" : ""}
@@ -460,21 +398,11 @@ const MusicLibrary: React.FC = () => {
             <FontAwesomeIcon icon={faEarth} size="lg" />
           </button>
         </div>
-        {/* <hr /> */}
 
         {/* <SearchBar onSearch={handleSearch} /> */}
 
         {isInputVisible ? (
           <div>
-            {/* <input
-              id="libraryInput"
-              type="text"
-              value={newLibName}
-              onChange={handleInputChange}
-              onKeyDown={handleInputKeyPress}
-              onFocus={(e) => e.target.select()} // Select all text when the input field is focused
-              placeholder="new library name"
-            /> */}
             <input
               id="libraryInput"
               type="text"
@@ -491,7 +419,6 @@ const MusicLibrary: React.FC = () => {
             +
           </button>
         )}
-        {/* <h3 style={{fontSize:"6rem", color: "black"}}> {isQueuePanelOpen ? "yes": "no"}</h3>  */}
         <ul id="libraryList">
           {isLibraryView
             ? libraries.map((library) => (
@@ -514,11 +441,7 @@ const MusicLibrary: React.FC = () => {
                   onClick={() => {
                     setIsMapView(false);
                     setSelectedPlace(place.name);
-                    // setPlaceSummary({
-                    //   // name: place.name,
-                    //   description: place.description,
-                    //   location: place.location,
-                    // });
+
                     if (place.id) {
                       handleGetPlaceContent(
                         place.id,
@@ -584,12 +507,15 @@ const MusicLibrary: React.FC = () => {
                   onClick={() => handleRemoveLibrary(selectedLibrary)}
                 />
               </div>
-            ): <span id="no-lib-selected-to-list">Please select a library to display</span>
-            }
+            ) : (
+              <span id="no-lib-selected-to-list">
+                Please select a library to display
+              </span>
+            )}
           </>
         ) : (
           <>
-            {isMapView ?  (
+            {isMapView ? (
               <>
                 <div id="rp-topnav">
                   {/* <span>{selectedPlace}</span> */}
@@ -603,21 +529,13 @@ const MusicLibrary: React.FC = () => {
                     <strong>{placeSummary?.numberOfSongs} </strong>songs in{" "}
                     <strong>{placeSummary?.numberOfPlaylists}</strong> playlists
                   </span>
-                  {/* <FontAwesomeIcon
-                    className="add-place-to-favorite"
-                    icon={faHeart}
+
+                  <FontAwesomeIcon
+                    className="see-on-map-icon"
+                    icon={faEarth}
                     size="lg"
-                    onClick={() => {
-                      // getMapLink(placeSummary?.location)
-                      setIsMapView(true);
-                    }}
-                  /> */}
-                   <FontAwesomeIcon
-                  className="see-on-map-icon"
-                  icon={faEarth}
-                  size="lg"
-                  onClick={() => toggleMapView()}
-                />
+                    onClick={() => toggleMapView()}
+                  />
                 </div>
                 {placeSummary?.location.coordinates[0] &&
                   placeSummary?.location.coordinates[1] && (
@@ -626,43 +544,36 @@ const MusicLibrary: React.FC = () => {
                       longitude={placeSummary?.location.coordinates[1]}
                     />
                   )}
-                {/* <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d102151.86512015607!2d30.645754971289048!3d36.86053528674207!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2str!4v1713560897050!5m2!1sen!2str"
-                  // width="600"
-                  // height="450"
-                  style={{ border: "0" }}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>{" "} */}
-                
               </>
-            ) : <>
-              {
-                selectedPlace !== "" ?
-                (<div id="rp-topnav">
-                
-                <span>
-                  <strong>{selectedPlace}</strong>
-                </span>
-                <span style={{ fontSize: "1rem" }}>
-                  {placeSummary?.description}
-                </span>
-                <span>
-                  <strong>{placeSummary?.numberOfSongs} </strong>asongs in{" "}
-                  <strong>{placeSummary?.numberOfPlaylists}</strong> playlists
-                </span>
-                <FontAwesomeIcon
-                  className="see-on-map-icon"
-                  icon={faEarth}
-                  size="lg"
-                  onClick={() => toggleMapView()}
-                />
-              </div>): 
-              <span id="no-place-selected-to-list">Please select a place to display</span>
-
-              }
-            </>  
-            }
+            ) : (
+              <>
+                {selectedPlace !== "" ? (
+                  <div id="rp-topnav">
+                    <span>
+                      <strong>{selectedPlace}</strong>
+                    </span>
+                    <span style={{ fontSize: "1rem" }}>
+                      {placeSummary?.description}
+                    </span>
+                    <span>
+                      <strong>{placeSummary?.numberOfSongs} </strong>asongs in{" "}
+                      <strong>{placeSummary?.numberOfPlaylists}</strong>{" "}
+                      playlists
+                    </span>
+                    <FontAwesomeIcon
+                      className="see-on-map-icon"
+                      icon={faEarth}
+                      size="lg"
+                      onClick={() => toggleMapView()}
+                    />
+                  </div>
+                ) : (
+                  <span id="no-place-selected-to-list">
+                    Please select a place to display
+                  </span>
+                )}
+              </>
+            )}
           </>
         )}
 
@@ -692,50 +603,31 @@ const MusicLibrary: React.FC = () => {
                   <span>{item.name.replace(/\.[^.]+$/, "")}</span>
 
                   {!item.isFolder && (
-        <>
-          {!isSongInQueue(item.name) && (
-            <FontAwesomeIcon
-              className={"add-queue-btn"}
-              icon={faPlus}
-              size="xl"
-              onClick={(e) => {
-                e.stopPropagation(); // Stop event propagation
-                handleAddToQueue(item);
-              }}
-            />
-          )}
-          {isSongInQueue(item.name) && (
-            <FontAwesomeIcon
-              className={"remove-queue-btn"}
-              icon={faMinus}
-              size="xl"
-              onClick={(e) => {
-                e.stopPropagation(); // Stop event propagation
-                handleRemoveFromQueue(item);
-              }}
-            />
-          )}
-        </>
-      )}
-                  {/* {!item.isFolder && !isSongInQueue(item.name) &&   (
-                      
-                    <FontAwesomeIcon
-                      className={"add-queue-btn"}
-                      icon={faPlus}
-                      // style={{ cursor: "pointer" }}
-                      size="xl"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Stop event propagation
-                        handleAddToQueue(item);
-                      }}
-                    />
-                  )} */}
-
-
-
-
-
-
+                    <>
+                      {!isSongInQueue(item.name) && (
+                        <FontAwesomeIcon
+                          className={"add-queue-btn"}
+                          icon={faPlus}
+                          size="xl"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Stop event propagation
+                            handleAddToQueue(item);
+                          }}
+                        />
+                      )}
+                      {isSongInQueue(item.name) && (
+                        <FontAwesomeIcon
+                          className={"remove-queue-btn"}
+                          icon={faMinus}
+                          size="xl"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Stop event propagation
+                            handleRemoveFromQueue(item);
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
                 </li>
               ))}
             </>
@@ -796,13 +688,10 @@ const MusicLibrary: React.FC = () => {
         filePath={selectedFilePath}
         libName={selectedLibrary}
         queue={queue}
-        isPausable={isPausable}
         isInputFieldFocused={isInputFieldFocused} // Pass focus state as a prop
         setQueue={setQueue}
         setIsQueuePanelOpen={setIsQueuePanelOpen}
       />
-      {/* <div id="queuePanel" className="hidden"></div>
-      <div id="historyPanel" className="hidden"></div> */}
     </>
   );
 };

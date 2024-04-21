@@ -14,7 +14,6 @@ interface PlayerProps {
   setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
   filePath: string;
   libName: string;
-  isPausable: boolean;
   isInputFieldFocused:boolean;
 
   queue: Set<SongLibrary>; // Add queue as a prop
@@ -27,10 +26,7 @@ const Player: React.FC<PlayerProps> = ({
   setSelectedSongName,
   filePath,
   queue,
-  isPausable,
   isInputFieldFocused,
-
-  setQueue,
   setIsQueuePanelOpen,
 }) => {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -40,7 +36,6 @@ const Player: React.FC<PlayerProps> = ({
   const [isSongEnded, setIsSongEnded] = useState(false);
   const [currentSongName, setCurrentSongName] = useState("");
   const [nextSongIndex, setNextSongIndex] = useState(0);
-  // const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
 
   function loadAudio(base64String: string) {
     const audioPlayer = audioRef.current;
@@ -49,50 +44,6 @@ const Player: React.FC<PlayerProps> = ({
     }
   }
   
-  
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // currently, when this on;
-  // when user presses space key when they enter a new lib name
-  // if a song is being played, it stops playing.
-  // TODO: receive isInputVisible bool as a prop to this component
-
-
-//   useEffect(()=> {
-// console.log("updated ")
-//   }, [])
-
-
-
-  // useEffect(() => {
-  //   const handleKeyDown = (event: KeyboardEvent) => {
-  //     if (event.key === " " && isPausable) {
-  //       console.log("pausable @ player");
-  //       togglePlayPause();
-  //     } else {
-  //       console.log("non-pausable @ player");
-  //     }
-  //   };
-  //   window.addEventListener("keydown", handleKeyDown);
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, [isPlaying]); // Include isPlaying in the dependency array
-  // // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-// Update key press event handler to consider the focus state of input fields
-// useEffect(() => {
-//   const handleKeyDown = (event: KeyboardEvent) => {
-//     // Check if the space key is pressed, input field is not focused, and isPausable is true
-//     if (event.key === " " && !isInputFieldFocused) {
-//       togglePlayPause();
-//     }
-//   };
-//   window.addEventListener("keydown", handleKeyDown);
-//   return () => {
-//     window.removeEventListener("keydown", handleKeyDown);
-//   };
-// }, [isPlaying, isInputFieldFocused]); // Include isInputFieldFocused in the dependency array
-
 useEffect(() => {
   const handleKeyDown = (event: KeyboardEvent) => {
     // Check if the space key is pressed, input field is not focused, and isPausable is true
@@ -168,24 +119,6 @@ useEffect(() => {
     console.log("queue size @ player >> ", queue.size);
   }, [queue]); // Dependency on queue and isPlaying
 
-  // useEffect(() => {
-  //   const audioPlayer = audioRef.current;
-  //   if (audioPlayer) {
-  //     GetSong(filePath)
-  //       .then((base64String) => loadAudio(base64String))
-  //       .catch((error) => console.error("Error fetching audio:", error));
-  //     audioPlayer.play();
-  //     setIsPlaying(true);
-  //   }
-
-  //   return () => {
-  //     if (audioPlayer) {
-  //       audioPlayer.pause();
-  //       setIsPlaying(false);
-  //     }
-  //   };
-  // }, [filePath]);
-
   useEffect(() => {
     setCurrentSongName(songName);
   }, [songName]);
@@ -207,19 +140,6 @@ useEffect(() => {
       }
     };
   }, [filePath]);
-
-  // const togglePlayPause = () => {
-  //   const audioPlayer = audioRef.current;
-  //   if (audioPlayer) {
-  //     if (audioPlayer.paused) {
-  //       audioPlayer.play();
-  //       setIsPlaying(true);
-  //     } else {
-  //       audioPlayer.pause();
-  //       setIsPlaying(false);
-  //     }
-  //   }
-  // };
 
   const togglePlayPause = () => {
     const audioPlayer = audioRef.current;
@@ -276,16 +196,9 @@ useEffect(() => {
     if (queue.size > 0) {
       // Get the first song in the queue
       const nextSong = Array.from(queue)[nextSongIndex];
-      // Remove the first song from the queue
-      // const newQueue = new Set(queue);
-      // newQueue.delete(nextSong);
-      // // Set the new queue
-      // setQueue(newQueue);
-      // Load and play the next song
+    
       if (nextSongIndex + 1 < queue.size) {
-        console.log("nextSongIndex", nextSongIndex);
-        console.log("queue.size", queue.size);
-        console.log("nextSongIndex + 1 < queue.size");
+     
         setNextSongIndex(nextSongIndex + 1);
       } else {
         audioRef.current?.pause();
@@ -297,12 +210,7 @@ useEffect(() => {
           setIsPlaying(true);
           setCurrentSongName(nextSong.name);
           setSelectedSongName(nextSong.name);
-          //say we got set of 10 songs.
-          // last one will be 9 nextSongIndex
-
-          console.log("checking if nextSongIndex + 1 < queue.size");
-
-          // queue.delete(nextSong);
+    
         })
         .catch((error) => console.error("Error fetching audio:", error));
     }

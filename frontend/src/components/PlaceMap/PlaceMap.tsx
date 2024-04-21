@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactMapGL, {
   ViewState,
   MapboxMap,
-  MapboxEvent,
   Marker,
 } from "react-map-gl";
 import "./PlaceMap.css";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlayCircle, faLocation, faLocationArrow, faLocationPin, faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import {
+  faLocationDot,
+} from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
 interface PlaceMapProps {
@@ -16,10 +17,10 @@ interface PlaceMapProps {
   longitude: number;
 }
 
-interface MapSize {
-  width: number;
-  height: number;
-}
+// interface MapSize {
+//   width: number;
+//   height: number;
+// }
 
 const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
   const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_KEY;
@@ -45,7 +46,7 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
   };
 
   // const handleResize = (e: MapboxEvent) => {
-    
+
   //   // Access the map instance from the event
   //   const mapInstance = e.target;
   //   const container = mapInstance.getContainer();
@@ -94,30 +95,21 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
       >
         {isMarkerVisible && (
           <Marker
-          style={{display: `${isMarkerVisible}`}}
-            latitude={latitude }
+            style={{ display: `${isMarkerVisible}` }}
+            latitude={latitude}
             longitude={longitude}
             offset={
               map?.getContainer
-                ? [ -1 * map?.getContainer()?.offsetLeft, -1 * map?.getContainer()?.offsetHeight]
-
+                ? [
+                    -1 * map?.getContainer()?.offsetLeft,
+                    -1 * map?.getContainer()?.offsetHeight,
+                  ]
                 : [0, 0]
             }
           >
             <FontAwesomeIcon icon={faLocationDot} size="xl" color="#f21d1d" />
           </Marker>
         )}
-        {/* {isMarkerVisible && (
-          <div id="selected-place-marker">
-            <FontAwesomeIcon
-              icon={faPlayCircle}
-              // className={"update-library-btn"}
-              style={{ paddingTop: "5px" }}
-              size="lg"
-              // onClick={() => toggleLibNameUpdateInputVisibility()}
-            />
-          </div>
-        )} */}
       </ReactMapGL>
     </div>
   );
