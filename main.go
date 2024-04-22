@@ -80,7 +80,7 @@ func main() {
 
 	// Create application with options
 	erro := wails.Run(&options.App{
-		Title: "New Media Square",
+		Title: "New Square Media",
 		// Frameless: true,
 
 		// CSSDragProperty: "widows",
@@ -97,7 +97,7 @@ func main() {
 		Mac: &mac.Options{
 			TitleBar: &mac.TitleBar{
 				TitlebarAppearsTransparent: true,
-				HideTitle:                  false,
+				HideTitle:                  true,
 				HideTitleBar:               false,
 				FullSizeContent:            true,
 				UseToolbar:                 false,
