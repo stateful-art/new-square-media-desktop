@@ -29,7 +29,7 @@ import {
 import SpotifyIcon from "../../assets/icons/spotify-icon.png"; // Import Spotify SVG icon
 import YoutubeIcon from "../../assets/icons/youtube-icon.png"; // Import Spotify SVG icon
 
-import { GetPlaces } from "../../../wailsjs/go/place/Place";
+import { GetPlaces, GetNearbyPlaces } from "../../../wailsjs/go/place/Place";
 import { GetPlayListsOfPlace } from "../../../wailsjs/go/playlist/Playlist";
 
 import Player from "../Player/Player";
@@ -53,7 +53,7 @@ type Link = {
   url: string;
 };
 
-type PlaceDTO = {
+export type PlaceDTO = {
   id?: string;
   owner?: string;
   email: string;
@@ -124,6 +124,8 @@ const MusicLibrary: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
   const [places, setPlaces] = useState<PlaceDTO[]>([]);
+  const [nearbyPlaces, setNearbyPlaces] = useState<PlaceDTO[]>([]);
+
   const [selectedPlaceContent, setSelectedPlaceContent] = useState<
     PlaylistDTO[]
   >([]);
@@ -323,6 +325,16 @@ const MusicLibrary: React.FC = () => {
     }
   };
 
+
+  const handleGetNearbyPlaces = (
+    lat: number,
+    long: number
+  ) => {
+    GetNearbyPlaces(lat.toString(), long.toString()).then((nearbies) => 
+      setNearbyPlaces(nearbies)
+    )
+  };
+
   function sumNumberOfSongs(playlists: PlaylistDTO[]) {
     let totalSongs = 0;
     playlists.forEach((playlist) => {
@@ -453,6 +465,8 @@ const MusicLibrary: React.FC = () => {
                         place.description,
                         place.location
                       );
+
+                      handleGetNearbyPlaces(place.location.coordinates[0], place.location.coordinates[1])
                     }
                   }}
                   className={
@@ -545,6 +559,7 @@ const MusicLibrary: React.FC = () => {
                 {placeSummary && (
                   <>
                     <PlaceMap
+                      nearbies={nearbyPlaces}
                       latitude={placeSummary.location.coordinates[0]}
                       longitude={placeSummary.location.coordinates[1]}
                     />

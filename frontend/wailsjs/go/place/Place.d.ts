@@ -3,6 +3,8 @@
 import {place} from '../models';
 import {context} from '../models';
 
+export function GetNearbyPlaces(arg1:string,arg2:string):Promise<Array<place.PlaceDTO>>;
+
 export function GetPlaces():Promise<Array<place.PlaceDTO>>;
 
 export function Startup(arg1:context.Context):Promise<void>;

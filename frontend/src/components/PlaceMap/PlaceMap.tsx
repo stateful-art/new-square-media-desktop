@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
-import ReactMapGL, {
-  ViewState,
-  MapboxMap,
-  Marker,
-} from "react-map-gl";
+import ReactMapGL, { ViewState, MapboxMap, Marker } from "react-map-gl";
 import "./PlaceMap.css";
-
+import { PlaceDTO } from "../MusicLibrary/MusicLibrary";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faLocationDot,
-} from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
 interface PlaceMapProps {
   latitude: number;
   longitude: number;
+  nearbies: PlaceDTO[];
 }
 
 // interface MapSize {
@@ -22,7 +17,11 @@ interface PlaceMapProps {
 //   height: number;
 // }
 
-const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
+const PlaceMap: React.FC<PlaceMapProps> = ({
+  latitude,
+  longitude,
+  nearbies,
+}) => {
   const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_KEY;
   const [viewport, setViewport] = useState<ViewState>({
     latitude: latitude,
@@ -38,32 +37,21 @@ const PlaceMap: React.FC<PlaceMapProps> = ({ latitude, longitude }) => {
 
   const handleViewportChange = (newViewport: ViewState) => {
     setViewport(newViewport);
-    if (newViewport.zoom >= 14) {
+    if (newViewport.zoom >= 16) {
       setIsMarkerVisible(true);
     } else {
       setIsMarkerVisible(false);
     }
   };
 
-//   useEffect(() => {
-//     // Update the viewport state when latitude or longitude changes
-//     setViewport((prevViewport) => ({
-//       ...prevViewport,
-//       latitude: latitude,
-//       longitude: longitude,
-//     }));
-//  }, [latitude, longitude]);
-
-
-useEffect(() => {
-  // Update the viewport state to "fly" to the new location
-  setViewport({
-    ...viewport,
-    latitude: latitude,
-    longitude: longitude,
-  });
-}, [latitude, longitude]); // Depend on latitude and longitude
-
+  useEffect(() => {
+    // Update the viewport state to "fly" to the new location
+    setViewport({
+      ...viewport,
+      latitude: latitude,
+      longitude: longitude,
+    });
+  }, [latitude, longitude]); // Depend on latitude and longitude
 
   const handleMapLoad = (map: MapboxMap) => {
     map.flyTo({
@@ -88,38 +76,63 @@ useEffect(() => {
         essential: true, // Ensure the animation is considered essential
       });
     }
- }, [latitude, longitude, map]); // Depend on latitude, longitude, and map
-
+  }, [latitude, longitude, map]); // Depend on latitude, longitude, and map
 
   return (
     <div id="place-map">
       <ReactMapGL
         {...viewport}
         onLoad={(e) => handleMapLoad(e.target)}
-        
         // onResize={handleResize}
         onZoom={(e) => handleViewportChange(e.viewState)}
         onDrag={(e) => handleViewportChange(e.viewState)}
         mapStyle="mapbox://styles/streamerd/ck7mims3100xy1jpq77d2txs6"
         mapboxAccessToken={MAPBOX_TOKEN}
       >
-        {isMarkerVisible && (
-          <Marker
-            style={{ display: `${isMarkerVisible}` }}
-            latitude={latitude}
-            longitude={longitude}
-            offset={
-              map?.getContainer
-                ? [
-                    -1 * map?.getContainer()?.offsetLeft,
-                    -1 * map?.getContainer()?.offsetHeight,
-                  ]
-                : [0, 0]
-            }
-          >
-            <FontAwesomeIcon icon={faLocationDot} size="xl" color="#f21d1d" />
-          </Marker>
-        )}
+        {isMarkerVisible &&
+          (nearbies.length === 1 ? (
+            <Marker
+              style={{ display: `${isMarkerVisible}` }}
+              latitude={latitude}
+              longitude={longitude}
+              offset={
+                map?.getContainer
+                  ? [
+                      -1 * map?.getContainer()?.offsetLeft,
+                      -1 * map?.getContainer()?.offsetHeight,
+                    ]
+                  : [0, 0]
+              }
+            >
+              <FontAwesomeIcon icon={faLocationDot} size="xl" color="#f21d1d" />
+            </Marker>
+          ) : (
+            nearbies.map((place, index) => (
+              <Marker
+                style={{ display: `${isMarkerVisible}` }}
+                latitude={place.location.coordinates[0]}
+                longitude={place.location.coordinates[1]}
+                offset={
+                  map?.getContainer
+                    ? [
+                        -1 * map?.getContainer()?.offsetLeft,
+                        -1 * map?.getContainer()?.offsetHeight,
+                      ]
+                    : [0, 0]
+                }
+              >
+                <FontAwesomeIcon
+                  icon={faLocationDot}
+                  size="xl"
+                  color={
+                    place.location.coordinates[0] === latitude &&
+                    place.location.coordinates[1] === longitude ? "#f21d1d" : "#3254b9"
+                  }
+                />
+              </Marker>
+            ))
+          ))}
+     
       </ReactMapGL>
     </div>
   );
