@@ -162,13 +162,13 @@ const Player: React.FC<PlayerProps> = ({
   useEffect(() => {
     // Check if the queue is empty and if the player is not playing
     if (queue.size == 0) {
-      console.log("queue is empty @ player");
     }
-    console.log("queue size @ player >> ", queue.size);
   }, [queue]); // Dependency on queue and isPlaying
 
   useEffect(() => {
     setCurrentSongName(songName);
+    //TODO::// emit event to update app title. 
+
   }, [songName]);
 
   useEffect(() => {

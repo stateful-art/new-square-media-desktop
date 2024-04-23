@@ -26,7 +26,7 @@
 #queuePanel li {
   cursor: pointer;
   padding: 4px;
-  border-bottom: 2px solid #ccc;
+  /* border-bottom: 2px solid #ccc; */
 }
 
 #queuePanel li:hover {

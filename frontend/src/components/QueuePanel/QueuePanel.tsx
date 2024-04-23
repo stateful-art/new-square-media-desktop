@@ -6,7 +6,8 @@ import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 interface QueuePanelProps {
   queue: Set<SongLibrary>;
-  handleRemoveFromQueue: React.Dispatch<React.SetStateAction<SongLibrary>>;
+  // handleRemoveFromQueue: React.Dispatch<React.SetStateAction<SongLibrary>>;
+  handleRemoveFromQueue: (item: SongLibrary) => void; // Function that takes a SongLibrary item and returns void
   setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
   setSelectedFilePath: React.Dispatch<React.SetStateAction<string>>;
   isOpen: boolean;
@@ -19,9 +20,6 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
   setSelectedFilePath,
   isOpen,
 }) => {
-  const isSongInQueue = (songName: string): boolean => {
-    return Array.from(queue).some((item) => item.name === songName);
-  };
 
   const playSong = (song: SongLibrary) => {
     setSelectedSongName(song.name);
