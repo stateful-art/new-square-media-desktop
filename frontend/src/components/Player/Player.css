@@ -16,20 +16,6 @@
   /* background-color: saddlebrown; */
 
 
-  --wails-draggable: drag;
-
-
-
-  display: flex;
-  align-items: center;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  margin-right: 20px;
-
-  border-top-left-radius: 0; /* Keep top left corner square */
-  border-top-right-radius: 0; /* Keep top right corner square */
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
 }
 
 #songName {
@@ -73,23 +59,10 @@
   align-items: center;
   /* margin-right: 20px; Adjust margin for spacing */
 }
-/* styles.css */
 
-/* Style for custom slider thumb */
-.custom-thumb {
-  position:relative;
-  width: 10px;
-  height: 40px;
-  background-color: #0e0e0f;
-  border-radius: 0;
-  cursor: pointer;
-}
-
-/* Hide default slider thumb */
 .volume-control {
   -webkit-appearance: none;
   appearance: none;
-  /* transform: rotate(-90deg); */
   width: 200px; /* Ensures the input covers the entire width */
   height: 20px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
@@ -98,82 +71,71 @@
   position: relative;
 }
 
-/* Style for the track of the slider */
-.volume-control::-webkit-slider-runnable-track {
-  width: 100%; /* Ensures the track covers the entire width */
-  height: 10px; /* Adjust height as needed */
-  background-color: #ddd; /* Background color of the track */
-  border-radius: 5px; /* Border radius for rounded corners */
-}
-
-/* Style for the fill of the slider (track up to the thumb) */
 .volume-control::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 0; /* Hide the default thumb */
-  height: 0; /* Hide the default thumb */
+  width: 10px; /* Width of the slider thumb */
+  height: 20px; /* Height of the slider thumb */
+  background-color: #0e0e0f; /* Color of the thumb */
+  border-radius: 0; /* Remove border radius */
+  cursor: pointer;
 }
 
-/* Adjust styles for Firefox */
-.volume-control::-moz- .progress-control {
-  width: 100%; /* Adjust width as needed */
-  height: 50px; /* Adjust height as needed */
+
+.volume-control {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 200px; /* Ensures the input covers the entire width */
+  height: 20px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
-  background-color: #ddd; /* Default background color of the progress control */
+  background-color: #ddd; /* Background color of the volume control */
   border-radius: 5px; /* Border radius for rounded corners */
+  position: relative;
+}
+
+.volume-control::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px; /* Width of the slider thumb */
+  height: 20px; /* Height of the slider thumb */
+  background-color: #0e0e0f; /* Color of the thumb */
+  border-radius: 0; /* Remove border radius */
+  cursor: pointer;
+}
+
+.progress-control {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40%; /* Ensures the input covers the entire width */
+  height: 20px; /* Adjust height as needed */
+  margin-top: 5px; /* Adjust margin as needed */
+  background-color: #ddd; /* Background color of the volume control */
+  border-radius: 5px; /* Border radius for rounded corners */
+  position: relative;
 }
 
 .progress-control::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Remove default appearance */
-  appearance: none; /* Remove default appearance */
-  width: 150; /* Width of the slider thumb */
-  height: 150; /* Height of the slider thumb */
-  background-color: green; /* Make the slider thumb transparent */
-  cursor: default; /* Set default cursor */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px; /* Width of the slider thumb */
+  height: 20px; /* Height of the slider thumb */
+  background-color: #0e0e0f; /* Color of the thumb */
+  border-radius: 0; /* Remove border radius */
+  cursor: pointer;
 }
 
-/* Define the gradient background for the progress control */
-.progress-control {
-  background: linear-gradient(
-    to right,
-    #007bff 0%,
-    #007bff calc((100% - 2px) * var(--progress)),
-    #ddd calc((100% - 2px) * var(--progress)),
-    #ddd 100%
-  );
-}
 
 .playPauseButton {
-  width: 40px;
-  height: 40px;
-  /* background-color: rgb(242, 237, 237); */
-  color: white;
-  cursor: pointer !important;
-}
-
-#prog {
-  width: 40%; /* Adjust width as needed */
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* Ensure elements are spaced evenly */
-  color: white;
-}
-
-#customProgressBar {
-  width: 60%; /* Adjust width as needed */
+  width: 30px;
   height: 30px;
-  /* background-color: #333; */
-  background-color: green;
+  color: rgb(42, 36, 36);
+  cursor: pointer;
 }
 
-#customProgressBar::-webkit-progress-bar {
-  background-color: #333;
-}
 
-#customProgressBar::-webkit-progress-value {
-  background-color: #d8779b; /* Adjust progress indicator color */
-}
-
-#customProgressBar::-moz-progress-bar {
-  background-color: #d8779b; /* Adjust progress indicator color */
+.next-song-button{
+  width: 30px;
+  height: 30px;
+  color: rgb(42, 36, 36);
+  cursor: pointer;
 }

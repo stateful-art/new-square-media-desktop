@@ -40,43 +40,40 @@ const Player: React.FC<PlayerProps> = ({
 
   const [value, setValue] = useState<number>(0.5); // Initial slider value
   const [thumbPosition, setThumbPosition] = useState<number>(0); // Initial thumb position
+  const [progressThumbPosition, setProgressThumbPosition] = useState<number>(0); // Initial thumb position
+
   useEffect(() => {
     console.log("value changed >>>", value);
     updateThumbPosition();
   }, [value]);
+
+  useEffect(() => {
+    updateProgressThumbPosition();
+  }, [currentTime]);
 
   const updateThumbPosition = () => {
     const volumeControl = document.querySelector(
       ".volume-control"
     ) as HTMLInputElement;
     if (volumeControl) {
-      console.log("volumeControl.offsetWidth >> ", volumeControl.offsetWidth);
-      console.log(
-        "volumeControl.offsetWidth >> ",
-        parseFloat(volumeControl.min)
-      );
-      console.log(
-        "(value - parseFloat(volumeControl.min) >> ",
-        value - parseFloat(volumeControl.min)
-      );
-
       const thumbWidth =
-        (volumeControl.offsetWidth /
+        ((value - parseFloat(volumeControl.min)) /
           (parseFloat(volumeControl.max) - parseFloat(volumeControl.min))) *
-        (value - parseFloat(volumeControl.min));
+        volumeControl.offsetWidth;
+      setThumbPosition(thumbWidth);
+    }
+  };
 
-      console.log("thumbWidth", thumbWidth);
-
-      // setThumbPosition(
-      //   thumbWidth -
-      //     volumeControl.offsetWidth -
-      //     100 * (value)
-      // );
-
-      setThumbPosition(
-        thumbWidth -
-          volumeControl.offsetWidth
-      );
+  const updateProgressThumbPosition = () => {
+    const progressControl = document.querySelector(
+      ".progress-control"
+    ) as HTMLInputElement;
+    if (progressControl) {
+      const thumbWidth =
+        ((currentTime - parseFloat(progressControl.min)) /
+          (parseFloat(progressControl.max) - parseFloat(progressControl.min))) *
+        progressControl.offsetWidth;
+      setProgressThumbPosition(thumbWidth);
     }
   };
 
@@ -278,7 +275,7 @@ const Player: React.FC<PlayerProps> = ({
       />
 
       <FontAwesomeIcon
-        className="controlButton"
+        className="next-song-button"
         icon={faStepForward}
         size="2x"
         onClick={playNextSong}
@@ -292,7 +289,6 @@ const Player: React.FC<PlayerProps> = ({
 
       {!Number.isNaN(getDuration()) && (
         <>
-          <div id="prog">
             {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
             <input
               type="range"
@@ -304,20 +300,15 @@ const Player: React.FC<PlayerProps> = ({
               value={currentTime}
               onChange={handleProgressChange}
             />
+            <div
+              style={{ left: `${progressThumbPosition}px` }}
+              onMouseDown={(e) => {
+              }}
+            ></div>
             {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
-          </div>
+      
         </>
       )}
-      {/* <input
-        type="range"
-        // id="volumeControl"
-        className="volume-control"
-        min="0"
-        max="1"
-        step="0.01"
-        value={volume}
-        onChange={handleVolumeChange}
-      /> */}
 
       <input
         type="range"
@@ -328,7 +319,37 @@ const Player: React.FC<PlayerProps> = ({
         value={value}
         onChange={handleChange}
       />
-      <div className="custom-thumb" style={{ left: `${thumbPosition}px` }} />
+      <div
+        style={{ left: `${thumbPosition}px` }}
+        onMouseDown={(e) => {
+          e.preventDefault(); // Prevent default behavior
+          const volumeControl = document.querySelector(
+            ".volume-control"
+          ) as HTMLInputElement;
+          if (volumeControl) {
+            const offsetX =
+              e.clientX - volumeControl.getBoundingClientRect().left;
+            const newValue =
+              (offsetX / volumeControl.offsetWidth) *
+              (parseFloat(volumeControl.max) - parseFloat(volumeControl.min));
+            setValue(newValue);
+            const handleMouseMove = (e: MouseEvent) => {
+              const offsetX =
+                e.clientX - volumeControl.getBoundingClientRect().left;
+              const newValue =
+                (offsetX / volumeControl.offsetWidth) *
+                (parseFloat(volumeControl.max) - parseFloat(volumeControl.min));
+              setValue(newValue);
+            };
+            const handleMouseUp = () => {
+              document.removeEventListener("mousemove", handleMouseMove);
+              document.removeEventListener("mouseup", handleMouseUp);
+            };
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+          }
+        }}
+      />
 
       <div onClick={toggleQueuePanel} className="toggle-queue-btn">
         <FontAwesomeIcon icon={faListDots} size="2x" />
