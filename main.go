@@ -67,7 +67,7 @@ func main() {
 	FileMenu := AppMenu.AddSubmenu("File")
 	AboutMenu := AppMenu.AddSubmenu("About")
 	AboutMenu.AddSeparator()
-	AboutMenu.AddText("copyright © start", nil, nil)
+	AboutMenu.AddText("Copyright © start", nil, nil)
 
 	FileMenu.AddSeparator()
 	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
@@ -80,11 +80,7 @@ func main() {
 
 	// Create application with options
 	erro := wails.Run(&options.App{
-		Title: "New Square Media",
-		// Frameless: true,
-
-		// CSSDragProperty: "widows",
-		// CSSDragValue:    "1",
+		Title:  "New Square Media",
 		Width:  1024,
 		Height: 768,
 
@@ -106,11 +102,11 @@ func main() {
 			Appearance:           mac.NSAppearanceNameDarkAqua,
 			WebviewIsTransparent: true,
 			WindowIsTranslucent:  false,
-			About: &mac.AboutInfo{
-				Title:   "My Application",
-				Message: "© 2021 Me",
-				Icon:    icon,
-			},
+			// About: &mac.AboutInfo{
+			// 	Title:   "My Application",
+			// 	Message: "© 2021 Me",
+			// 	Icon:    icon,
+			// },
 		},
 
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},

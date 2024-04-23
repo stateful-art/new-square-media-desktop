@@ -298,10 +298,6 @@ const MusicLibrary: React.FC = () => {
     return Array.from(queue).some((item) => item.name === songName);
   };
 
-  const getMapLink = (location: Location | undefined) => {
-    console.log(location);
-  };
-
   const handleGetPlaceContent = (
     id: string,
     name: string,
@@ -309,8 +305,6 @@ const MusicLibrary: React.FC = () => {
     location: Location
   ) => {
     if (id) {
-      console.log("GetPlayListsOfPlace > locaton: ", location);
-
       GetPlayListsOfPlace(id).then((x) => {
         console.log(x);
         setSelectedPlaceContent(x);
@@ -701,6 +695,7 @@ const MusicLibrary: React.FC = () => {
 
       <QueuePanel
         queue={queue}
+        handleRemoveFromQueue={handleRemoveFromQueue}
         isOpen={isQueuePanelOpen} // Pass the state to the QueuePanel component
         setSelectedSongName={setSelectedSong}
         setSelectedFilePath={setSelectedFilePath}

@@ -264,7 +264,6 @@ const Player: React.FC<PlayerProps> = ({
 
   return (
     <div id="player">
-      {/* <div id="songName" className={getSongNameStyle()}>{currentSongName.replace(/\.[^.]+$/, "")} </div> */}
       <div id="songName">{currentSongName.replace(/\.[^.]+$/, "")} </div>
 
       <FontAwesomeIcon
@@ -289,24 +288,20 @@ const Player: React.FC<PlayerProps> = ({
 
       {!Number.isNaN(getDuration()) && (
         <>
-            {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
-            <input
-              type="range"
-              id="progress-control"
-              className="progress-control"
-              min="0"
-              max={getDuration()}
-              step="1"
-              value={currentTime}
-              onChange={handleProgressChange}
-            />
-            <div
-              style={{ left: `${progressThumbPosition}px` }}
-              onMouseDown={(e) => {
-              }}
-            ></div>
-            {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
-      
+          {!Number.isNaN(getDuration()) && Math.floor(currentTime / 60)}:
+          {Math.floor(currentTime % 60)}
+          <input
+            type="range"
+            id="progress-control"
+            className="progress-control"
+            min="0"
+            max={getDuration()}
+            step="1"
+            value={currentTime}
+            onChange={handleProgressChange}
+          />
+          {!Number.isNaN(getDuration()) && Math.floor(getDuration() / 60)}:
+          {Math.floor(getDuration() % 60)}
         </>
       )}
 
