@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 type Place struct {
@@ -24,7 +25,7 @@ func (p *Place) Startup(ctx context.Context) {
 }
 
 func (p *Place) GetPlaces() []PlaceDTO {
-	requestURL := fmt.Sprintf("http://%s:%d/places", "192.168.228.5", 3000)
+	requestURL := fmt.Sprintf("%s/places", os.Getenv("N2MEDIA_API_URL"))
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
@@ -50,7 +51,7 @@ func (p *Place) GetPlaces() []PlaceDTO {
 }
 
 func (p *Place) GetNearbyPlaces(lat string, long string) []PlaceDTO {
-	requestURL := fmt.Sprintf("http://%s:%d/places/nearby/%s/%s", "192.168.228.5", 3000, lat, long)
+	requestURL := fmt.Sprintf("%s/places/nearby/%s/%s", os.Getenv("N2MEDIA_API_URL"), lat, long)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {

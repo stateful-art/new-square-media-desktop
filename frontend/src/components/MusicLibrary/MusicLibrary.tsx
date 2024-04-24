@@ -12,9 +12,9 @@ import {
   faRss,
   faMinus,
 } from "@fortawesome/free-solid-svg-icons";
-import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
+import "@fortawesome/fontawesome-svg-core/styles.css";
 
-import "./MusicLibrary.css"; // Import the CSS module
+import "./MusicLibrary.css";
 import {
   CreateLibrary,
   ListLibraries,
@@ -26,8 +26,8 @@ import {
   OpenFolderDialog,
 } from "../../../wailsjs/go/multimedia/Library";
 
-import SpotifyIcon from "../../assets/icons/spotify-icon.png"; // Import Spotify SVG icon
-import YoutubeIcon from "../../assets/icons/youtube-icon.png"; // Import Spotify SVG icon
+import SpotifyIcon from "../../assets/icons/spotify-icon.png";
+import YoutubeIcon from "../../assets/icons/youtube-icon.png";
 
 import { GetPlaces, GetNearbyPlaces } from "../../../wailsjs/go/place/Place";
 import { GetPlayListsOfPlace } from "../../../wailsjs/go/playlist/Playlist";
@@ -35,7 +35,6 @@ import { GetPlayListsOfPlace } from "../../../wailsjs/go/playlist/Playlist";
 import Player from "../Player/Player";
 import QueuePanel from "../QueuePanel/QueuePanel";
 import PlaceMap from "../PlaceMap/PlaceMap";
-// import SearchBar from "../SearchBar/SearchBar";
 
 export type SongLibrary = {
   name: string;
@@ -103,78 +102,50 @@ const MusicLibrary: React.FC = () => {
   const [folderPath, setFolderPath] = useState<string>("");
   const [newLibName, setNewLibName] = useState<string>("");
   const [libraries, setLibraries] = useState<SongLibrary[]>([]);
-  // const [matches, setMatches] = useState<SongLibrary[]>([]);
-  // const [searchTerm, setSearchTerm] = useState<string>("");
-
   const [libraryContents, setLibraryContents] = useState<SongLibrary[]>([]);
-
   const [selectedSong, setSelectedSong] = useState<string>("");
   const [selectedLibrary, setSelectedLibrary] = useState<string>("");
   const [selectedFilePath, setSelectedFilePath] = useState<string>("");
   const [isInputVisible, setIsInputVisible] = useState(false);
   const [isLibNameUpdateInputVisible, setIsLibNameUpdateInputVisible] =
     useState(false);
-
-  const [queue, setQueue] = useState<Set<SongLibrary>>(new Set()); // Step 1: Define queue state as a Set
-
-  const [isLibraryView, setIsLibraryView] = useState<boolean>(true); // Track whether to display libraries or places
+  const [queue, setQueue] = useState<Set<SongLibrary>>(new Set());
+  const [isLibraryView, setIsLibraryView] = useState<boolean>(true);
   const [isMapView, setIsMapView] = useState<boolean>(false);
   const [selectedPlace, setSelectedPlace] = useState<string>("");
   const [updateLibName, setUpdateLibName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false); // New state for queue panel
+  const [isQueuePanelOpen, setIsQueuePanelOpen] = useState(false);
   const [places, setPlaces] = useState<PlaceDTO[]>([]);
   const [nearbyPlaces, setNearbyPlaces] = useState<PlaceDTO[]>([]);
-
   const [selectedPlaceContent, setSelectedPlaceContent] = useState<
     PlaylistDTO[]
   >([]);
-
   const [placeSummary, setPlaceSummary] = useState<PlaceSummary>();
 
-  // Add state variable to track input field focus state
   const [isInputFieldFocused, setIsInputFieldFocused] = useState(false);
 
-  // Event handler to handle input field focus
   const handleInputFieldFocus = () => {
     setIsInputFieldFocused(true);
   };
 
-  // Event handler to handle input field blur
   const handleInputFieldBlur = () => {
     setIsInputFieldFocused(false);
-    console.log("@handleInputFieldBlur, IsInputFieldFocused >> FALSE ");
   };
 
   useEffect(() => {
-    GetPlaces()
-      .then((x) => setPlaces(x))
-      .catch((error) => {
-        console.error("Error fetching places:", error);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (!isLibraryView) {
-      GetPlaces()
-        .then((x) => setPlaces(x))
-        .catch((error) => {
-          console.error("Error fetching places:", error);
-        });
-    }
+    GetPlaces().then(setPlaces).catch(console.error);
   }, [isLibraryView, selectedPlace]);
 
   useEffect(() => {
     LoadLibraries().then(() => {
       setNewLibName("");
-      ListLibraries().then((libraries) => setLibraries(libraries));
+      ListLibraries().then(setLibraries);
     });
   }, []);
 
   useEffect(() => {
-    ListLibraryContents(selectedLibrary, folderPath).then((contents) =>
-      setLibraryContents(contents)
-    );
+    ListLibraryContents(selectedLibrary, folderPath).then(setLibraryContents);
   }, [folderPath]);
 
   const handleFolderSelect = async () => {
@@ -199,9 +170,6 @@ const MusicLibrary: React.FC = () => {
     }
   };
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // setIsEditing(true);
-    // setIsEditing((prevState) => !prevState);
-
     setNewLibName(event.target.value);
   };
 
@@ -210,9 +178,6 @@ const MusicLibrary: React.FC = () => {
   ) => {
     if (event.key === "Enter") {
       handleFolderSelect();
-      // setIsEditing(false)
-      // setIsEditing((prevState) => !prevState);
-
       setIsInputVisible(false);
       setNewLibName("");
     }
@@ -319,14 +284,10 @@ const MusicLibrary: React.FC = () => {
     }
   };
 
-
-  const handleGetNearbyPlaces = (
-    lat: number,
-    long: number
-  ) => {
-    GetNearbyPlaces(lat.toString(), long.toString()).then((nearbies) => 
+  const handleGetNearbyPlaces = (lat: number, long: number) => {
+    GetNearbyPlaces(lat.toString(), long.toString()).then((nearbies) =>
       setNearbyPlaces(nearbies)
-    )
+    );
   };
 
   function sumNumberOfSongs(playlists: PlaylistDTO[]) {
@@ -451,7 +412,7 @@ const MusicLibrary: React.FC = () => {
                     console.log("new place selected. ");
                     if (place.id) {
                       console.log("getting place content for : ", place.id);
-                      
+
                       setSelectedPlace(place.name);
                       handleGetPlaceContent(
                         place.id,
@@ -460,7 +421,10 @@ const MusicLibrary: React.FC = () => {
                         place.location
                       );
 
-                      handleGetNearbyPlaces(place.location.coordinates[0], place.location.coordinates[1])
+                      handleGetNearbyPlaces(
+                        place.location.coordinates[0],
+                        place.location.coordinates[1]
+                      );
                     }
                   }}
                   className={
@@ -557,12 +521,10 @@ const MusicLibrary: React.FC = () => {
                       latitude={placeSummary.location.coordinates[0]}
                       longitude={placeSummary.location.coordinates[1]}
                     />
-                    
                   </>
                 )}
               </>
-            ) : 
-            (
+            ) : (
               <>
                 {selectedPlace !== "" ? (
                   <div id="rp-topnav">
@@ -584,8 +546,7 @@ const MusicLibrary: React.FC = () => {
                       onClick={() => toggleMapView()}
                     />
                   </div>
-                ) :
-                 (
+                ) : (
                   <span id="no-place-selected-to-list">
                     Please select a place to display
                   </span>
