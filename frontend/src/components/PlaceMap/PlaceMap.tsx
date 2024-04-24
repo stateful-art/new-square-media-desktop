@@ -37,7 +37,7 @@ const PlaceMap: React.FC<PlaceMapProps> = ({
 
   const handleViewportChange = (newViewport: ViewState) => {
     setViewport(newViewport);
-    if (newViewport.zoom >= 16) {
+    if (newViewport.zoom >= 12) {
       setIsMarkerVisible(true);
     } else {
       setIsMarkerVisible(false);

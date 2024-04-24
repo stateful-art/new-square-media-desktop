@@ -62,6 +62,8 @@
   background-color: #ddd; /* Background color of the volume control */
   border-radius: 5px; /* Border radius for rounded corners */
   position: relative;
+  cursor: pointer;
+
 }
 
 .volume-control::-webkit-slider-thumb {
@@ -104,6 +106,8 @@
   background-color: #ddd; /* Background color of the volume control */
   border-radius: 5px; /* Border radius for rounded corners */
   position: relative;
+  cursor: pointer;
+
 }
 
 .progress-control::-webkit-slider-thumb {

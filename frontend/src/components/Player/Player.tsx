@@ -7,6 +7,8 @@ import {
   faListDots,
 } from "@fortawesome/free-solid-svg-icons";
 import { GetSong } from "../../../wailsjs/go/multimedia/Library";
+import { EventsEmit} from "../../../wailsjs/runtime/runtime"
+
 import { SongLibrary } from "../MusicLibrary/MusicLibrary";
 import "./Player.css";
 
@@ -168,7 +170,7 @@ const Player: React.FC<PlayerProps> = ({
   useEffect(() => {
     setCurrentSongName(songName);
     //TODO::// emit event to update app title. 
-
+    EventsEmit("song-name-updated", songName)
   }, [songName]);
 
   useEffect(() => {

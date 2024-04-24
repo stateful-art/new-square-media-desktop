@@ -6,13 +6,14 @@ import (
 	"embed"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	goruntime "runtime"
-
+	MC "lolipie/mc"
 	Multimedia "lolipie/multimedia"
 	Place "lolipie/place"
 	Playlist "lolipie/playlist"
+
+	"os"
+	"path/filepath"
+	goruntime "runtime"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/menu"
@@ -31,10 +32,11 @@ var assets embed.FS
 //go:embed all:data
 var embeddedData embed.FS
 
-//go:embed build/appicon.png
-var icon []byte
+// //go:embed build/appicon.png
+// var icon []byte
 
 var db *sql.DB
+var nowPlaying string
 
 func init() {
 	homeDir, err := getDBPath()
@@ -72,6 +74,7 @@ func main() {
 	FileMenu.AddSeparator()
 	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
 		runtime.Quit(app.ctx)
+
 	})
 
 	if goruntime.GOOS == "darwin" { //std "runtime" package
@@ -80,6 +83,7 @@ func main() {
 
 	// Create application with options
 	erro := wails.Run(&options.App{
+
 		Title:  "New Square Media",
 		Width:  1024,
 		Height: 768,
@@ -116,7 +120,18 @@ func main() {
 			place.Startup(ctx)
 			playlist.Startup(ctx)
 			search.Startup(ctx)
+			if goruntime.GOOS == "darwin" { //std "runtime" package
+				runtime.EventsOn(ctx, "song-name-updated", func(data ...interface{}) {
+					if len(data) > 0 {
+						nowPlaying = data[0].(string)
+						log.Print("updating nowPlaying to", nowPlaying)
+						MC.UpMC(nowPlaying)
+					}
+				})
+			}
+
 		},
+
 		Bind: []interface{}{
 			app, lib, place, playlist, search,
 		},
