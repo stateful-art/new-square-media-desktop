@@ -158,17 +158,11 @@ func (a *Library) CreateLibrary(library Lib) error {
 	}
 }
 func (a *Library) UpdateLibraryName(oldName, newName string) error {
-	log.Printf("@UpdateLibraryName from %s to %s", oldName, newName)
 	// Check if the oldName exists in the Libraries map
 	if lib, exists := Libraries[oldName]; exists {
 		var newLib Lib
-		log.Println("creating new lib item with new name")
 		newLib.Name = newName
 		newLib.Path = lib.Path
-
-		log.Println("here is new Lib", newLib)
-		log.Println("Adding the updated entry back to the map")
-
 		// Add the updated entry back to the map
 		Libraries[newName] = newLib
 
@@ -187,7 +181,6 @@ func (a *Library) UpdateLibraryName(oldName, newName string) error {
 }
 
 func (a *Library) RemoveLibrary(libraryName string) error {
-	log.Print("removing the lib named", libraryName)
 	if _, exists := Libraries[libraryName]; exists {
 		delete(Libraries, libraryName)
 		if err := a.SaveLibraries(); err != nil {
@@ -328,7 +321,7 @@ func readDirectory(path string, itemsChan chan<- LibItem) {
 		if isMusicFileOrDir(path, file) {
 			item := LibItem{
 				Name:     file.Name(),
-				Path:     path + "/" + file.Name(),
+				Path:     filepath.Join(path, file.Name()),
 				IsFolder: file.IsDir(),
 			}
 			itemsChan <- item
@@ -339,47 +332,38 @@ func readDirectory(path string, itemsChan chan<- LibItem) {
 
 func isMusicFileOrDir(path string, file os.DirEntry) bool {
 	// Check if the file is a music file
-	if isMusicFile(file.Name()) {
-		return true
+	if !file.IsDir() {
+		return isMusicFile(file.Name())
 	}
 
-	// Check if the file is a directory
-	if file.IsDir() {
-		// Check if the file is not a hidden folder (starts with a dot)
-		if !strings.HasPrefix(file.Name(), ".") {
-			return true // Return true if the directory is not empty
-		}
-
-		// Check if the directory is empty
-		entries, err := os.ReadDir(path + "/" + file.Name())
-		if err != nil {
-			fmt.Printf("Error reading directory: %v\n", err)
-			return false // Return false if there's an error reading the directory
-		}
-
-		if len(entries) > 0 {
-			return true // Return false if the directory is empty
-		}
-
-		return true
+	// Check if the directory is empty or contains music files
+	dirEntries, err := os.ReadDir(filepath.Join(path, file.Name()))
+	if err != nil {
+		fmt.Printf("Error reading directory: %v\n", err)
+		return false
 	}
-
+	for _, entry := range dirEntries {
+		if isMusicFile(entry.Name()) {
+			return true
+		}
+	}
 	return false
 }
 
 // isMusicFile checks if a file has a music file extension
 func isMusicFile(filename string) bool {
-	musicExtensions := []string{".mp3", ".wav", ".flac", ".m4a", ".aac", ".m4a", ".wma"}
-
-	fileExtension := filepath.Ext(filename)
-
-	for _, ext := range musicExtensions {
-		if fileExtension == ext {
-			return true
-		}
+	musicExtensions := map[string]bool{
+		".mp3":  true,
+		".wav":  true,
+		".flac": true,
+		".m4a":  true,
+		".aac":  true,
+		".wma":  true,
 	}
 
-	return false
+	fileExtension := strings.ToLower(filepath.Ext(filename))
+
+	return musicExtensions[fileExtension]
 }
 
 // var assets embed.FS
