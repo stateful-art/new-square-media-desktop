@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 )
 
 type Place struct {
@@ -25,7 +23,7 @@ func (p *Place) Startup(ctx context.Context) {
 }
 
 func (p *Place) GetPlaces() []PlaceDTO {
-	requestURL := fmt.Sprintf("%s/places", os.Getenv("N2MEDIA_API_URL"))
+	requestURL := "https://xyz.newnew.media/places"
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
@@ -45,13 +43,11 @@ func (p *Place) GetPlaces() []PlaceDTO {
 		return nil
 	}
 
-	log.Println("returning libraries from desktop backend")
-	log.Print(places)
 	return places
 }
 
 func (p *Place) GetNearbyPlaces(lat string, long string) []PlaceDTO {
-	requestURL := fmt.Sprintf("%s/places/nearby/%s/%s", os.Getenv("N2MEDIA_API_URL"), lat, long)
+	requestURL := fmt.Sprintf("https://xyz.newnew.media/places/nearby/%s/%s", lat, long)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
@@ -71,7 +67,5 @@ func (p *Place) GetNearbyPlaces(lat string, long string) []PlaceDTO {
 		return nil
 	}
 
-	log.Println("returning libraries from desktop backend")
-	log.Print(places)
 	return places
 }

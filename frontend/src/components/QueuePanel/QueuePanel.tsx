@@ -6,6 +6,7 @@ import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 interface QueuePanelProps {
   queue: Set<SongLibrary>;
+  songName: string;
   // handleRemoveFromQueue: React.Dispatch<React.SetStateAction<SongLibrary>>;
   handleRemoveFromQueue: (item: SongLibrary) => void; // Function that takes a SongLibrary item and returns void
   setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
@@ -15,15 +16,35 @@ interface QueuePanelProps {
 
 const QueuePanel: React.FC<QueuePanelProps> = ({
   queue,
+  songName,
   handleRemoveFromQueue,
   setSelectedSongName,
   setSelectedFilePath,
   isOpen,
 }) => {
+  const [nowPlayingName, setNowPlayingName] = useState("");
+  const [nowPlayingPath, setNowPlayingPath] = useState("");
 
   const playSong = (song: SongLibrary) => {
     setSelectedSongName(song.name);
     setSelectedFilePath(song.path);
+
+    setNowPlayingName(song.name);
+    setNowPlayingPath(song.path);
+  };
+
+  useEffect(() => {
+setNowPlayingName(songName)
+  }, [songName])
+
+  // Remove file extension and limit to first 50 characters
+  const formattedSongName = (songName: string) => {
+    let nameWithoutExtension = songName.replace(/\.[^.]+$/, "");
+    if (nameWithoutExtension.length < 50) {
+      return nameWithoutExtension;
+    } else {
+      return nameWithoutExtension.substring(0, 50) + "...";
+    }
   };
 
   return (
@@ -41,13 +62,32 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                   handleRemoveFromQueue(song);
                 }}
               />
+              {/* <span
+                style={{
+                  color: `${
+                    Array.from(queue).at(queue.size - 1)?.name === song.name
+                      ? "red"
+                      : ""
+                  }`,
+                }}
+              >
+                {formattedSongName(song.name)}
+              </span> */}
 
-              {song.name.replace(/\.[^.]+$/, "")}
+              <span
+                style={{
+                  color: `${nowPlayingName === song.name ? "red" : ""}`,
+                }}
+              >
+                {formattedSongName(song.name)}
+              </span>
             </li>
           ))}
         </ul>
       ) : (
-        <>Queue is empty.</>
+        <div style={{ padding: "12px", textAlign: "center" }}>
+          Queue is empty.
+        </div>
       )}
     </div>
   );

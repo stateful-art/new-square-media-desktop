@@ -5,7 +5,6 @@ go 1.21
 toolchain go1.21.6
 
 require (
-	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/wailsapp/wails/v2 v2.8.0
 )

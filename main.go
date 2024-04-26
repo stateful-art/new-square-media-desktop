@@ -14,7 +14,6 @@ import (
 	Place "newnew.media/place"
 	Playlist "newnew.media/playlist"
 
-	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/menu"
 	"github.com/wailsapp/wails/v2/pkg/menu/keys"
@@ -32,18 +31,14 @@ var assets embed.FS
 //go:embed all:data
 var embeddedData embed.FS
 
-// //go:embed build/appicon.png
-// var icon []byte
+//go:embed build/appicon.png
+var icon []byte
 
 var db *sql.DB
 
 func init() {
 
-	if err := loadEnv(); err != nil {
-		log.Fatalf("Error loading environment variables: %v", err)
-	}
-
-	log.Println("N2MEDIA_API_URL: ", os.Getenv("N2MEDIA_API_URL"))
+	// log.Println("N2MEDIA_API_URL: ", os.Getenv("N2MEDIA_API_URL"))
 
 	homeDir, err := getDBPath()
 	dbPath := filepath.Join(homeDir, "data.db")
@@ -208,21 +203,4 @@ func getDBPath() (string, error) {
 		return dirPath, nil
 	}
 
-}
-
-func loadEnv() error {
-	environment := os.Getenv("ENV")
-	var envFile string
-	if environment == "dev" {
-		envFile = ".env.dev"
-	} else {
-		envFile = ".env"
-	}
-
-	// Load .env file based on the environment
-	err := godotenv.Load(envFile)
-	if err != nil {
-		return err
-	}
-	return nil
 }

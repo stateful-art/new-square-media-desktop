@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 )
 
 type Playlist struct {
@@ -26,7 +25,7 @@ func (p *Playlist) Startup(ctx context.Context) {
 
 func (p *Playlist) GetPlayListsOfPlace(owner string) []PlaylistDTO {
 	log.Print("@GetPlayListsOfPlace", owner)
-	requestURL := fmt.Sprintf("%s/playlists/owner/%s", os.Getenv("N2MEDIA_API_URL"), owner)
+	requestURL := fmt.Sprintf("https://xyz.newnew.media/playlists/owner/%s", owner)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {

@@ -5,6 +5,8 @@ import {
   faPause,
   faStepForward,
   faListDots,
+  faPlayCircle,
+  faPauseCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { GetSong } from "../../../wailsjs/go/multimedia/Library";
 import { SongLibrary } from "../MusicLibrary/MusicLibrary";
@@ -167,8 +169,7 @@ const Player: React.FC<PlayerProps> = ({
 
   useEffect(() => {
     setCurrentSongName(songName);
-    //TODO::// emit event to update app title. 
-
+    //TODO::// emit event to update app title.
   }, [songName]);
 
   useEffect(() => {
@@ -219,14 +220,6 @@ const Player: React.FC<PlayerProps> = ({
     return 0;
   };
 
-  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(event.target.value);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-      setVolume(newVolume);
-    }
-  };
-
   const handleProgressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = parseFloat(event.target.value);
     setCurrentTime(newTime);
@@ -235,9 +228,9 @@ const Player: React.FC<PlayerProps> = ({
     }
   };
 
-  const getSongNameStyle = (): string => {
-    return songName.length > 20 ? "scroll-text" : "";
-  };
+  // const getSongNameStyle = (): string => {
+  //   return songName.length > 20 ? "scroll-text" : "";
+  // };
 
   const playNextSong = () => {
     // Check if there are songs in the queue
@@ -262,22 +255,35 @@ const Player: React.FC<PlayerProps> = ({
     }
   };
 
+  const findSongIndexInQueue = (songName: string) => {
+    const songs = Array.from(queue);
+    const index = songs.findIndex((song) => song.name === songName);
+    return index;
+  };
+
   return (
     <div id="player">
       <div id="songName">{currentSongName.replace(/\.[^.]+$/, "")} </div>
 
       <FontAwesomeIcon
         className="playPauseButton"
-        icon={isPlaying ? faPause : faPlay}
+        icon={isPlaying ? faPauseCircle : faPlayCircle}
+        color="white"
         onClick={togglePlayPause}
-        size="2x"
+        size="3x"
       />
-
       <FontAwesomeIcon
         className="next-song-button"
         icon={faStepForward}
         size="2x"
-        onClick={playNextSong}
+        color={
+          findSongIndexInQueue(currentSongName) + 1 == queue.size ? "gray" : "white"
+        }
+        onClick={
+          findSongIndexInQueue(currentSongName) + 1 == queue.size
+            ? undefined
+            : playNextSong
+        }
       />
       <audio
         id="audioPlayer"

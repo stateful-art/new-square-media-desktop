@@ -3,6 +3,7 @@ export namespace multimedia {
 	export class Lib {
 	    name: string;
 	    path: string;
+	    path_changed: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Lib(source);
@@ -12,6 +13,7 @@ export namespace multimedia {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
 	        this.path = source["path"];
+	        this.path_changed = source["path_changed"];
 	    }
 	}
 	export class LibItem {

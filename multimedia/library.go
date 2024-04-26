@@ -32,8 +32,9 @@ type Library struct {
 }
 
 type Lib struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
+	Name        string `json:"name"`
+	Path        string `json:"path"`
+	PathChanged bool   `json:"path_changed"` //  indicates if the path has changed and needs to be restored
 }
 
 type LibItem struct {
@@ -146,17 +147,65 @@ func (a *Library) UpdateSearchIndex(library *LibItem) {
 }
 
 func (a *Library) CreateLibrary(library Lib) error {
-	if _, exists := Libraries[library.Name]; !exists {
-
-		Libraries[library.Name] = library
-		a.SaveLibraries()
-		// go a.UpdateSearchIndex(&LibItem{Name: library.Name, Path: library.Path, IsFolder: true})
-		return nil
-
-	} else {
-		return errors.New("lib with name already exist")
+	// Check if the library name already exists
+	if _, exists := Libraries[library.Name]; exists {
+		return errors.New("library with name already exists")
 	}
+
+	// Check if the folder is empty, hidden, or contains only images or videos
+	if isFolderEmptyOrHidden(library.Path) {
+		return errors.New("selected folder is empty, hidden, or contains only images or videos")
+	}
+
+	// Check if the folder or its subfolders contain music files
+	if !hasMusicFiles(library.Path) {
+		return errors.New("selected folder or its subfolders do not contain any music files")
+	}
+
+	// Create the library
+	Libraries[library.Name] = library
+	a.SaveLibraries()
+
+	return nil
 }
+
+// hasMusicFiles checks if a folder or its subfolders contain music files
+func hasMusicFiles(path string) bool {
+	// Check if the folder contains music files
+	if containsMusicFiles(path) {
+		return true
+	}
+
+	// Recursively check subfolders for music files
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return false // Return false if there's an error reading the directory
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			subFolderPath := filepath.Join(path, entry.Name())
+			if hasMusicFiles(subFolderPath) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// containsMusicFiles checks if a folder contains music files
+func containsMusicFiles(path string) bool {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return false // Return false if there's an error reading the directory
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() && isMusicFile(entry.Name()) {
+			return true
+		}
+	}
+	return false
+}
+
 func (a *Library) UpdateLibraryName(oldName, newName string) error {
 	// Check if the oldName exists in the Libraries map
 	if lib, exists := Libraries[oldName]; exists {
@@ -288,6 +337,8 @@ func (a *Library) ListLibraryContents(name string, path string) ([]LibItem, erro
 
 	// Use a channel to collect the items
 	itemsChan := make(chan LibItem)
+	// Use a channel to collect errors
+	errChan := make(chan error)
 	// Use a WaitGroup to wait for all goroutines to finish
 	var wg sync.WaitGroup
 
@@ -295,25 +346,57 @@ func (a *Library) ListLibraryContents(name string, path string) ([]LibItem, erro
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		readDirectory(path, itemsChan)
+		readDirectory(path, itemsChan, errChan)
 	}()
 
 	// Collect the items from the channel
 	var items []LibItem
-	for item := range itemsChan {
-		items = append(items, item)
+	var readErr error
+	for {
+		select {
+		case item, ok := <-itemsChan:
+			if !ok {
+				// Channel closed, all items received
+				goto done
+			}
+			items = append(items, item)
+		case readErr = <-errChan:
+			// Error received, stop receiving items
+			if readErr != nil {
+				a.setLibraryPathChanged(name, true)
+				goto done
+			}
+		}
 	}
-
+done:
 	// Wait for all goroutines to finish
 	wg.Wait()
+
+	// Check if there was an error while reading the directory
+	if readErr != nil {
+		return nil, readErr
+	}
 
 	return items, nil
 }
 
-func readDirectory(path string, itemsChan chan<- LibItem) {
+// Function to set the PathChanged field of a library
+func (a *Library) setLibraryPathChanged(name string, changed bool) {
+	// Find the library with the given name
+	lib, exists := Libraries[name]
+	if exists {
+		// Update the PathChanged field
+		lib.PathChanged = changed
+		// Update the library in the Libraries map
+		Libraries[name] = lib
+		a.SaveLibraries()
+	}
+}
+
+func readDirectory(path string, itemsChan chan<- LibItem, errChan chan<- error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
-		log.Printf("Error reading directory: %v", err)
+		errChan <- err
 		return
 	}
 	for _, file := range files {

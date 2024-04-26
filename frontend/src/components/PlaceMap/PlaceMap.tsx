@@ -3,7 +3,10 @@ import ReactMapGL, { ViewState, MapboxMap, Marker } from "react-map-gl";
 import "./PlaceMap.css";
 import { PlaceDTO } from "../MusicLibrary/MusicLibrary";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import {
+  faLocationArrow,
+  faLocationDot,
+} from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome CSS
 
 interface PlaceMapProps {
@@ -34,6 +37,13 @@ const PlaceMap: React.FC<PlaceMapProps> = ({
   const [isMarkerVisible, setIsMarkerVisible] = useState<boolean>(false);
   const [map, setMap] = useState<MapboxMap>();
   // const [mapSize, setMapSize] = useState({ width: 0, height: 0 });
+
+  const isNavigatedPlace = (place: PlaceDTO) => {
+    return (
+      place.location.coordinates[0] === latitude &&
+      place.location.coordinates[1] === longitude
+    );
+  };
 
   const handleViewportChange = (newViewport: ViewState) => {
     setViewport(newViewport);
@@ -104,7 +114,11 @@ const PlaceMap: React.FC<PlaceMapProps> = ({
                   : [0, 0]
               }
             >
-              <FontAwesomeIcon icon={faLocationDot} size="xl" color="#f21d1d" />
+              <FontAwesomeIcon
+                icon={faLocationArrow}
+                size="2xl"
+                color="#f21d1d"
+              />
             </Marker>
           ) : (
             nearbies.map((place, index) => (
@@ -122,17 +136,15 @@ const PlaceMap: React.FC<PlaceMapProps> = ({
                 }
               >
                 <FontAwesomeIcon
-                  icon={faLocationDot}
-                  size="xl"
-                  color={
-                    place.location.coordinates[0] === latitude &&
-                    place.location.coordinates[1] === longitude ? "#f21d1d" : "#3254b9"
+                  icon={
+                    isNavigatedPlace(place) ? faLocationArrow : faLocationDot
                   }
+                  size={isNavigatedPlace(place) ? "2x" : "xl"}
+                  color={isNavigatedPlace(place) ? "#f21d1d" : "#3254b9"}
                 />
               </Marker>
             ))
           ))}
-     
       </ReactMapGL>
     </div>
   );

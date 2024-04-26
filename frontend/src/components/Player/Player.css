@@ -6,12 +6,13 @@
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%;
+  width: 96%;
   height: 80px;
-  background-color: #9b498c;
+  background-color: #000000;
 }
 
 #songName {
+  font-size: 1.1rem;
   width: 20%; /* Adjust width as needed */
   overflow: hidden;
   white-space: nowrap;
@@ -80,9 +81,12 @@
   width: 120px; /* Ensures the input covers the entire width */
   height: 20px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
-  background-color: #ddd; /* Background color of the volume control */
+  /* background-color: #ddd; */
+  background-color: #FDFF61;
   border-radius: 5px; /* Border radius for rounded corners */
   position: relative;
+  cursor: pointer;
+
 }
 
 .volume-control::-webkit-slider-thumb {
@@ -101,9 +105,12 @@
   width: 40%; /* Ensures the input covers the entire width */
   height: 20px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
-  background-color: #ddd; /* Background color of the volume control */
+  background-color: #ddd; 
+  background-color: #FDFF61;
   border-radius: 5px; /* Border radius for rounded corners */
   position: relative;
+  cursor: pointer;
+
 }
 
 .progress-control::-webkit-slider-thumb {
@@ -117,15 +124,19 @@
 }
 
 .playPauseButton {
-  width: 30px;
-  height: 30px;
-  color: rgb(42, 36, 36);
+  width: 42px;
+  height: 42px;
+  /* color: rgb(211, 243, 7); */
   cursor: pointer;
 }
 
 .next-song-button {
-  width: 30px;
-  height: 30px;
-  color: rgb(42, 36, 36);
+  width: 42px;
+  height: 42px;
+  /* color: rgb(211, 243, 7); */
+  cursor: pointer;
+}
+
+.toggle-queue-btn {
   cursor: pointer;
 }

@@ -40,6 +40,7 @@ export type SongLibrary = {
   name: string;
   path: string;
   isFolder?: boolean;
+  path_changed?:boolean;
 };
 
 export type Location = {
@@ -124,6 +125,9 @@ const MusicLibrary: React.FC = () => {
   const [placeSummary, setPlaceSummary] = useState<PlaceSummary>();
 
   const [isInputFieldFocused, setIsInputFieldFocused] = useState(false);
+  const [isLibPathChanged, setIsLibPathChanged] = useState(false);
+
+  
 
   const handleInputFieldFocus = () => {
     setIsInputFieldFocused(true);
@@ -156,13 +160,20 @@ const MusicLibrary: React.FC = () => {
         CreateLibrary({
           name: newLibName,
           path: folderPath,
+          path_changed: false,
         }).then(() => {
-          ListLibraries().then((libraries) => {
-            setLibraries(libraries);
-            setSelectedLibrary(newLibName);
-            setIsInputVisible(false);
-            setNewLibName("");
-          });
+          ListLibraries()
+            .then((libraries) => {
+              setLibraries(libraries);
+              setSelectedLibrary(newLibName);
+              setNewLibName("");
+              setIsInputVisible(false);
+            })
+            .then(() => {
+              ListLibraryContents(newLibName, folderPath).catch(err =>
+                console.log(err)
+              );
+            });
         });
       }
     } catch (error) {
@@ -229,6 +240,8 @@ const MusicLibrary: React.FC = () => {
   const handleSongClick = (item: SongLibrary) => {
     setSelectedSong(item.name);
     setSelectedFilePath(item.path);
+    handlePrependToQueue(item);
+    
   };
 
   const handleRemoveLibrary = (libName: string) => {
@@ -250,6 +263,20 @@ const MusicLibrary: React.FC = () => {
       return newQueue;
     });
   };
+
+ 
+   const handlePrependToQueue = (item: SongLibrary) => {
+    setQueue((prevQueue) => {
+       // Convert the Set to an array
+       const queueArray = Array.from(prevQueue);
+       // Add the new item to the beginning of the array
+       queueArray.unshift(item);
+       // Convert the array back to a Set
+       const newQueue = new Set(queueArray);
+       return newQueue;
+    });
+   };
+   
 
   const handleRemoveFromQueue = (item: SongLibrary) => {
     setQueue((prevQueue) => {
@@ -445,7 +472,7 @@ const MusicLibrary: React.FC = () => {
       <div id="rightPanel">
         {isLibraryView ? (
           <>
-            {selectedLibrary !== "" ? (
+            {selectedLibrary !== "" || isLibPathChanged ? (
               <div id="rp-topnav">
                 {isLibNameUpdateInputVisible ? (
                   <div className="update-library-input-container">
@@ -571,6 +598,10 @@ const MusicLibrary: React.FC = () => {
                       : selectedSong === item.name
                       ? "red"
                       : "transparent",
+                      fontStyle:
+                       selectedSong === item.name
+                      ? "italic"
+                      : "normal",
                   }}
                   onClick={() =>
                     item.isFolder
@@ -655,6 +686,7 @@ const MusicLibrary: React.FC = () => {
       </div>
 
       <QueuePanel
+      songName={selectedSong}
         queue={queue}
         handleRemoveFromQueue={handleRemoveFromQueue}
         isOpen={isQueuePanelOpen} // Pass the state to the QueuePanel component

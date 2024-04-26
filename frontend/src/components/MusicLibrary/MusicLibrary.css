@@ -20,7 +20,7 @@ body {
   background-color: white;
 
   margin: 0;
-  overflow: hidden;
+  overflow-y: scroll;
 }
 
 #leftPanel ul {
@@ -28,7 +28,7 @@ body {
   list-style: none;
   padding-left: 0;
   text-align: start;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 
 #leftPanel li {
@@ -58,7 +58,9 @@ body {
   float: right;
   height: 90vh; /* Adjust this if needed */
   overflow: auto;
-  background-color: #0b0b0b;
+  /* background-color: #0b0b0b; */
+  background-color: #000000;
+
   display: flex; /* Use flexbox to control layout */
   flex-direction: column; /* Stack children vertically */
 }
@@ -70,21 +72,19 @@ body {
 }
 
 #fileList {
-  font-size: 1rem;
+  font-size: 1.2rem;
   list-style: none; /* Remove bullet points */
   margin-top: 10px; /* Add some space between the navbar and the file list */
 }
 
 
 #rightPanel li {
-  margin-top: 2px;
+  margin-top: 4px;
   cursor: pointer; /* Add cursor pointer */
-  padding: 10px;
+  padding: 6px 20px;
   transition: background-color 0.1s;
-  color: white;
+  color: rgb(234, 226, 226);
   font-family: "Chakra Petch", sans-serif;
-  font-style: normal;
-  font-weight: 400;
   overflow-y: scroll;
   display: flex; /* Use flexbox to control layout */
   justify-content: space-between; /* Align items at the start and end of the row */
@@ -101,7 +101,7 @@ body {
 }
 
 #fileList li:hover {
-  background-color: rgb(243, 140, 44) !important;
+  background-color: rgb(161, 84, 234) !important;
 }
 
 .song-selected {
@@ -262,6 +262,7 @@ input[type="text"] {
 .update-library-btn {
   transform: rotate(90deg);
   margin-left: 16px;
+  cursor: pointer;
 }
 @keyframes blink {
   0% {
@@ -422,8 +423,7 @@ height: 100px;
   background-color: transparent;
   border: none;
   cursor: pointer;
-  padding: 16px 20px;
-  font-size: 12px;
+  padding: 20px 20px;
   color: #333; /* Button text color */
   width: 50%;
 }
