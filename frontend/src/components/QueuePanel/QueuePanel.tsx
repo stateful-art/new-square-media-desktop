@@ -25,10 +25,7 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
   isOpen,
 }) => {
   const [nowPlayingName, setNowPlayingName] = useState("");
-  const [nowPlayingPath, setNowPlayingPath] = useState("");
   const [draggedItem, setDraggedItem] = useState<SongLibrary | null>(null);
-  const [dragStarted, setDragStarted] = useState(false);
-  const [dragEnded, setDragEnded] = useState(false);
   useEffect(() => {
     setNowPlayingName(songName);
   }, [songName]);
@@ -42,55 +39,21 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
     setSelectedFilePath(song.path);
 
     setNowPlayingName(song.name);
-    setNowPlayingPath(song.path);
   };
 
   const handleDragStart = (
     e: React.DragEvent<HTMLLIElement>,
     song: SongLibrary
   ) => {
-    setDragStarted(true);
-    setDraggedItem(song);
     e.dataTransfer.effectAllowed = "move";
+    setDraggedItem(song);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLLIElement>) => {
     e.preventDefault();
-    setDragEnded(false);
+
     e.dataTransfer.dropEffect = "move";
   };
-
-  //  const handleDrop = (e: React.DragEvent<HTMLLIElement>, song: SongLibrary) => {
-  //     e.preventDefault();
-  //     if (draggedItem && draggedItem !== song) {
-  //       // Logic to reorder the queue goes here
-  //       // This is a placeholder for the actual reordering logic
-  //       console.log(`Moved ${draggedItem.name} to position of ${song.name}`);
-  //       setDraggedItem(null); // Reset dragged item
-  //     }
-  //  };
-
-  // const handleDrop = (e: React.DragEvent<HTMLLIElement>, song: SongLibrary) => {
-  //   e.preventDefault();
-  //   if (draggedItem && draggedItem !== song) {
-  //      // Convert the Set to an array
-  //      const queueArray = Array.from(queue);
-
-  //      // Find the current and target positions
-  //      const draggedIndex = queueArray.findIndex(item => item === draggedItem);
-  //      const targetIndex = queueArray.findIndex(item => item === song);
-
-  //      // Reorder the array
-  //      const newQueue = [...queueArray];
-  //      newQueue.splice(draggedIndex, 1); // Remove the dragged item
-  //      newQueue.splice(targetIndex, 0, draggedItem); // Insert the dragged item at the target position
-
-  //      // Update the queue in the parent component
-  //     updateQueue(newQueue)
-
-  //      setDraggedItem(null); // Reset dragged item
-  //   }
-  //  };
 
   const handleDrop = (e: React.DragEvent<HTMLLIElement>, song: SongLibrary) => {
     e.preventDefault();
@@ -136,7 +99,7 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
           {Array.from(queue).map((song) => (
             <li
               key={song.name}
-              style={{ paddingTop: `${dragStarted ? "12px" : ""}` }}
+              // style={{ padding: `${isDragging ? "8px" : ""}` }}
               draggable
               onDragStart={(e) => handleDragStart(e, song)}
               onDragOver={handleDragOver}
