@@ -686,6 +686,7 @@ const MusicLibrary: React.FC = () => {
       </div>
 
       <QueuePanel
+      setQueue={setQueue}
       songName={selectedSong}
         queue={queue}
         handleRemoveFromQueue={handleRemoveFromQueue}

@@ -7,6 +7,7 @@ import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 interface QueuePanelProps {
   queue: Set<SongLibrary>;
   songName: string;
+  setQueue: React.Dispatch<React.SetStateAction<Set<SongLibrary>>>;
   // handleRemoveFromQueue: React.Dispatch<React.SetStateAction<SongLibrary>>;
   handleRemoveFromQueue: (item: SongLibrary) => void; // Function that takes a SongLibrary item and returns void
   setSelectedSongName: React.Dispatch<React.SetStateAction<string>>;
@@ -17,6 +18,7 @@ interface QueuePanelProps {
 const QueuePanel: React.FC<QueuePanelProps> = ({
   queue,
   songName,
+  setQueue,
   handleRemoveFromQueue,
   setSelectedSongName,
   setSelectedFilePath,
@@ -24,6 +26,16 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
 }) => {
   const [nowPlayingName, setNowPlayingName] = useState("");
   const [nowPlayingPath, setNowPlayingPath] = useState("");
+  const [draggedItem, setDraggedItem] = useState<SongLibrary | null>(null);
+  const [dragStarted, setDragStarted] = useState(false);
+  const [dragEnded, setDragEnded] = useState(false);
+  useEffect(() => {
+    setNowPlayingName(songName);
+  }, [songName]);
+
+  const updateQueue = (newQueue: Set<SongLibrary>) => {
+    setQueue(newQueue);
+  };
 
   const playSong = (song: SongLibrary) => {
     setSelectedSongName(song.name);
@@ -33,9 +45,79 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
     setNowPlayingPath(song.path);
   };
 
-  useEffect(() => {
-setNowPlayingName(songName)
-  }, [songName])
+  const handleDragStart = (
+    e: React.DragEvent<HTMLLIElement>,
+    song: SongLibrary
+  ) => {
+    setDragStarted(true);
+    setDraggedItem(song);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLIElement>) => {
+    e.preventDefault();
+    setDragEnded(false);
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  //  const handleDrop = (e: React.DragEvent<HTMLLIElement>, song: SongLibrary) => {
+  //     e.preventDefault();
+  //     if (draggedItem && draggedItem !== song) {
+  //       // Logic to reorder the queue goes here
+  //       // This is a placeholder for the actual reordering logic
+  //       console.log(`Moved ${draggedItem.name} to position of ${song.name}`);
+  //       setDraggedItem(null); // Reset dragged item
+  //     }
+  //  };
+
+  // const handleDrop = (e: React.DragEvent<HTMLLIElement>, song: SongLibrary) => {
+  //   e.preventDefault();
+  //   if (draggedItem && draggedItem !== song) {
+  //      // Convert the Set to an array
+  //      const queueArray = Array.from(queue);
+
+  //      // Find the current and target positions
+  //      const draggedIndex = queueArray.findIndex(item => item === draggedItem);
+  //      const targetIndex = queueArray.findIndex(item => item === song);
+
+  //      // Reorder the array
+  //      const newQueue = [...queueArray];
+  //      newQueue.splice(draggedIndex, 1); // Remove the dragged item
+  //      newQueue.splice(targetIndex, 0, draggedItem); // Insert the dragged item at the target position
+
+  //      // Update the queue in the parent component
+  //     updateQueue(newQueue)
+
+  //      setDraggedItem(null); // Reset dragged item
+  //   }
+  //  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLIElement>, song: SongLibrary) => {
+    e.preventDefault();
+    e.stopPropagation(); // Stop event propagation
+
+    if (draggedItem && draggedItem !== song) {
+      // Convert the Set to an array
+      const queueArray = Array.from(queue);
+
+      // Find the current and target positions
+      const draggedIndex = queueArray.findIndex((item) => item === draggedItem);
+      const targetIndex = queueArray.findIndex((item) => item === song);
+
+      // Reorder the array
+      const newQueue = [...queueArray];
+      newQueue.splice(draggedIndex, 1); // Remove the dragged item
+      newQueue.splice(targetIndex, 0, draggedItem); // Insert the dragged item at the target position
+
+      // Convert the array back to a Set
+      const newQueueSet = new Set(newQueue);
+
+      // Update the queue in the parent component
+      updateQueue(newQueueSet);
+
+      setDraggedItem(null); // Reset dragged item
+    }
+  };
 
   // Remove file extension and limit to first 50 characters
   const formattedSongName = (songName: string) => {
@@ -52,7 +134,15 @@ setNowPlayingName(songName)
       {queue.size > 0 ? (
         <ul>
           {Array.from(queue).map((song) => (
-            <li key={song.name} onClick={() => playSong(song)}>
+            <li
+              key={song.name}
+              style={{ paddingTop: `${dragStarted ? "12px" : ""}` }}
+              draggable
+              onDragStart={(e) => handleDragStart(e, song)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, song)}
+              onClick={() => playSong(song)}
+            >
               <FontAwesomeIcon
                 className={"remove-queue-btn"}
                 icon={faMinus}
@@ -62,17 +152,6 @@ setNowPlayingName(songName)
                   handleRemoveFromQueue(song);
                 }}
               />
-              {/* <span
-                style={{
-                  color: `${
-                    Array.from(queue).at(queue.size - 1)?.name === song.name
-                      ? "red"
-                      : ""
-                  }`,
-                }}
-              >
-                {formattedSongName(song.name)}
-              </span> */}
 
               <span
                 style={{
