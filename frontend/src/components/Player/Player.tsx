@@ -277,7 +277,9 @@ const Player: React.FC<PlayerProps> = ({
         icon={faStepForward}
         size="2x"
         color={
-          findSongIndexInQueue(currentSongName) + 1 == queue.size ? "gray" : "white"
+          findSongIndexInQueue(currentSongName) + 1 == queue.size
+            ? "gray"
+            : "white"
         }
         onClick={
           findSongIndexInQueue(currentSongName) + 1 == queue.size
@@ -292,24 +294,28 @@ const Player: React.FC<PlayerProps> = ({
         onTimeUpdate={updateCurrentTime}
       ></audio>
 
-      {!Number.isNaN(getDuration()) && (
-        <>
-          {!Number.isNaN(getDuration()) && Math.floor(currentTime / 60)}:
-          {Math.floor(currentTime % 60)}
-          <input
-            type="range"
-            id="progress-control"
-            className="progress-control"
-            min="0"
-            max={getDuration()}
-            step="1"
-            value={currentTime}
-            onChange={handleProgressChange}
-          />
-          {!Number.isNaN(getDuration()) && Math.floor(getDuration() / 60)}:
-          {Math.floor(getDuration() % 60)}
-        </>
-      )}
+      <>
+        {!Number.isNaN(currentTime) && !Number.isNaN(getDuration()) && (
+          <>
+            {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)}
+          </>
+        )}
+        <input
+          type="range"
+          id="progress-control"
+          className="progress-control"
+          min="0"
+          max={audioRef.current?.duration}
+          step="1"
+          value={currentTime}
+          onChange={handleProgressChange}
+        />
+        {!Number.isNaN(getDuration()) && (
+          <>
+            {Math.floor(getDuration() / 60)}:{Math.floor(getDuration() % 60)}
+          </>
+        )}
+      </>
 
       <input
         type="range"
