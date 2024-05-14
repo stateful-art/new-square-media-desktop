@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlay,
-  faPause,
   faStepForward,
   faListDots,
   faPlayCircle,
@@ -35,7 +33,6 @@ const Player: React.FC<PlayerProps> = ({
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [volume, setVolume] = useState<number>();
   const [isSongEnded, setIsSongEnded] = useState(false);
   const [currentSongName, setCurrentSongName] = useState("");
   const [nextSongIndex, setNextSongIndex] = useState(0);
@@ -43,9 +40,15 @@ const Player: React.FC<PlayerProps> = ({
   const [value, setValue] = useState<number>(0.5); // Initial slider value
   const [thumbPosition, setThumbPosition] = useState<number>(0); // Initial thumb position
   const [progressThumbPosition, setProgressThumbPosition] = useState<number>(0); // Initial thumb position
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0); // Initialize with -1
 
   useEffect(() => {
-    console.log("value changed >>>", value);
+    // Find the index of the currently playing song in the queue
+    const index = Array.from(queue).findIndex((song) => song.name === songName);
+    setCurrentSongIndex(index);
+  }, [songName, queue]); // Update when songName or queue changes
+
+  useEffect(() => {
     updateThumbPosition();
   }, [value]);
 
@@ -109,22 +112,17 @@ const Player: React.FC<PlayerProps> = ({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isPlaying, isInputFieldFocused]); // Include isInputFieldFocused in the dependency array
-
   useEffect(() => {
     // Check if the queue is empty and if the current song has ended
     if (queue.size > 0 && isSongEnded) {
       // Get the first song in the queue
       const nextSong = Array.from(queue)[nextSongIndex];
+
+      // Find the index of the next song in the queue
+      // const currentSong = Array.from(queue).findIndex(song => song.name === nextSong.name);
+
       // Check if the next song is different from the currently playing song
-      // if (nextSong.name !== songName) {
-      if (nextSongIndex + 1 < queue.size) {
-        console.log("nextSongIndex", nextSongIndex);
-        console.log("queue.size", queue.size);
-        console.log("nextSongIndex + 1 < queue.size");
-        setNextSongIndex(nextSongIndex + 1);
-      } else {
-        audioRef.current?.pause();
-      }
+      setNextSongIndex(currentSongIndex + 1);
 
       GetSong(nextSong.path)
         .then((base64String) => {
@@ -132,19 +130,12 @@ const Player: React.FC<PlayerProps> = ({
           audioRef.current?.play();
           setSelectedSongName(nextSong.name);
           setIsPlaying(true);
-
-          console.log("checking if nextSongIndex + 1 < queue.size");
-
           setCurrentSongName(nextSong.name);
           setIsSongEnded(false);
         })
         .catch((error) => console.error("Error fetching audio:", error));
-      // } else {
-      //   // If the next song is the same as the currently playing song, do nothing
-      //   setIsSongEnded(true); // Reset the song ended state
-      // }
     }
-  }, [isSongEnded, songName]); // Dependency on queue, isSongEnded, and songName
+  }, [isSongEnded, queue]); // Dependency on isSongEnded and queue
 
   useEffect(() => {
     const audioPlayer = audioRef.current;
@@ -160,12 +151,6 @@ const Player: React.FC<PlayerProps> = ({
   const handleSongEnded = () => {
     setIsSongEnded(true);
   };
-
-  useEffect(() => {
-    // Check if the queue is empty and if the player is not playing
-    if (queue.size == 0) {
-    }
-  }, [queue]); // Dependency on queue and isPlaying
 
   useEffect(() => {
     setCurrentSongName(songName);
@@ -228,9 +213,7 @@ const Player: React.FC<PlayerProps> = ({
     }
   };
 
-  // const getSongNameStyle = (): string => {
-  //   return songName.length > 20 ? "scroll-text" : "";
-  // };
+  const scroll = songName.length > 20 ? "scroll-text" : "";
 
   const playNextSong = () => {
     // Check if there are songs in the queue
@@ -263,7 +246,7 @@ const Player: React.FC<PlayerProps> = ({
 
   return (
     <div id="player">
-      <div id="songName">{currentSongName.replace(/\.[^.]+$/, "")} </div>
+      <div id="songName" className={scroll}>{currentSongName.replace(/\.[^.]+$/, "")} </div>
 
       <FontAwesomeIcon
         className="playPauseButton"
@@ -272,6 +255,7 @@ const Player: React.FC<PlayerProps> = ({
         onClick={togglePlayPause}
         size="3x"
       />
+
       <FontAwesomeIcon
         className="next-song-button"
         icon={faStepForward}
@@ -287,6 +271,7 @@ const Player: React.FC<PlayerProps> = ({
             : playNextSong
         }
       />
+
       <audio
         id="audioPlayer"
         ref={audioRef}

@@ -26,6 +26,13 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
 }) => {
   const [nowPlayingName, setNowPlayingName] = useState("");
   const [draggedItem, setDraggedItem] = useState<SongLibrary | null>(null);
+ 
+  useEffect(() => {
+    console.log("@QueuePanel >> ", queue);
+    
+  }, [queue]);
+
+ 
   useEffect(() => {
     setNowPlayingName(songName);
   }, [songName]);
@@ -75,6 +82,8 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
       // Convert the array back to a Set
       const newQueueSet = new Set(newQueue);
 
+      console.log("updating @ Queue");
+      
       // Update the queue in the parent component
       updateQueue(newQueueSet);
 
@@ -85,10 +94,10 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
   // Remove file extension and limit to first 50 characters
   const formattedSongName = (songName: string) => {
     let nameWithoutExtension = songName.replace(/\.[^.]+$/, "");
-    if (nameWithoutExtension.length < 50) {
+    if (nameWithoutExtension.length < 40) {
       return nameWithoutExtension;
     } else {
-      return nameWithoutExtension.substring(0, 50) + "...";
+      return nameWithoutExtension.substring(0, 40) + "...";
     }
   };
 

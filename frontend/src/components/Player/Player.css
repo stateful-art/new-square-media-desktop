@@ -2,51 +2,47 @@
   display: flex;
   align-items: center; /* Centers items vertically */
   justify-content: space-around; /* Spreads out the items */
-  padding: 0 20px; /* Add padding on the sides */
+  padding: 0px 0px; /* Add padding on the sides */
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 96%;
+  width: 100%;
   height: 80px;
-  background-color: #000000;
-}
+  /* background-color: #000000; */
+  background-color: #212120;
 
-#songName {
-  font-size: 1.1rem;
-  width: 20%; /* Adjust width as needed */
-  overflow: hidden;
-  white-space: nowrap;
-  color: white;
-  font-family: "Chakra Petch", sans-serif;
-  font-style: normal;
-  font-weight: 400;
 }
 
 #songName p:hover {
   animation-play-state: paused;
 }
-
 .scroll-text {
-  animation: scrollLeft 16s linear infinite;
-  display: inline-block;
+  animation: scrollLeft 30s linear infinite; /* Increased duration */
   white-space: nowrap;
-}
-
-@keyframes scrollLeft {
+ }
+ 
+ @keyframes scrollLeft {
   from {
-    transform: translateX(100%);
+     transform: translateX(50%); /* Adjusted starting position */
   }
   to {
-    transform: translateX(-100%);
+     transform: translateX(-100%);
   }
-}
+ }
+ 
+ #songName {
+  font-size: 1.1rem;
+  width: 30%; /* Increased width */
+  overflow: hidden;
+  white-space: nowrap;
+  color: white;
+  font-family: "Source Code Pro", sans-serif;
+  letter-spacing: 2px;
+  font-style: normal;
+  font-weight: 400;
+ }
+ 
 
-#audioPlayer {
-  /* Remove flex-grow and explicitly control the width if necessary */
-  width: 64%; /* Example width, adjust as needed */
-  order: 2; /* Ensures the audio player is positioned as the second item */
-  margin-right: 36%;
-}
 
 .audioControls {
   display: flex;
@@ -54,16 +50,7 @@
   /* margin-right: 20px; Adjust margin for spacing */
 }
 
-.volume-control {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 200px; /* Ensures the input covers the entire width */
-  height: 20px; /* Adjust height as needed */
-  margin-top: 5px; /* Adjust margin as needed */
-  background-color: #ddd; /* Background color of the volume control */
-  border-radius: 5px; /* Border radius for rounded corners */
-  position: relative;
-}
+
 
 .volume-control::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -78,35 +65,33 @@
 .volume-control {
   -webkit-appearance: none;
   appearance: none;
-  width: 120px; /* Ensures the input covers the entire width */
+  width: 80px; /* Ensures the input covers the entire width */
   height: 20px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
   /* background-color: #ddd; */
-  background-color: #FDFF61;
-  border-radius: 5px; /* Border radius for rounded corners */
+  background-color: #bfc1c1;
   position: relative;
   cursor: pointer;
-
+transform: rotate(-90deg);
 }
 
 .volume-control::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 10px; /* Width of the slider thumb */
-  height: 20px; /* Height of the slider thumb */
-  background-color: #0e0e0f; /* Color of the thumb */
-  border-radius: 0; /* Remove border radius */
+  width: 16px; /* Width of the slider thumb */
+  height: 44px; /* Height of the slider thumb */
+  background-color: rgb(198, 15, 15); /* Color of the thumb */
   cursor: pointer;
+  border-radius: 6px;
 }
 
 .progress-control {
   -webkit-appearance: none;
   appearance: none;
-  width: 40%; /* Ensures the input covers the entire width */
+  width: 30%; /* Ensures the input covers the entire width */
   height: 20px; /* Adjust height as needed */
   margin-top: 5px; /* Adjust margin as needed */
-  background-color: #ddd; 
-  background-color: #FDFF61;
+  background-color: #bfc1c1;
   border-radius: 5px; /* Border radius for rounded corners */
   position: relative;
   cursor: pointer;
@@ -116,11 +101,13 @@
 .progress-control::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 10px; /* Width of the slider thumb */
-  height: 20px; /* Height of the slider thumb */
-  background-color: #0e0e0f; /* Color of the thumb */
-  border-radius: 0; /* Remove border radius */
+
+  width: 12px; /* Width of the slider thumb */
+  height: 40px; /* Height of the slider thumb */
+  background-color: black; /* Color of the thumb */
   cursor: pointer;
+  border-radius: 6px;
+
 }
 
 .playPauseButton {

@@ -14,7 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
-import "./MusicLibrary.css";
+// import "./PlaceLibrary.css";
 import {
   CreateLibrary,
   ListLibraries,
@@ -99,7 +99,7 @@ type PlaceSummary = {
   location: Location;
 };
 
-const MusicLibrary: React.FC = () => {
+const PlaceLibrary: React.FC = () => {
   const [folderPath, setFolderPath] = useState<string>("");
   const [newLibName, setNewLibName] = useState<string>("");
   const [libraries, setLibraries] = useState<SongLibrary[]>([]);
@@ -261,21 +261,15 @@ const MusicLibrary: React.FC = () => {
   };
 
   const handleAddToQueue = (item: SongLibrary) => {
-    console.log("@handleAddToQueue")
     setQueue((prevQueue) => {
       const newQueue = new Set(prevQueue);
       newQueue.add(item);
-      console.log("newQueueSize >>", newQueue.size)
-      if(prevQueue.size == 0) {
-        setIsQueuePanelOpen(true)
-      }
       return newQueue;
     });
   };
-  
-  
-  const handlePrependToQueue = (item: SongLibrary) => {
-     console.log("@handlePrependToQueue")
+
+ 
+   const handlePrependToQueue = (item: SongLibrary) => {
     setQueue((prevQueue) => {
        // Convert the Set to an array
        const queueArray = Array.from(prevQueue);
@@ -283,11 +277,6 @@ const MusicLibrary: React.FC = () => {
        queueArray.unshift(item);
        // Convert the array back to a Set
        const newQueue = new Set(queueArray);
-       console.log("newQueueSize >>", newQueue.size)
-
-       if(prevQueue.size == 0) {
-        setIsQueuePanelOpen(true)
-      }
        return newQueue;
     });
    };
@@ -394,7 +383,7 @@ const MusicLibrary: React.FC = () => {
 
   return (
     <>
-      <div id="leftPanel">
+      <div id="place-leftPanel">
         <div id="tabs">
           <button
             className={isLibraryView ? "active-tab" : ""}
@@ -406,7 +395,8 @@ const MusicLibrary: React.FC = () => {
             className={!isLibraryView ? "active-tab" : ""}
             onClick={togglePlacesView}
           >
-            <FontAwesomeIcon icon={faEarth} size="lg" />
+            {/* <FontAwesomeIcon icon={faEarth} size="lg" /> */}
+             <span>Offers</span>
           </button>
         </div>
 
@@ -653,8 +643,6 @@ const MusicLibrary: React.FC = () => {
                       )}
                     </>
                   )}
-
-                  
                 </li>
               ))}
             </>
@@ -726,4 +714,4 @@ const MusicLibrary: React.FC = () => {
   );
 };
 
-export default MusicLibrary;
+export default PlaceLibrary;
