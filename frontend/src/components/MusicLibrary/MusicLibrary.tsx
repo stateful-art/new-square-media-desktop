@@ -508,13 +508,13 @@ const MusicLibrary: React.FC = () => {
                   </div>
                 ) : (
                   <div className="pre-update-library-input-container">
-                    <span>{selectedLibrary}</span>
-                    <FontAwesomeIcon
+                    <span onClick={()=> {toggleLibNameUpdateInputVisibility()}}>{selectedLibrary}</span>
+                    {/* <FontAwesomeIcon
                       icon={faEdit}
                       className={"update-library-btn"}
                       size="lg"
                       onClick={() => toggleLibNameUpdateInputVisibility()}
-                    />
+                    /> */}
                   </div>
                 )}
 
