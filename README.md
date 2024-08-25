@@ -2,6 +2,10 @@
 
 New Square Media is a platform for discovering, streaming, and publishing music in a new way. It allows users to explore, share, and monetize music across a network of cafes, restaurants, and bars, transforming undiscovered venues into vibrant artistic hubs.
 
+
+[![Video Title](https://www.newsquare.media/_next/image?url=%2Fhero.png&w=1080&q=75)](https://www.youtube.com/watch?v=Lsy4TXD8xLU)
+
+
 ## Features
 
 - Publish on-air metadata in real-time or share curated playlists
